@@ -1,1 +1,1 @@
-# UPG-Chess
+# UPG-Chess-SP
