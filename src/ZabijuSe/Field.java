@@ -1,4 +1,4 @@
-package CleanBoard;
+package ZabijuSe;
 
 /**
  * Trida reprezentujici jedno konkretni pole sachovnice

@@ -1,4 +1,4 @@
-package CleanBoard;
+package ZabijuSe;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,20 +18,26 @@ public class Pawn extends JPanel {
 	private int column;
 	protected boolean isWhite;
 
+	public Field field;
+
 	private int posun = 0;
+
+	private boolean isFocused;
 
 	//======================================== Konstruktory ========================================
 	public Pawn(int sX, int sY, boolean isWhite) {
 		this.sX = sX;
 		this.sY = sY;
 		this.isWhite = isWhite;
+		this.isFocused = false;
 	}
 
 	//======================================== Funkce ========================================
 	@Override
 	public void paint(Graphics g) {
-		R = getRectSize()/2.0;
+
 		super.paint(g);
+		R = getRectSize()/2.0;
 		Graphics2D g2 = (Graphics2D)g;
 		g2.translate(sX + posun, sY);
 		drawPawn(g2);
@@ -103,6 +109,22 @@ public class Pawn extends JPanel {
 		return posun;
 	}
 
+	public int getsX() {
+		return sX;
+	}
+
+	public int getsY() {
+		return sY;
+	}
+
+	public Field getField() {
+		return field;
+	}
+
+	public boolean isFocused() {
+		return isFocused;
+	}
+
 	//======================================== Settery ========================================
 	/**
 	 * Setter pro barvu hvezdy
@@ -134,11 +156,11 @@ public class Pawn extends JPanel {
 		this.posun = posun;
 	}
 
-	public int getsX() {
-		return sX;
+	public void setField(Field field) {
+		this.field = field;
 	}
 
-	public int getsY() {
-		return sY;
+	public void setFocused(boolean focused) {
+		isFocused = focused;
 	}
 }

@@ -12,6 +12,10 @@ public class ChessPawn extends JPanel {
     private static final int WIDTH = 500;
     private static final int HEIGHT = 500;
     private static final int PAWN_SIZE = 60;
+    private static final int RADIUS = PAWN_SIZE / 2;
+    private static final int X_CENTER = WIDTH / 2;
+    private static final int Y_CENTER = HEIGHT / 2;
+    private static final int Y_OFFSET = 5;
 
     @Override
     public void paintComponent(Graphics g) {
@@ -21,36 +25,26 @@ public class ChessPawn extends JPanel {
         // Set rendering hints for antialiasing
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Create a Path2D shape for the pawn
-        Path2D pawnShape = new Path2D.Double();
-        int x = (WIDTH - PAWN_SIZE) / 2;
-        int y = (HEIGHT - PAWN_SIZE) / 2;
-        int topHeight = PAWN_SIZE / 4;
-        int bottomHeight = PAWN_SIZE - topHeight;
-        int midWidth = PAWN_SIZE / 2;
-        int sideWidth = (PAWN_SIZE - midWidth) / 2;
-        int bottomWidth = PAWN_SIZE - 2 * sideWidth;
-
-        // Draw the top half of the pawn
-        pawnShape.moveTo(x, y + topHeight);
-        pawnShape.lineTo(x + sideWidth, y);
-        pawnShape.lineTo(x + midWidth, y + topHeight);
-        pawnShape.lineTo(x + midWidth, y);
-        pawnShape.lineTo(x + midWidth + sideWidth, y);
-        pawnShape.lineTo(x + bottomWidth, y + topHeight);
-        pawnShape.lineTo(x + sideWidth, y + topHeight);
+        // Define the pawn shape using a Path2D object
+        Path2D.Double pawnShape = new Path2D.Double();
+        pawnShape.moveTo(X_CENTER, Y_CENTER + RADIUS);
+        pawnShape.lineTo(X_CENTER + RADIUS, Y_CENTER + RADIUS);
+        pawnShape.curveTo(X_CENTER + RADIUS * 0.5, Y_CENTER - RADIUS * 0.8, X_CENTER - RADIUS * 0.5, Y_CENTER - RADIUS * 0.8, X_CENTER - RADIUS, Y_CENTER + RADIUS);
         pawnShape.closePath();
 
-        // Draw the bottom half of the pawn
-        pawnShape.moveTo(x + sideWidth, y + topHeight);
-        pawnShape.lineTo(x + sideWidth, y + bottomHeight);
-        pawnShape.lineTo(x + bottomWidth, y + bottomHeight);
-        pawnShape.lineTo(x + bottomWidth, y + topHeight);
-        pawnShape.closePath();
-
-        // Fill the pawn shape with black color
-        g2d.setColor(Color.BLACK);
+        // Draw the pawn body as a filled shape
+        g2d.setColor(Color.WHITE);
         g2d.fill(pawnShape);
+
+        // Draw the pawn outline
+        g2d.setColor(Color.BLACK);
+        g2d.draw(pawnShape);
+
+        // Draw the pawn head as a circle
+        int headSize = PAWN_SIZE / 3;
+        int headX = X_CENTER - headSize / 2;
+        int headY = Y_CENTER - RADIUS;
+        g2d.fillOval(headX, headY, headSize, headSize);
     }
 
     public static void main(String[] args) {

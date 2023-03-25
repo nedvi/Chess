@@ -1,8 +1,9 @@
-package CleanBoard;
+package ZabijuSe;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
 
 public class ChessBoard extends JPanel {
 
@@ -25,7 +26,7 @@ public class ChessBoard extends JPanel {
     private double lastHeight = getHeight();
 
     private Rectangle[][] rectBoard = new Rectangle[8][8];
-    private Field[][] board = new Field[8][8];
+    private Field[][] fieldBoard = new Field[8][8];
 
     public Pawn[] pawns;
 
@@ -37,7 +38,7 @@ public class ChessBoard extends JPanel {
     public ChessBoard() {
         //this.setPreferredSize(new Dimension(800, 600));
         this.setMinimumSize(new Dimension(800, 600));
-        pawns = new Pawn[2];  // TODO pak upravit
+        pawns = new Pawn[8];  // TODO pak upravit
         for (int i = 0; i < pawns.length; i++) {
             pawns[i] = new Pawn(0, 0, false);
         }
@@ -52,13 +53,28 @@ public class ChessBoard extends JPanel {
     @Override
     public void paint(Graphics g) {
         super.paint(g);
+
         paintChessBoard(g);
         //pawn.paint(g);
-//        if(isFirstLoad) {
-//            firstLoad();
-//        }
-        pawns[1].setsX(300);
-        paintPawn(g);
+        if(isFirstLoad) {
+            firstLoad();
+            isFirstLoad=false;
+            for (int i = 0; i < pawns.length; i++) {
+                paintPawn(g, pawns[i]);
+            }
+        } else if (lastWidth != this.getWidth() || lastHeight != this.getHeight()) {
+            for (int i = 0; i < pawns.length; i++) {
+                updatePiecesLocations(pawns[i]);
+                paintPawn(g, pawns[i]);
+            }
+            lastWidth = this.getWidth();
+            lastHeight = this.getHeight();
+        } else {
+            for (int i = 0; i < pawns.length; i++) {
+                paintPawn(g, pawns[i]);
+            }
+        }
+
         //rook1.paint(g);
     }
 
@@ -68,7 +84,7 @@ public class ChessBoard extends JPanel {
      * @param g
      */
     public void paintChessBoard(Graphics g) {
-        setRectSize(Math.min(getWidth(), getHeight()) / 8);
+        rectSize = Math.min(this.getWidth(), this.getHeight()) / 8;
         Graphics2D g2 = (Graphics2D) g;
         g2.setStroke(new BasicStroke(2));
         int x;
@@ -82,7 +98,7 @@ public class ChessBoard extends JPanel {
                 Rectangle actualRectangle = new Rectangle(x, y, rectSize, rectSize);
                 rectBoard[row][column] = actualRectangle;
                 Field actualField = new Field(row, column);
-                board[row][column] = actualField;
+                fieldBoard[row][column] = actualField;
                 //System.out.println(actualField.toString());
                 if ((row % 2 == 0) == (column % 2 == 0))
                     g2.setColor(BLACK);
@@ -102,20 +118,14 @@ public class ChessBoard extends JPanel {
         }
     }
 
-    public void paintPawn(Graphics g) {
+    public void paintPawn(Graphics g, Pawn pawn) {
         Graphics2D g2 = (Graphics2D) g;
+        AffineTransform old = g2.getTransform();
+        pawn.setRectSize(getRectSize());
 
-        for (int i = 0; i < pawns.length; i++) {
-            pawns[i].setRectSize(getRectSize());
-            if (lastWidth != this.getWidth() || lastHeight != this.getHeight()) {
-                updatePiecesLocations(pawns[i]);
-                lastWidth = this.getWidth();
-                lastHeight = this.getHeight();
-            }
-            pawns[i].paint(g2);
-        }
-        rook1.setRectSize(getRectSize());
-        rook1.paint(g2);
+        pawn.paint(g2);
+        g2.setTransform(old);
+
     }
 
     public void updatePiecesLocations(Pawn pawn) {
@@ -155,6 +165,7 @@ public class ChessBoard extends JPanel {
             }
             focusedPawn.setPawnColor(Color.BLACK);
             updatePiecesLocations(focusedPawn);
+            focusedPawn.repaint();
         }
     }
 
@@ -168,16 +179,18 @@ public class ChessBoard extends JPanel {
         return null;
     }
     public void firstLoad() {
-        for (int i = 1; i < pawns.length; i++) {
+        for (int i = 0; i < pawns.length; i++) {
             Pawn actualPawn = pawns[i];
-            actualPawn.setRow(i);
+            actualPawn.setRow(1);
             actualPawn.setColumn(i);
+            actualPawn.setField(fieldBoard[1][i]);
             actualPawn.moveTo(
-                    board[actualPawn.getRow()][actualPawn.getColumn()].getX() + getRectSize() / 2,
-                    board[actualPawn.getRow()][actualPawn.getColumn()].getY() + getRectSize() / 2
+                    (int) (rectBoard[actualPawn.getRow()][actualPawn.getColumn()].getX() + this.getRectSize() / 2),
+                    (int) (rectBoard[actualPawn.getRow()][actualPawn.getColumn()].getY() + this.getRectSize() / 2)
             );
-            isFirstLoad = false;
+            //paintPawn(g, pawns[i]);
         }
+        isFirstLoad = false;
     }
 
 

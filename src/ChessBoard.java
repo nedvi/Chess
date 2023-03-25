@@ -176,12 +176,12 @@ public class ChessBoard extends JPanel {
     }
 
     public void mouseMoved(MouseEvent e, int x, int y) {
-        if (this.pawn.isStarHit(e.getX(), e.getY())) {
-            this.pawn.setStarColor(Color.BLACK);
+        if (this.pawn.isPawnHit(e.getX(), e.getY())) {
+            this.pawn.setPawnColor(Color.BLACK);
             this.pawn.moveTo(x, y);
             this.pawn.repaint();
         } else {
-            this.pawn.setStarColor(Color.ORANGE);
+            this.pawn.setPawnColor(Color.ORANGE);
             this.pawn.repaint();
         }
     }

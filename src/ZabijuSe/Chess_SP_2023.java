@@ -1,4 +1,4 @@
-package CleanBoard;
+package ZabijuSe;
 
 import javax.swing.*;
 import java.awt.*;
@@ -59,7 +59,6 @@ public class Chess_SP_2023 {
 						Pawn focusedPawn = chessBoard.getFocusedPiece(mouseX, mouseY);
 						if (focusedPawn != null) {
 							chessBoard.mouseReleased(e, focusedPawn);
-							focusedPawn.repaint();
 							chessBoard.repaint();
 						}
 					}
