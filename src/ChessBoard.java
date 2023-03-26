@@ -382,7 +382,6 @@ public class ChessBoard extends JPanel {
                 rectBoard[row][column] = actualRectangle;
                 Field actualField = new Field(null, row, column);
                 fieldBoard[row][column] = actualField;
-                //System.out.println(actualField.toString());
                 if ((row % 2 == 0) == (column % 2 == 0))
                     g2.setColor(WHITE);
                 else
@@ -448,7 +447,7 @@ public class ChessBoard extends JPanel {
             for (int column = 0; column < 8; column++) {
                 focusedRectangle = rectBoard[row][column];
                 if (focusedRectangle.contains(e.getX(), e.getY())) {
-                    System.out.print("Focused piece moved from field [row: " + focusedPiece.getField().getRow() + "; column: " + focusedPiece.getField().getColumn() + "]");
+                    //System.out.print("Focused piece moved from field [row: " + focusedPiece.getField().getRow() + "; column: " + focusedPiece.getField().getColumn() + "]");
                     focusedPiece.moveTo((int) focusedRectangle.getX() + getRectSize() / 2, (int) focusedRectangle.getY() + getRectSize() / 2);
                     focusedPiece.setRow(row);
                     focusedPiece.setColumn(column);
@@ -460,7 +459,7 @@ public class ChessBoard extends JPanel {
                         focusedPiece.getField().setPiece(focusedPiece);     // nastaveni figurky do noveho fieldu
 
                     }
-                    System.out.println(" to field [row: " + focusedPiece.getField().getRow() + "; column: " + focusedPiece.getField().getColumn() + "]");
+                    //System.out.println(" to field [row: " + focusedPiece.getField().getRow() + "; column: " + focusedPiece.getField().getColumn() + "]");
 
                 }
             }
