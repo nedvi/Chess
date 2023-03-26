@@ -15,7 +15,6 @@ public class ChessPawn extends JPanel {
     private static final int RADIUS = PAWN_SIZE / 2;
     private static final int X_CENTER = WIDTH / 2;
     private static final int Y_CENTER = HEIGHT / 2;
-    private static final int Y_OFFSET = 5;
 
     @Override
     public void paintComponent(Graphics g) {

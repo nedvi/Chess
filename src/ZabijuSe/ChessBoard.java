@@ -38,9 +38,12 @@ public class ChessBoard extends JPanel {
     public ChessBoard() {
         //this.setPreferredSize(new Dimension(800, 600));
         this.setMinimumSize(new Dimension(800, 600));
-        pawns = new Pawn[8];  // TODO pak upravit
-        for (int i = 0; i < pawns.length; i++) {
+        pawns = new Pawn[16];  // TODO pak upravit
+        for (int i = 0; i < 8; i++) {
             pawns[i] = new Pawn(0, 0, false);
+        }
+        for (int i = 8; i < pawns.length; i++) {
+            pawns[i] = new Pawn(0, 0, true);
         }
         rook1 = new Rook(100+getRectSize(), 100+getRectSize(), false);
     }
@@ -143,7 +146,11 @@ public class ChessBoard extends JPanel {
 
             focusedPawn.moveTo(e.getX(), e.getY());
         } else {
-            focusedPawn.setPawnColor(Color.BLACK);
+            if (focusedPawn.isWhite()) {
+                focusedPawn.setPawnColor(Pawn.PIECE_WHITE);
+            } else {
+                focusedPawn.setPawnColor(Pawn.PIECE_BLACK);
+            }
             //this.pawn.repaint();
         }
     }
@@ -163,7 +170,11 @@ public class ChessBoard extends JPanel {
                     System.out.println("Pesak2 pozice: x = " + pawns[1].getsX() + "y = " + pawns[1].getsY());
                 }
             }
-            focusedPawn.setPawnColor(Color.BLACK);
+            if (focusedPawn.isWhite()) {
+                focusedPawn.setPawnColor(Pawn.PIECE_WHITE);
+            } else {
+                focusedPawn.setPawnColor(Pawn.PIECE_BLACK);
+            }
             updatePiecesLocations(focusedPawn);
             focusedPawn.repaint();
         }
@@ -179,7 +190,7 @@ public class ChessBoard extends JPanel {
         return null;
     }
     public void firstLoad() {
-        for (int i = 0; i < pawns.length; i++) {
+        for (int i = 0; i < 8; i++) {
             Pawn actualPawn = pawns[i];
             actualPawn.setRow(1);
             actualPawn.setColumn(i);
@@ -188,7 +199,18 @@ public class ChessBoard extends JPanel {
                     (int) (rectBoard[actualPawn.getRow()][actualPawn.getColumn()].getX() + this.getRectSize() / 2),
                     (int) (rectBoard[actualPawn.getRow()][actualPawn.getColumn()].getY() + this.getRectSize() / 2)
             );
-            //paintPawn(g, pawns[i]);
+        }
+        int column = 0;
+        for (int i = 8; i < pawns.length; i++) {
+            Pawn actualPawn = pawns[i];
+            actualPawn.setRow(6);
+            actualPawn.setColumn(column);
+            actualPawn.setField(fieldBoard[6][column]);
+            actualPawn.moveTo(
+                    (int) (rectBoard[actualPawn.getRow()][actualPawn.getColumn()].getX() + this.getRectSize() / 2),
+                    (int) (rectBoard[actualPawn.getRow()][actualPawn.getColumn()].getY() + this.getRectSize() / 2)
+            );
+            column++;
         }
         isFirstLoad = false;
     }
