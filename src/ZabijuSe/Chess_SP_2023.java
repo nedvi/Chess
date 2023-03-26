@@ -24,10 +24,11 @@ public class Chess_SP_2023 {
 					int mouseY = e.getY();
 
 					if (chessBoard.contains(mouseX, mouseY)) {
-						Pawn focusedPawn = chessBoard.getFocusedPiece(mouseX, mouseY);
-						if (focusedPawn != null) {
-							chessBoard.mouseDragged(e, focusedPawn);
-							focusedPawn.repaint();
+						IPiece piece = chessBoard.getFocusedPiece(mouseX, mouseY);
+
+						if (piece != null) {
+							chessBoard.mouseDragged(e, piece);
+							//piece.repaint();
 							chessBoard.repaint();
 						}
 					}
@@ -56,9 +57,9 @@ public class Chess_SP_2023 {
 					int mouseY = e.getY();
 
 					if (chessBoard.contains(mouseX, mouseY)) {
-						Pawn focusedPawn = chessBoard.getFocusedPiece(mouseX, mouseY);
-						if (focusedPawn != null) {
-							chessBoard.mouseReleased(e, focusedPawn);
+						IPiece piece = chessBoard.getFocusedPiece(mouseX, mouseY);
+						if (piece != null) {
+							chessBoard.mouseReleased(e, piece);
 							chessBoard.repaint();
 						}
 					}

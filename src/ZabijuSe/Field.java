@@ -11,6 +11,8 @@ public class Field {
     /** souradnice Y pole */
     private int y;
 
+    private IPiece piece;
+
     private int row;
 
     private int column;
@@ -22,7 +24,7 @@ public class Field {
      * Konstruktor pole
      *
      */
-    public Field(int row, int column) {
+    public Field(IPiece piece, int row, int column) {
         this.row = row;
         this.column = column;
         isUsed = false;
@@ -44,12 +46,28 @@ public class Field {
         this.y = y;
     }
 
+    public int getRow() {
+        return row;
+    }
+
+    public void setRow(int row) {
+        this.row = row;
+    }
+
     public int getColumn() {
         return column;
     }
 
     public void setColumn(int column) {
         this.column = column;
+    }
+
+    public IPiece getPiece() {
+        return piece;
+    }
+
+    public void setPiece(IPiece piece) {
+        this.piece = piece;
     }
 
     public boolean isUsed() {

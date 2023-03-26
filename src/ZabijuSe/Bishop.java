@@ -4,9 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Path2D;
 
-public class Rook extends JPanel implements IPiece {
+public class Bishop extends JPanel implements IPiece {
     private double halfSize;
-    private Path2D rook;	// vez k vykresleni
+    private Path2D bishop;	// strelec k vykresleni
     private int sX;
     private int sY;
     public static final Color PIECE_WHITE = Color.WHITE;
@@ -28,7 +28,7 @@ public class Rook extends JPanel implements IPiece {
         this.isOut = isOut;
     }
     //======================================== Konstruktory ========================================
-    public Rook(int sX, int sY, boolean isWhite) {
+    public Bishop(int sX, int sY, boolean isWhite) {
         this.sX = sX;
         this.sY = sY;
         this.isWhite = isWhite;
@@ -57,54 +57,48 @@ public class Rook extends JPanel implements IPiece {
      */
     @Override
     public Path2D createPiece() {
-        rook = new Path2D.Double();
-        rook.moveTo(-halfSize, halfSize);	// levy dolni roh
-        rook.lineTo(halfSize, halfSize);	// pravy dolni roh
-        rook.lineTo(halfSize, halfSize - halfSize/3.0);	// pravy vrchol podstavy
-        rook.lineTo(halfSize/2.0, -halfSize/2.0); // pravy roh vrcholu "tela"
+        bishop = new Path2D.Double();
+        bishop.moveTo(-halfSize, halfSize);	// levy dolni roh
+        bishop.lineTo(halfSize, halfSize);	// pravy dolni roh
+        bishop.lineTo(halfSize, halfSize - halfSize/3.0);	// pravy vrchol podstavy pesaka
+        bishop.lineTo(halfSize/3.0, halfSize - halfSize/2.0); // zlom tela
+        bishop.lineTo(halfSize/5.0, 0); // 2. zlom tela
 
-        rook.lineTo(halfSize/1.5, -halfSize/1.5);
-        rook.lineTo(halfSize/1.5, -halfSize);
+        bishop.lineTo(halfSize/4.0, -halfSize/4.0); // pravy horni roh tela
+        bishop.lineTo(halfSize/2.5, -halfSize/3.0);
+        bishop.lineTo(halfSize/4, -halfSize/2.0);
 
-        rook.lineTo(halfSize/3.0, -halfSize);
-        rook.lineTo(halfSize/3.0, -halfSize/1.3);   // prava hradba dolu
-        rook.lineTo(halfSize/6.0, -halfSize/1.3);   // prava hradba doleva
-        rook.lineTo(halfSize/6.0, -halfSize);          // prostredni hradba nahoru
-        rook.lineTo(-halfSize/6.0, -halfSize);          // prostredni hradba doleva
-        rook.lineTo(-halfSize/6.0, -halfSize/1.3);   // prostredni hradba dolu
-        rook.lineTo(-halfSize/3.0, -halfSize/1.3);   // leva hradba dolni levy roh
-        rook.lineTo(-halfSize/3.0, -halfSize);          // leva hradba nahoru
+        bishop.lineTo(0, -halfSize); 		// spicka hlavy
 
+        bishop.lineTo(-halfSize/4, -halfSize/2.0);
+        bishop.lineTo(-halfSize/2.5, -halfSize/3.0);
+        bishop.lineTo(-halfSize/4.0, -halfSize/4.0); // levy horni roh tela
 
-        //pawn.lineTo(0, -halfSize); 		// spicka hlavy
+        bishop.lineTo(-halfSize/5.0, 0); // 2. zlom tela
+        bishop.lineTo(-halfSize/3.0, halfSize - halfSize/2.0);// zlom tela
+        bishop.lineTo(-halfSize, halfSize - halfSize/3.0);	// levy vrchol podstavy pesaka
+        bishop.lineTo(-halfSize, halfSize);
 
-        rook.lineTo(-halfSize/1.5, -halfSize);
-        rook.lineTo(-halfSize/1.5, -halfSize/1.5);
-        rook.lineTo(-halfSize/2.0, -halfSize/2.0); // levy roh vrcholu "tela"
+        bishop.closePath();
 
-        rook.lineTo(-halfSize, halfSize - halfSize/3.0);	// levy vrchol podstavy
-        rook.lineTo(-halfSize, halfSize);
-
-        rook.closePath();
-
-        return rook;
+        return bishop;
     }
 
     @Override
     public void paintPiece(Graphics2D g2) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(pieceColor);
-        if (this.rook == null){
-            this.rook = createPiece();
+        if (this.bishop == null){
+            this.bishop = createPiece();
         }
-        g2.fill(rook);
+        g2.fill(bishop);
 
         if (this.isWhite()) {
             g2.setColor(PIECE_BLACK);
         } else {
             g2.setColor(PIECE_WHITE);
         }
-        g2.draw(rook);
+        g2.draw(bishop);
     }
 
     /**
@@ -117,8 +111,8 @@ public class Rook extends JPanel implements IPiece {
     @Override
     public boolean isPieceHit(double x, double y) {
         //TODO: test, zda hvezda zasazena
-        return (this.rook != null &&
-                this.rook.contains(
+        return (this.bishop != null &&
+                this.bishop.contains(
                         x - this.sX, y - this.sY));
     }
 
@@ -165,7 +159,7 @@ public class Rook extends JPanel implements IPiece {
     @Override
     public void setRectSize(int rectSize) {
         this.rectSize = rectSize;
-        this.rook = createPiece();
+        this.bishop = createPiece();
         this.repaint();
     }
     public void setsX(int sX) {

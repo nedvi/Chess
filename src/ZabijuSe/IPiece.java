@@ -9,5 +9,15 @@ public interface IPiece {
     void paintPiece(Graphics2D g2);
     boolean isPieceHit(double x, double y);
     void moveTo(int x, int y);
-    public void setRectSize(int rectSize);
+    void setRectSize(int rectSize);
+    int getRow();
+    int getColumn();
+    void setPieceColor(Color pieceColor);
+    void setRow(int row);
+    void setColumn(int column);
+    boolean isWhite();
+    boolean isOut();
+    void setOut(boolean isOut);
+    Field getField();
+    void setField(Field field);
 }

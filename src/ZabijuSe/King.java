@@ -4,9 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Path2D;
 
-public class Rook extends JPanel implements IPiece {
+public class King extends JPanel implements IPiece {
     private double halfSize;
-    private Path2D rook;	// vez k vykresleni
+    private Path2D king;	// kral k vykresleni
     private int sX;
     private int sY;
     public static final Color PIECE_WHITE = Color.WHITE;
@@ -28,7 +28,7 @@ public class Rook extends JPanel implements IPiece {
         this.isOut = isOut;
     }
     //======================================== Konstruktory ========================================
-    public Rook(int sX, int sY, boolean isWhite) {
+    public King(int sX, int sY, boolean isWhite) {
         this.sX = sX;
         this.sY = sY;
         this.isWhite = isWhite;
@@ -57,54 +57,60 @@ public class Rook extends JPanel implements IPiece {
      */
     @Override
     public Path2D createPiece() {
-        rook = new Path2D.Double();
-        rook.moveTo(-halfSize, halfSize);	// levy dolni roh
-        rook.lineTo(halfSize, halfSize);	// pravy dolni roh
-        rook.lineTo(halfSize, halfSize - halfSize/3.0);	// pravy vrchol podstavy
-        rook.lineTo(halfSize/2.0, -halfSize/2.0); // pravy roh vrcholu "tela"
+        king = new Path2D.Double();
+        king.moveTo(-halfSize, halfSize);	// levy dolni roh
+        king.lineTo(halfSize, halfSize);	// pravy dolni roh
+        king.lineTo(halfSize, halfSize - halfSize/3.0);	// pravy vrchol podstavy pesaka
+        king.lineTo(halfSize/3.0, halfSize - halfSize/2.0); // zlom tela
 
-        rook.lineTo(halfSize/1.5, -halfSize/1.5);
-        rook.lineTo(halfSize/1.5, -halfSize);
+        king.lineTo(halfSize/4.0, -halfSize/10.0); // pravy horni roh tela
+        king.lineTo(halfSize/2.0, -halfSize/4.0);  // pravy horni roh hlavy
 
-        rook.lineTo(halfSize/3.0, -halfSize);
-        rook.lineTo(halfSize/3.0, -halfSize/1.3);   // prava hradba dolu
-        rook.lineTo(halfSize/6.0, -halfSize/1.3);   // prava hradba doleva
-        rook.lineTo(halfSize/6.0, -halfSize);          // prostredni hradba nahoru
-        rook.lineTo(-halfSize/6.0, -halfSize);          // prostredni hradba doleva
-        rook.lineTo(-halfSize/6.0, -halfSize/1.3);   // prostredni hradba dolu
-        rook.lineTo(-halfSize/3.0, -halfSize/1.3);   // leva hradba dolni levy roh
-        rook.lineTo(-halfSize/3.0, -halfSize);          // leva hradba nahoru
+        king.lineTo(halfSize/8.0, -halfSize/3.0); 		// prava spicka hlavy
 
+        king.lineTo(halfSize/8.0, -halfSize/1.8); // prava strana krize
+        king.lineTo(halfSize/3.0, -halfSize/1.8); // prava strana krize
+        king.lineTo(halfSize/3.0, -halfSize/1.25); // prava strana krize
+        king.lineTo(halfSize/8.0, -halfSize/1.25); // prava strana krize
 
-        //pawn.lineTo(0, -halfSize); 		// spicka hlavy
+        king.lineTo(halfSize/8.0, -halfSize); 		// prava spicka hlavy
+        //king.lineTo(0, -halfSize); 		// spicka hlavy
+        king.lineTo(-halfSize/8.0, -halfSize); 		// leva spicka hlavy
 
-        rook.lineTo(-halfSize/1.5, -halfSize);
-        rook.lineTo(-halfSize/1.5, -halfSize/1.5);
-        rook.lineTo(-halfSize/2.0, -halfSize/2.0); // levy roh vrcholu "tela"
+        king.lineTo(-halfSize/8.0, -halfSize/1.25); // leva strana krize
+        king.lineTo(-halfSize/3.0, -halfSize/1.25); // leva strana krize
+        king.lineTo(-halfSize/3.0, -halfSize/1.8); // leva strana krize
+        king.lineTo(-halfSize/8.0, -halfSize/1.8); // leva strana krize
 
-        rook.lineTo(-halfSize, halfSize - halfSize/3.0);	// levy vrchol podstavy
-        rook.lineTo(-halfSize, halfSize);
+        king.lineTo(-halfSize/8.0, -halfSize/3.0); 		// leva spicka hlavy
 
-        rook.closePath();
+        king.lineTo(-halfSize/2.0, -halfSize/4.0); // levy horni roh hlavy
+        king.lineTo(-halfSize/4.0, -halfSize/10.0); // levy horni roh tela
+        //queen.lineTo(-halfSize/5.0, 0); // 2. zlom tela
+        king.lineTo(-halfSize/3.0, halfSize - halfSize/2.0);// zlom tela
+        king.lineTo(-halfSize, halfSize - halfSize/3.0);	// levy vrchol podstavy pesaka
+        king.lineTo(-halfSize, halfSize);
 
-        return rook;
+        king.closePath();
+
+        return king;
     }
 
     @Override
     public void paintPiece(Graphics2D g2) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(pieceColor);
-        if (this.rook == null){
-            this.rook = createPiece();
+        if (this.king == null){
+            this.king = createPiece();
         }
-        g2.fill(rook);
+        g2.fill(king);
 
         if (this.isWhite()) {
             g2.setColor(PIECE_BLACK);
         } else {
             g2.setColor(PIECE_WHITE);
         }
-        g2.draw(rook);
+        g2.draw(king);
     }
 
     /**
@@ -117,8 +123,8 @@ public class Rook extends JPanel implements IPiece {
     @Override
     public boolean isPieceHit(double x, double y) {
         //TODO: test, zda hvezda zasazena
-        return (this.rook != null &&
-                this.rook.contains(
+        return (this.king != null &&
+                this.king.contains(
                         x - this.sX, y - this.sY));
     }
 
@@ -165,7 +171,7 @@ public class Rook extends JPanel implements IPiece {
     @Override
     public void setRectSize(int rectSize) {
         this.rectSize = rectSize;
-        this.rook = createPiece();
+        this.king = createPiece();
         this.repaint();
     }
     public void setsX(int sX) {

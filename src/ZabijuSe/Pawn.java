@@ -17,16 +17,25 @@ public class Pawn extends JPanel implements IPiece {
 	private int column;
 	private boolean isWhite;
 	public Field field;
+	boolean isOut;
+	@Override
+	public boolean isOut() {
+		return isOut;
+	}
+	@Override
+	public void setOut(boolean isOut) {
+		this.isOut = isOut;
+	}
 	//======================================== Konstruktory ========================================
 	public Pawn(int sX, int sY, boolean isWhite) {
 		this.sX = sX;
 		this.sY = sY;
 		this.isWhite = isWhite;
-
+		this.isOut = false;
 		if (isWhite) {
-			setPawnColor(PIECE_WHITE);
+			setPieceColor(PIECE_WHITE);
 		} else {
-			setPawnColor(PIECE_BLACK);
+			setPieceColor(PIECE_BLACK);
 		}
 	}
 
@@ -51,15 +60,21 @@ public class Pawn extends JPanel implements IPiece {
 		pawn.moveTo(-halfSize, halfSize);	// levy dolni roh
 		pawn.lineTo(halfSize, halfSize);	// pravy dolni roh
 		pawn.lineTo(halfSize, halfSize - halfSize/3.0);	// pravy vrchol podstavy pesaka
-		pawn.lineTo(0, -halfSize/2.0); // spicka tela
+		pawn.lineTo(halfSize/2.0, halfSize - halfSize/2.0); // zlom tela
 
-		pawn.lineTo(halfSize/1.5, -halfSize/1.5);
-		pawn.lineTo(halfSize/1.5, -halfSize);
-		pawn.lineTo(0, -halfSize); 		// spicka hlavy
-		pawn.lineTo(-halfSize/1.5, -halfSize);
-		pawn.lineTo(-halfSize/1.5, -halfSize/1.5);
-		pawn.lineTo(0, -halfSize/2.0); // spicka tela
+		pawn.lineTo(halfSize/4.0, -halfSize/4.0); // pravy horni roh tela
+		pawn.lineTo(halfSize/3.0, -halfSize/3.0);
+		pawn.lineTo(halfSize/2.0, -halfSize/2.0);
 
+		pawn.lineTo(halfSize/5.0, -halfSize);
+		//pawn.lineTo(0, -halfSize); 		// spicka hlavy
+		pawn.lineTo(-halfSize/5.0, -halfSize);
+
+		pawn.lineTo(-halfSize/2.0, -halfSize/2.0);
+		pawn.lineTo(-halfSize/3.0, -halfSize/3.0);
+		pawn.lineTo(-halfSize/4.0, -halfSize/4.0); // levy horni roh tela
+
+		pawn.lineTo(-halfSize/2.0, halfSize - halfSize/2.0);// zlom tela
 		pawn.lineTo(-halfSize, halfSize - halfSize/3.0);	// levy vrchol podstavy pesaka
 		pawn.lineTo(-halfSize, halfSize);
 
@@ -109,9 +124,11 @@ public class Pawn extends JPanel implements IPiece {
 	public int getRectSize() {
 		return rectSize;
 	}
+	@Override
 	public int getRow() {
 		return row;
 	}
+	@Override
 	public int getColumn() {
 		return column;
 	}
@@ -124,17 +141,18 @@ public class Pawn extends JPanel implements IPiece {
 	public Field getField() {
 		return field;
 	}
-
 	public boolean isWhite() {
 		return isWhite;
 	}
+
 
 	//======================================== Settery ========================================
 	/**
 	 * Setter pro barvu hvezdy
 	 * @param pieceColor pozadovana barva hvezdy
 	 */
-	public void setPawnColor(Color pieceColor) {
+	@Override
+	public void setPieceColor(Color pieceColor) {
 		this.pieceColor = pieceColor;
 	}
 	@Override
