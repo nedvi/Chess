@@ -1,13 +1,11 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 public class Chess_SP_2023 {
-
-		// konstanty titulku okna
 		private static final String MAIN_TITLE_STR = "UPG - Chess";
-		// private static final Image TITLE_ICO = new Image("PATH/TO/ICON");
 
 		public static void main(String[] args) {
 			JFrame okno = new JFrame();
@@ -20,38 +18,62 @@ public class Chess_SP_2023 {
 			chessBoard.addMouseMotionListener(new MouseMotionListener() {
 				@Override
 				public void mouseDragged(MouseEvent e) {
+					int mouseX = e.getX();
+					int mouseY = e.getY();
 
-					if (chessBoard.contains(e.getX(), e.getY())) {
-						chessBoard.mouseMoved(e, e.getX(), e.getY());
+					if (chessBoard.contains(mouseX, mouseY)) {
+						IPiece piece = chessBoard.getFocusedPiece(mouseX, mouseY);
+
+						if (piece != null) {
+							chessBoard.mouseDragged(e, piece);
+							//piece.repaint();
+							chessBoard.repaint();
+						}
 					}
-					chessBoard.repaint();
 				}
 
 				@Override
 				public void mouseMoved(MouseEvent e) {
 
-
-
-					//System.out.printf("Mouse - X = %d; Y = %d;\n", e.getX(), e.getY());
-
-//					for (int row = 1; row < 9; row++) {
-//						for (int column = 1; column < 9; column++) {
-//							Rectangle focusedField = chessBoard.getRectBoard()[row][column];
-//
-//
-//							if (focusedField.contains(e.getX(), e.getY())) {
-//								System.out.printf("Focused field: row = %d; column = %d [Mouse - X = %d; Y = %d;\n",
-//										row, column, e.getX(), e.getY());
-//
-//								chessBoard.mouseMoved(e, (int) focusedField.getX(), (int) focusedField.getY());
-//								chessBoard.repaint();
-//							}
-//						}
-//					}
-					//Rectangle focusedField = chessBoard.getRectBoard()[1][2];
-
-				};
+				}
 			});
+
+			chessBoard.addMouseListener(new MouseListener() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+
+				}
+
+				@Override
+				public void mousePressed(MouseEvent e) {
+
+				}
+
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					int mouseX = e.getX();
+					int mouseY = e.getY();
+
+					if (chessBoard.contains(mouseX, mouseY)) {
+						IPiece piece = chessBoard.getFocusedPiece(mouseX, mouseY);
+						if (piece != null) {
+							chessBoard.mouseReleased(e, piece);
+							chessBoard.repaint();
+						}
+					}
+				}
+
+				@Override
+				public void mouseEntered(MouseEvent e) {
+
+				}
+
+				@Override
+				public void mouseExited(MouseEvent e) {
+
+				}
+			});
+
 			okno.add(chessBoard); //prida komponentu
 			okno.pack(); //udela resize okna dle komponent
 

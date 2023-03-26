@@ -1,5 +1,3 @@
-package ZabijuSe;
-
 import java.awt.*;
 import java.awt.geom.Path2D;
 

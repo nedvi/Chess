@@ -1,12 +1,10 @@
-package ZabijuSe;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Path2D;
 
-public class King extends JPanel implements IPiece {
+public class Bishop extends JPanel implements IPiece {
     private double halfSize;
-    private Path2D king;	// kral k vykresleni
+    private Path2D bishop;	// strelec k vykresleni
     private int sX;
     private int sY;
     public static final Color PIECE_WHITE = Color.WHITE;
@@ -28,7 +26,7 @@ public class King extends JPanel implements IPiece {
         this.isOut = isOut;
     }
     //======================================== Konstruktory ========================================
-    public King(int sX, int sY, boolean isWhite) {
+    public Bishop(int sX, int sY, boolean isWhite) {
         this.sX = sX;
         this.sY = sY;
         this.isWhite = isWhite;
@@ -57,60 +55,48 @@ public class King extends JPanel implements IPiece {
      */
     @Override
     public Path2D createPiece() {
-        king = new Path2D.Double();
-        king.moveTo(-halfSize, halfSize);	// levy dolni roh
-        king.lineTo(halfSize, halfSize);	// pravy dolni roh
-        king.lineTo(halfSize, halfSize - halfSize/3.0);	// pravy vrchol podstavy pesaka
-        king.lineTo(halfSize/3.0, halfSize - halfSize/2.0); // zlom tela
+        bishop = new Path2D.Double();
+        bishop.moveTo(-halfSize, halfSize);	// levy dolni roh
+        bishop.lineTo(halfSize, halfSize);	// pravy dolni roh
+        bishop.lineTo(halfSize, halfSize - halfSize/3.0);	// pravy vrchol podstavy pesaka
+        bishop.lineTo(halfSize/3.0, halfSize - halfSize/2.0); // zlom tela
+        bishop.lineTo(halfSize/5.0, 0); // 2. zlom tela
 
-        king.lineTo(halfSize/4.0, -halfSize/10.0); // pravy horni roh tela
-        king.lineTo(halfSize/2.0, -halfSize/4.0);  // pravy horni roh hlavy
+        bishop.lineTo(halfSize/4.0, -halfSize/4.0); // pravy horni roh tela
+        bishop.lineTo(halfSize/2.5, -halfSize/3.0);
+        bishop.lineTo(halfSize/4, -halfSize/2.0);
 
-        king.lineTo(halfSize/8.0, -halfSize/3.0); 		// prava spicka hlavy
+        bishop.lineTo(0, -halfSize); 		// spicka hlavy
 
-        king.lineTo(halfSize/8.0, -halfSize/1.8); // prava strana krize
-        king.lineTo(halfSize/3.0, -halfSize/1.8); // prava strana krize
-        king.lineTo(halfSize/3.0, -halfSize/1.25); // prava strana krize
-        king.lineTo(halfSize/8.0, -halfSize/1.25); // prava strana krize
+        bishop.lineTo(-halfSize/4, -halfSize/2.0);
+        bishop.lineTo(-halfSize/2.5, -halfSize/3.0);
+        bishop.lineTo(-halfSize/4.0, -halfSize/4.0); // levy horni roh tela
 
-        king.lineTo(halfSize/8.0, -halfSize); 		// prava spicka hlavy
-        //king.lineTo(0, -halfSize); 		// spicka hlavy
-        king.lineTo(-halfSize/8.0, -halfSize); 		// leva spicka hlavy
+        bishop.lineTo(-halfSize/5.0, 0); // 2. zlom tela
+        bishop.lineTo(-halfSize/3.0, halfSize - halfSize/2.0);// zlom tela
+        bishop.lineTo(-halfSize, halfSize - halfSize/3.0);	// levy vrchol podstavy pesaka
+        bishop.lineTo(-halfSize, halfSize);
 
-        king.lineTo(-halfSize/8.0, -halfSize/1.25); // leva strana krize
-        king.lineTo(-halfSize/3.0, -halfSize/1.25); // leva strana krize
-        king.lineTo(-halfSize/3.0, -halfSize/1.8); // leva strana krize
-        king.lineTo(-halfSize/8.0, -halfSize/1.8); // leva strana krize
+        bishop.closePath();
 
-        king.lineTo(-halfSize/8.0, -halfSize/3.0); 		// leva spicka hlavy
-
-        king.lineTo(-halfSize/2.0, -halfSize/4.0); // levy horni roh hlavy
-        king.lineTo(-halfSize/4.0, -halfSize/10.0); // levy horni roh tela
-        //queen.lineTo(-halfSize/5.0, 0); // 2. zlom tela
-        king.lineTo(-halfSize/3.0, halfSize - halfSize/2.0);// zlom tela
-        king.lineTo(-halfSize, halfSize - halfSize/3.0);	// levy vrchol podstavy pesaka
-        king.lineTo(-halfSize, halfSize);
-
-        king.closePath();
-
-        return king;
+        return bishop;
     }
 
     @Override
     public void paintPiece(Graphics2D g2) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(pieceColor);
-        if (this.king == null){
-            this.king = createPiece();
+        if (this.bishop == null){
+            this.bishop = createPiece();
         }
-        g2.fill(king);
+        g2.fill(bishop);
 
         if (this.isWhite()) {
             g2.setColor(PIECE_BLACK);
         } else {
             g2.setColor(PIECE_WHITE);
         }
-        g2.draw(king);
+        g2.draw(bishop);
     }
 
     /**
@@ -123,8 +109,8 @@ public class King extends JPanel implements IPiece {
     @Override
     public boolean isPieceHit(double x, double y) {
         //TODO: test, zda hvezda zasazena
-        return (this.king != null &&
-                this.king.contains(
+        return (this.bishop != null &&
+                this.bishop.contains(
                         x - this.sX, y - this.sY));
     }
 
@@ -171,7 +157,7 @@ public class King extends JPanel implements IPiece {
     @Override
     public void setRectSize(int rectSize) {
         this.rectSize = rectSize;
-        this.king = createPiece();
+        this.bishop = createPiece();
         this.repaint();
     }
     public void setsX(int sX) {

@@ -1,5 +1,3 @@
-import javafx.scene.shape.Rectangle;
-
 /**
  * Trida reprezentujici jedno konkretni pole sachovnice
  */
@@ -11,18 +9,22 @@ public class Field {
     /** souradnice Y pole */
     private int y;
 
+    private IPiece piece;
+
+    private int row;
+
+    private int column;
+
     /** Kontrola obsazenosti pole */
     private boolean isUsed;
 
     /**
      * Konstruktor pole
      *
-     * @param x souradnice X pole
-     * @param y souradnice Y pole
      */
-    public Field(int x, int y) {
-        this.x = x;
-        this.y = y;
+    public Field(IPiece piece, int row, int column) {
+        this.row = row;
+        this.column = column;
         isUsed = false;
     }
 
@@ -42,12 +44,41 @@ public class Field {
         this.y = y;
     }
 
+    public int getRow() {
+        return row;
+    }
+
+    public void setRow(int row) {
+        this.row = row;
+    }
+
+    public int getColumn() {
+        return column;
+    }
+
+    public void setColumn(int column) {
+        this.column = column;
+    }
+
+    public IPiece getPiece() {
+        return piece;
+    }
+
+    public void setPiece(IPiece piece) {
+        this.piece = piece;
+    }
+
     public boolean isUsed() {
         return isUsed;
     }
 
     public void setUsed(boolean used) {
         isUsed = used;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Zahozeno.Field: x = %d; y = %d; row = %d; column = %d;", x, y, row, column, isUsed);
     }
 }
 
