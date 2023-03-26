@@ -38,7 +38,7 @@ public class ChessBoard extends JPanel {
     public ChessBoard() {
         //this.setPreferredSize(new Dimension(800, 600));
         this.setMinimumSize(new Dimension(800, 600));
-        pawns = new Pawn[16];  // TODO pak upravit
+        pawns = new Pawn[16];
         for (int i = 0; i < 8; i++) {
             pawns[i] = new Pawn(0, 0, false);
         }
@@ -128,7 +128,6 @@ public class ChessBoard extends JPanel {
 
         pawn.paint(g2);
         g2.setTransform(old);
-
     }
 
     public void updatePiecesLocations(Pawn pawn) {
@@ -182,7 +181,7 @@ public class ChessBoard extends JPanel {
 
     public Pawn getFocusedPiece(int x, int y) {
         for (int i = 0; i < pawns.length; i++) {
-            if (pawns[i].isPawnHit(x, y)) {
+            if (pawns[i].isPieceHit(x, y)) {
                 //System.out.println("Hit pawn: " + i);
                 return pawns[i];
             }

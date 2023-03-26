@@ -4,11 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Path2D;
 
-public class Pawn extends JPanel {
-	
-	private final int N = 3;			//pocet cipu
-	private final double DEFAULT_R = 25;	//vychozi polomer hvezdy
-	private double halfSize = DEFAULT_R;			//aktualni polomer
+public class Pawn extends JPanel implements IPiece {
+	private double halfSize;
 	private Path2D pawn;	// pesak k vykresleni
 	private int sX;
 	private int sY;
@@ -19,25 +16,12 @@ public class Pawn extends JPanel {
 	private int row;
 	private int column;
 	private boolean isWhite;
-
 	public Field field;
-
-	private boolean isFocused;
-
-	//============================ TEST ===============================
-	private static int WIDTH;
-	private static int HEIGHT;
-	private static int PAWN_SIZE;
-	private static int RADIUS;
-	private static int X_CENTER;
-	private static int Y_CENTER;
-
 	//======================================== Konstruktory ========================================
 	public Pawn(int sX, int sY, boolean isWhite) {
 		this.sX = sX;
 		this.sY = sY;
 		this.isWhite = isWhite;
-		this.isFocused = false;
 
 		if (isWhite) {
 			setPawnColor(PIECE_WHITE);
@@ -49,13 +33,11 @@ public class Pawn extends JPanel {
 	//======================================== Funkce ========================================
 	@Override
 	public void paint(Graphics g) {
-
 		super.paint(g);
 		halfSize = getRectSize()/3.0;
 		Graphics2D g2 = (Graphics2D)g;
 		g2.translate(sX, sY);
-		paintPawn(g2);
-		//drawPawn(g2);
+		paintPiece(g2);
 	}
 	
 	/** 
@@ -63,32 +45,8 @@ public class Pawn extends JPanel {
 	 * Stred hvezdy je v pocatku souradneho systemu
 	 * @return vytvorenou hvezdu
 	 */
-	private Path2D createPawn() {
-
-//		double delta_fi = 2*Math.PI/N;
-//		pawn = new Path2D.Double();
-//		pawn.moveTo(0, -size); //prvni vrchol hvezdicky (nahore)
-//		for (int i = 0; i < N; i++) {
-//			double x = size*Math.cos(i*delta_fi + 1.5*Math.PI);
-//			double y = size*Math.sin(i*delta_fi + 1.5*Math.PI);
-//			pawn.lineTo(x, y);
-//
-//			double x2 = 0.5*size*Math.cos(i*delta_fi + delta_fi*0.5 + 1.5*Math.PI);
-//			double y2 = 0.5*size*Math.sin(i*delta_fi + delta_fi*0.5 + 1.5*Math.PI);
-//			pawn.lineTo(x2, y2);
-//		}
-//		pawn.closePath();
-
-		// TODO: FUNKCNI
-//		pawn = new Path2D.Double();
-//		pawn.moveTo(0, -halfSize/2.0);
-//		pawn.lineTo(halfSize, halfSize);
-//		pawn.lineTo(-halfSize, halfSize);
-//		pawn.lineTo(0, -halfSize/2.0);
-//		pawn.closePath();
-
-		int headSize = (int) (halfSize/2.0);
-
+	@Override
+	public Path2D createPiece() {
 		pawn = new Path2D.Double();
 		pawn.moveTo(-halfSize, halfSize);	// levy dolni roh
 		pawn.lineTo(halfSize, halfSize);	// pravy dolni roh
@@ -110,13 +68,15 @@ public class Pawn extends JPanel {
 		return pawn;
 	}
 
-	private void paintPawn(Graphics2D g2) {
+	@Override
+	public void paintPiece(Graphics2D g2) {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setColor(pieceColor);
-		pawn = createPawn();
+		if (this.pawn == null){
+			this.pawn = createPiece();
+		}
 		g2.fill(pawn);
 
-		//g2.setColor(Color.WHITE);	//TODO pak pridat vetveni na baervu obrysu inverzni k barve figurky
 		if (this.isWhite()) {
 			g2.setColor(PIECE_BLACK);
 		} else {
@@ -124,14 +84,6 @@ public class Pawn extends JPanel {
 		}
 		g2.draw(pawn);
 	}
-	
-//	private void drawPawn(Graphics2D g2) {
-//		if (this.pawn == null){
-//			this.pawn = createPawn();
-//		}
-//		g2.setColor(pieceColor);
-//		g2.fill(pawn);
-//	}
 
 	/**
 	 * Otestuje, zda je zobrazeny objekt hvezdy 
@@ -140,7 +92,8 @@ public class Pawn extends JPanel {
 	 * @param y
 	 * @return true, pokud zasah
 	 */
-	public boolean isPawnHit(double x, double y) {
+	@Override
+	public boolean isPieceHit(double x, double y) {
 		//TODO: test, zda hvezda zasazena
 		return (this.pawn != null &&
 				this.pawn.contains(
@@ -176,10 +129,6 @@ public class Pawn extends JPanel {
 		return isWhite;
 	}
 
-	public boolean isFocused() {
-		return isFocused;
-	}
-
 	//======================================== Settery ========================================
 	/**
 	 * Setter pro barvu hvezdy
@@ -188,9 +137,10 @@ public class Pawn extends JPanel {
 	public void setPawnColor(Color pieceColor) {
 		this.pieceColor = pieceColor;
 	}
+	@Override
 	public void setRectSize(int rectSize) {
 		this.rectSize = rectSize;
-		this.pawn = createPawn();
+		this.pawn = createPiece();
 		this.repaint();
 	}
 	public void setsX(int sX) {
@@ -209,9 +159,5 @@ public class Pawn extends JPanel {
 
 	public void setField(Field field) {
 		this.field = field;
-	}
-
-	public void setFocused(boolean focused) {
-		isFocused = focused;
 	}
 }
