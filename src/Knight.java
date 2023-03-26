@@ -2,30 +2,56 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Path2D;
 
+/**
+ * Trida reprezentujici figurku kone
+ *
+ * @author Dominik Nedved, A22B0109P
+ * @version 26.03.2023
+ */
 public class Knight extends JPanel implements IPiece {
-    private double halfSize;
-    private Path2D knight;	// kun k vykresleni
-    private int sX;
-    private int sY;
-    public static final Color PIECE_WHITE = Color.WHITE;
-    public static final Color PIECE_BLACK = Color.BLACK;
-    private Color pieceColor;
-    private int rectSize;
-    private int row;
-    private int column;
-    private boolean isWhite;
-    public Field field;
 
-    boolean isOut;
-    @Override
-    public boolean isOut() {
-        return isOut;
-    }
-    @Override
-    public void setOut(boolean isOut) {
-        this.isOut = isOut;
-    }
+    /** Polovina velikosti figurky */
+    private double halfSize;
+
+    /** Vykreslovaci cesta figurky */
+    private Path2D knight;
+
+    /** Stredova souradnice X figurky */
+    private int sX;
+
+    /** Stredova souradnice Y figurky */
+    private int sY;
+
+    /** Barva figurky */
+    private Color pieceColor;
+
+    /** Veliost figurky */
+    private int pieceSize;
+
+    /** Cislo radky figurky */
+    private int row;
+
+    /** Cislo sloupce figurky */
+    private int column;
+
+    /** Test na barvu figurky (bila/cerna) */
+    private final boolean isWhite;
+
+    /** Pole figurky */
+    private Field field;
+
+    /** Test na to, zda je figurka stale ve hre */
+    private boolean isOut;
+
     //======================================== Konstruktory ========================================
+
+    /**
+     * Konstruktor
+     *
+     * @param sX souradnice stredove souradnice X
+     * @param sY souradnice stredove souradnice Y
+     * @param isWhite test na barvu figurky (bila/cerna)
+     */
     public Knight(int sX, int sY, boolean isWhite) {
         this.sX = sX;
         this.sY = sY;
@@ -39,19 +65,25 @@ public class Knight extends JPanel implements IPiece {
     }
 
     //======================================== Funkce ========================================
+
+    /**
+     * Vykresleni komponenty
+     *
+     * @param g graficky kontext
+     */
     @Override
     public void paint(Graphics g) {
         super.paint(g);
-        halfSize = getRectSize()/3.0;
+        halfSize = this.getPieceSize()/3.0;
         Graphics2D g2 = (Graphics2D)g;
         g2.translate(sX, sY);
         paintPiece(g2);
     }
 
     /**
-     * Vytvori v pameti pravidelnou hvezdu o polomeru R s N cipy
-     * Stred hvezdy je v pocatku souradneho systemu
-     * @return vytvorenou hvezdu
+     * Vytvoreni figurky
+     *
+     * @return hotova cestu figurky
      */
     @Override
     public Path2D createPiece() {
@@ -79,6 +111,11 @@ public class Knight extends JPanel implements IPiece {
         return knight;
     }
 
+    /**
+     * Vykresli figurku
+     *
+     * @param g2 graficky kontext
+     */
     @Override
     public void paintPiece(Graphics2D g2) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -97,81 +134,136 @@ public class Knight extends JPanel implements IPiece {
     }
 
     /**
-     * Otestuje, zda je zobrazeny objekt hvezdy
-     * zasazen mysi/dotykem v miste [x,y]
-     * @param x
-     * @param y
+     * Testuje, zda je zobrazeny objekt hvezdy zasazen mysi
+     *
+     * @param x testovana souradnice X
+     * @param y testovana souradnice Y
      * @return true, pokud zasah
      */
     @Override
     public boolean isPieceHit(double x, double y) {
-        //TODO: test, zda hvezda zasazena
-        return (this.knight != null &&
-                this.knight.contains(
-                        x - this.sX, y - this.sY));
+        return (this.knight != null && this.knight.contains(x - this.sX, y - this.sY));
     }
 
+    /**
+     * Presune figurku na konkretni souradnice
+     *
+     * @param x souradnice X
+     * @param y souradnice Y
+     */
     public void moveTo(int x, int y) {
-        setsX(x);
-        setsY(y);
+        this.sX = x;
+        this.sY = y;
     }
 
-    //======================================== Gettery ========================================
-    public int getRectSize() {
-        return rectSize;
-    }
+//======================================== Gettery ========================================
+
+    /**
+     * @return aktualni radka sachovnice
+     */
     @Override
     public int getRow() {
         return row;
     }
+
+    /**
+     * @return aktualni sloupec sachovnice
+     */
     @Override
     public int getColumn() {
         return column;
     }
-    public int getsX() {
-        return sX;
-    }
-    public int getsY() {
-        return sY;
-    }
+
+    /**
+     * @return aktualni pole sachovnice
+     */
+    @Override
     public Field getField() {
         return field;
     }
 
+    /**
+     * @return true, pokud je figurka bila, jinak false
+     */
+    @Override
     public boolean isWhite() {
         return isWhite;
     }
 
-    //======================================== Settery ========================================
     /**
-     * Setter pro barvu hvezdy
-     * @param pieceColor pozadovana barva hvezdy
+     * @return true, pokud figurka jiz byla vyhozena jinou figurkou, jinak false
      */
     @Override
-    public void setPieceColor(Color pieceColor) {
-        this.pieceColor = pieceColor;
+    public boolean isOut() {
+        return isOut;
     }
+
+    /**
+     * @return velikost figurky
+     */
     @Override
-    public void setRectSize(int rectSize) {
-        this.rectSize = rectSize;
-        this.knight = createPiece();
-        this.repaint();
+    public int getPieceSize() {
+        return pieceSize;
     }
-    public void setsX(int sX) {
-        this.sX = sX;
-    }
-    public void setsY(int sY) {
-        this.sY = sY;
-    }
+
+    //======================================== Settery ========================================
+
+    /**
+     * Nastavi aktualni radka sachovnice
+     *
+     * @param row aktualni radka sachovnice
+     */
+    @Override
     public void setRow(int row) {
         this.row = row;
     }
 
+    /**
+     * Nastavi aktualni sloupec sachovnice
+     *
+     * @param column aktualni sloupec sachovnice
+     */
+    @Override
     public void setColumn(int column) {
         this.column = column;
     }
 
+    /**
+     * Nastavi aktualni pole sachovnice
+     *
+     * @param field aktualni sloupec sachovnice
+     */
+    @Override
     public void setField(Field field) {
         this.field = field;
+    }
+
+    /**
+     * @param isOut true, pokud figurka jiz byla vyhozena jinou figurkou, jinak false
+     */
+    @Override
+    public void setOut(boolean isOut) {
+        this.isOut = isOut;
+    }
+
+    /**
+     * Nastavi velikost figurky
+     *
+     * @param size velikost figurky
+     */
+    @Override
+    public void setPieceSize(int size) {
+        this.pieceSize = size;
+        this.knight = createPiece();
+    }
+
+    /**
+     * Nastavi barvu figurky
+     *
+     * @param pieceColor barva figurky
+     */
+    @Override
+    public void setPieceColor(Color pieceColor) {
+        this.pieceColor = pieceColor;
     }
 }

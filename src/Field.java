@@ -1,18 +1,18 @@
 /**
  * Trida reprezentujici jedno konkretni pole sachovnice
+ *
+ * @author Dominik Nedved, A22B0109P
+ * @version 26.03.2023
  */
 public class Field {
 
-    /** souradnice X pole */
-    private int x;
-
-    /** souradnice Y pole */
-    private int y;
-
+    /** Figurka na danem poli */
     private IPiece piece;
 
+    /** Radka sachovnice */
     private int row;
 
+    /** Sloupec sachovnice */
     private int column;
 
     /** Kontrola obsazenosti pole */
@@ -21,64 +21,74 @@ public class Field {
     /**
      * Konstruktor pole
      *
+     * @param piece figurka na danem poli
+     * @param row radka sachovnice
+     * @param column sloupec sachovnice
      */
     public Field(IPiece piece, int row, int column) {
+        this.piece = piece;
         this.row = row;
         this.column = column;
-        isUsed = false;
+        isUsed = piece != null;
     }
 
-    public int getX() {
-        return x;
-    }
+    //======================================== Gettery ========================================
 
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
+    /**
+     * @return radek pole
+     */
     public int getRow() {
         return row;
     }
 
-    public void setRow(int row) {
-        this.row = row;
-    }
-
+    /**
+     * @return sloupec pole
+     */
     public int getColumn() {
         return column;
     }
 
-    public void setColumn(int column) {
-        this.column = column;
-    }
-
+    /**
+     * @return figurka na poli
+     */
     public IPiece getPiece() {
         return piece;
     }
 
-    public void setPiece(IPiece piece) {
-        this.piece = piece;
-    }
-
+    /**
+     * @return true pokud figurka na poli je, jinak false
+     */
     public boolean isUsed() {
         return isUsed;
     }
 
-    public void setUsed(boolean used) {
-        isUsed = used;
+    //======================================== Settery ========================================
+
+    /**
+     * @param row radek pole
+     */
+    public void setRow(int row) {
+        this.row = row;
+    }
+
+    /**
+     * @param column sloupec pole
+     */
+    public void setColumn(int column) {
+        this.column = column;
+    }
+
+    /**
+     * @param piece figurka na poli
+     */
+    public void setPiece(IPiece piece) {
+        this.piece = piece;
+        isUsed = piece != null;
     }
 
     @Override
     public String toString() {
-        return String.format("Zahozeno.Field: x = %d; y = %d; row = %d; column = %d;", x, y, row, column, isUsed);
+        return String.format("Field: row = %d; column = %d; Piece = %s", row, column, piece);
     }
 }
 

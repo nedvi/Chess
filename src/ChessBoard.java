@@ -3,8 +3,15 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 
+/**
+ * Trida reprezentujici sachovnici
+ *
+ * @author Dominik Nedved, A22B0109P
+ * @version 26.03.2023
+ */
 public class ChessBoard extends JPanel {
 
+    /** Velikost strany ctverce, jenz reprezentuje vizualizaci jednoho hraciho pole */
     private int rectSize;
 
     /** Barva "bilych" poli */
@@ -13,34 +20,50 @@ public class ChessBoard extends JPanel {
     /** Barva "cernych" poli */
     private final Color BLACK = Color.DARK_GRAY;
 
-    /** Pomocna hodnota k zajisteni stridani barev v hracim poli */
-    private boolean isWhite = true;
+    /** Pomocny test pro prvotni nastaveni rozvrzeni figurek */
+    private boolean isFirstLoad;
 
-    private boolean firstInRowIsWhite = true;
+    /** Pomocna promenna pro porovnani predchozi sirky okna s novou */
+    private double lastWidth;
 
-    private boolean isFirstLoad = true;
+    /** Pomocna promenna pro porovnani predchozi vysky okna s novou */
+    private double lastHeight;
 
-    private double lastWidth = getWidth();
-    private double lastHeight = getHeight();
+    /** 2D pole pro praci s vizuialnim zobrazenim sachovnice */
+    private final Rectangle[][] rectBoard = new Rectangle[8][8];
 
-    private Rectangle[][] rectBoard = new Rectangle[8][8];
-    private Field[][] fieldBoard = new Field[8][8];
+    /** 2D pole pro praci s funkcionalnim zobrazenim sachovnice */
+    private final Field[][] fieldBoard = new Field[8][8];
 
-    public IPiece focusedPiece = null;
+    /** Odkaz na aktualne mysi presouvanou figurku */
+    public IPiece focusedPiece;
 
-    private Pawn[] pawns;
-    private Rook[] rooks;
-    private Knight[] knights;
-    private Bishop[] bishops;
-    private Queen[] queens;
-    private King[] kings;
+    /** Deklarace pole pesaku */
+    private final Pawn[] pawns;
+
+    /** Deklarace pole vezi */
+    private final Rook[] rooks;
+
+    /** Deklarace pole koni */
+    private final Knight[] knights;
+
+    /** Deklarace pole strelcu */
+    private final Bishop[] bishops;
+
+    /** Deklarace pole kraloven */
+    private final Queen[] queens;
+
+    /** Deklarace pole kralu */
+    private final King[] kings;
 
     /**
-     * Konstruktor
+     * Konstruktor sachovnice
      */
     public ChessBoard() {
-        //this.setPreferredSize(new Dimension(800, 600));
         this.setMinimumSize(new Dimension(800, 600));
+
+        isFirstLoad = true;
+        focusedPiece = null;
 
         // Pesaci
         pawns = new Pawn[16];
@@ -89,6 +112,13 @@ public class ChessBoard extends JPanel {
         kings[1] = new King(0, 0, true);
     }
 
+    /**
+     * Ziska konkretni figurku pouzivanou mysi podle souradnic
+     *
+     * @param x souradnice X
+     * @param y souradnice Y
+     * @return mysi zamerena figurka nebo null
+     */
     public IPiece getFocusedPiece(int x, int y) {
         if (focusedPiece == null) {
             for (Pawn pawn : pawns) {
@@ -134,6 +164,9 @@ public class ChessBoard extends JPanel {
         return null;
     }
 
+    /**
+     * Zajistuje spravne rozvrzeni figurek pri prvotnim nacteni
+     */
     public void firstLoad() {
         // Pesaci
         int pawnColumn = 0;
@@ -149,7 +182,6 @@ public class ChessBoard extends JPanel {
                 pawnColumn++;
             }
             actualPawn.setField(fieldBoard[actualPawn.getRow()][actualPawn.getColumn()]);
-            actualPawn.getField().setUsed(true);
             actualPawn.getField().setPiece(actualPawn);
             actualPawn.moveTo(
                     (int) (rectBoard[actualPawn.getRow()][actualPawn.getColumn()].getX() + this.getRectSize() / 2),
@@ -165,12 +197,10 @@ public class ChessBoard extends JPanel {
                 actualRook.setRow(0);
                 actualRook.setColumn(i * 7);
                 actualRook.setField(fieldBoard[actualRook.getRow()][actualRook.getColumn()]);
-                actualRook.getField().setUsed(true);
             } else {
                 actualRook.setRow(7);
                 actualRook.setColumn(rookColumn);
                 actualRook.setField(fieldBoard[actualRook.getRow()][actualRook.getColumn()]);
-                actualRook.getField().setUsed(true);
                 rookColumn += 7;
             }
             actualRook.moveTo(
@@ -198,7 +228,6 @@ public class ChessBoard extends JPanel {
                 }
             }
             actualKnight.setField(fieldBoard[actualKnight.getRow()][actualKnight.getColumn()]);
-            actualKnight.getField().setUsed(true);
             actualKnight.moveTo(
                     (int) (rectBoard[actualKnight.getRow()][actualKnight.getColumn()].getX() + this.getRectSize() / 2),
                     (int) (rectBoard[actualKnight.getRow()][actualKnight.getColumn()].getY() + this.getRectSize() / 2)
@@ -224,7 +253,6 @@ public class ChessBoard extends JPanel {
                 }
             }
             actualBishop.setField(fieldBoard[actualBishop.getRow()][actualBishop.getColumn()]);
-            actualBishop.getField().setUsed(true);
             actualBishop.moveTo(
                     (int) (rectBoard[actualBishop.getRow()][actualBishop.getColumn()].getX() + this.getRectSize() / 2),
                     (int) (rectBoard[actualBishop.getRow()][actualBishop.getColumn()].getY() + this.getRectSize() / 2)
@@ -237,7 +265,6 @@ public class ChessBoard extends JPanel {
                 actualQueen.setRow(i*7);
                 actualQueen.setColumn(3);
                 actualQueen.setField(fieldBoard[actualQueen.getRow()][actualQueen.getColumn()]);
-                actualQueen.getField().setUsed(true);
             actualQueen.moveTo(
                     (int) (rectBoard[actualQueen.getRow()][actualQueen.getColumn()].getX() + this.getRectSize() / 2),
                     (int) (rectBoard[actualQueen.getRow()][actualQueen.getColumn()].getY() + this.getRectSize() / 2)
@@ -250,7 +277,6 @@ public class ChessBoard extends JPanel {
             actualKing.setRow(i*7);
             actualKing.setColumn(4);
             actualKing.setField(fieldBoard[actualKing.getRow()][actualKing.getColumn()]);
-            actualKing.getField().setUsed(true);
             actualKing.moveTo(
                     (int) (rectBoard[actualKing.getRow()][actualKing.getColumn()].getX() + this.getRectSize() / 2),
                     (int) (rectBoard[actualKing.getRow()][actualKing.getColumn()].getY() + this.getRectSize() / 2)
@@ -260,9 +286,9 @@ public class ChessBoard extends JPanel {
     }
 
     /**
-     * Vykresleni objektu
+     * Vykresleni komponenty
      *
-     * @param g the <code>Graphics</code> context in which to paint
+     * @param g graficky kontext
      */
     @Override
     public void paint(Graphics g) {
@@ -303,7 +329,7 @@ public class ChessBoard extends JPanel {
             lastWidth = this.getWidth();
             lastHeight = this.getHeight();
         } else {
-            if(isFirstLoad) {       // Prvotni nacteni
+            if(isFirstLoad) {       // Test na prvotni nacteni
                 firstLoad();
                 isFirstLoad = false;
             }
@@ -338,7 +364,7 @@ public class ChessBoard extends JPanel {
     /**
      * Vykresleni sachovnice
      *
-     * @param g
+     * @param g graficky kontext
      */
     public void paintChessBoard(Graphics g) {
         rectSize = Math.min(this.getWidth(), this.getHeight()) / 8;
@@ -366,38 +392,56 @@ public class ChessBoard extends JPanel {
                 x += posun;
             }
         }
-        if (firstInRowIsWhite) {
-            isWhite = false;
-            firstInRowIsWhite = false;
-        } else {
-            isWhite = true;
-            firstInRowIsWhite = true;
-        }
     }
 
+    /**
+     * Vykresleni konkretni figurky
+     *
+     * @param g graficky kontext
+     * @param piece konkretni kreslena figurka
+     */
     public void paintPiece(Graphics g, IPiece piece) {
         Graphics2D g2 = (Graphics2D) g;
         AffineTransform old = g2.getTransform();
-        piece.setRectSize(getRectSize());
+        piece.setPieceSize(this.getRectSize());
 
         piece.paint(g2);
         g2.setTransform(old);
     }
 
+    /**
+     * Zajistuje spravne vykresleni figurek (jak pozic, tak velikosti)
+     * podle aktualni velikosti jednoho ctverce sachovnice, ktery je zavisly na veliksoti
+     *
+     * @param piece aktualizovana figurka
+     */
     public void updatePiecesLocations(IPiece piece) {
         piece.moveTo(
                 (int) rectBoard[piece.getRow()][piece.getColumn()].getX() + getRectSize()/2,
                 (int) rectBoard[piece.getRow()][piece.getColumn()].getY() + getRectSize()/2
         );
-        piece.setRectSize(getRectSize());
+        piece.setPieceSize(getRectSize());
     }
 
+    /**
+     * Metoda pro MouseMotionListener, ktera zajistuje zmenu barvy figurky pri tahnuti mysi a spravne aktualni souradnice
+     *
+     * @param e mouse event
+     * @param focusedPiece zamerena figurka
+     */
     public void mouseDragged(MouseEvent e, IPiece focusedPiece) {
             focusedPiece.setPieceColor(Color.RED);
-
             focusedPiece.moveTo(e.getX(), e.getY());
     }
 
+    /**
+     * Metoda pro MouseListener, ktera po pusteni mysi zajistuje spravne vykresleni doprostred pole,
+     * do ktereho byla figurka presunuta.
+     * V budoucnu tu bude zajisteno i "vyhazovani" figurek
+     *
+     * @param e mouse event
+     * @param focusedPiece zamerena figurka
+     */
     public void mouseReleased(MouseEvent e, IPiece focusedPiece) {
         Rectangle focusedRectangle;
         for (int row = 0; row < 8; row++) {
@@ -429,9 +473,13 @@ public class ChessBoard extends JPanel {
         }
         this.focusedPiece = null;   // obstara odebrani focusu po pusteni mysi
     }
+
     //======================================== Gettery ========================================
+
+    /**
+     * @return aktualni stranu jednoho ctverce sachovnice
+     */
     public int getRectSize() {
         return rectSize;
     }
-    //======================================== Settery ========================================
 }
