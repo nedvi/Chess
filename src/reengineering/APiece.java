@@ -1,20 +1,22 @@
+package reengineering;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Path2D;
 
-/**
- * Trida reprezentujici figurku krale
- *
- * @author Dominik Nedved, A22B0109P
- * @version 26.03.2023
- */
-public class King extends JPanel implements IPiece {
+public abstract class APiece extends JPanel {
+
+    /** Konstanta barvy pro bile figurky  */
+    protected final static Color PIECE_WHITE = Color.WHITE;
+
+    /** Konstanta barvy pro cerne figurky  */
+    protected final static Color PIECE_BLACK = Color.BLACK;
 
     /** Polovina velikosti figurky */
-    private double halfSize;
+    protected double halfSize;
 
     /** Vykreslovaci cesta figurky */
-    private Path2D king;
+    protected Path2D piece;
 
     /** Stredova souradnice X figurky */
     private int sX;
@@ -52,7 +54,7 @@ public class King extends JPanel implements IPiece {
      * @param sY souradnice stredove souradnice Y
      * @param isWhite test na barvu figurky (bila/cerna)
      */
-    public King(int sX, int sY, boolean isWhite) {
+    public APiece(int sX, int sY, boolean isWhite) {
         this.sX = sX;
         this.sY = sY;
         this.isWhite = isWhite;
@@ -85,79 +87,38 @@ public class King extends JPanel implements IPiece {
      *
      * @return hotova cestu figurky
      */
-    @Override
-    public Path2D createPiece() {
-        king = new Path2D.Double();
-        king.moveTo(-halfSize, halfSize);	// levy dolni roh
-        king.lineTo(halfSize, halfSize);	// pravy dolni roh
-        king.lineTo(halfSize, halfSize - halfSize/3.0);	// pravy vrchol podstavy pesaka
-        king.lineTo(halfSize/3.0, halfSize - halfSize/2.0); // zlom tela
-
-        king.lineTo(halfSize/4.0, -halfSize/10.0); // pravy horni roh tela
-        king.lineTo(halfSize/2.0, -halfSize/4.0);  // pravy horni roh hlavy
-
-        king.lineTo(halfSize/8.0, -halfSize/3.0); 		// prava spicka hlavy
-
-        king.lineTo(halfSize/8.0, -halfSize/1.8); // prava strana krize
-        king.lineTo(halfSize/3.0, -halfSize/1.8); // prava strana krize
-        king.lineTo(halfSize/3.0, -halfSize/1.25); // prava strana krize
-        king.lineTo(halfSize/8.0, -halfSize/1.25); // prava strana krize
-
-        king.lineTo(halfSize/8.0, -halfSize); 		// prava spicka hlavy
-        //king.lineTo(0, -halfSize); 		// spicka hlavy
-        king.lineTo(-halfSize/8.0, -halfSize); 		// leva spicka hlavy
-
-        king.lineTo(-halfSize/8.0, -halfSize/1.25); // leva strana krize
-        king.lineTo(-halfSize/3.0, -halfSize/1.25); // leva strana krize
-        king.lineTo(-halfSize/3.0, -halfSize/1.8); // leva strana krize
-        king.lineTo(-halfSize/8.0, -halfSize/1.8); // leva strana krize
-
-        king.lineTo(-halfSize/8.0, -halfSize/3.0); 		// leva spicka hlavy
-
-        king.lineTo(-halfSize/2.0, -halfSize/4.0); // levy horni roh hlavy
-        king.lineTo(-halfSize/4.0, -halfSize/10.0); // levy horni roh tela
-        //queen.lineTo(-halfSize/5.0, 0); // 2. zlom tela
-        king.lineTo(-halfSize/3.0, halfSize - halfSize/2.0);// zlom tela
-        king.lineTo(-halfSize, halfSize - halfSize/3.0);	// levy vrchol podstavy pesaka
-        king.lineTo(-halfSize, halfSize);
-
-        king.closePath();
-
-        return king;
-    }
+    public abstract Path2D createPiece();
 
     /**
      * Vykresli figurku
      *
      * @param g2 graficky kontext
      */
-    @Override
     public void paintPiece(Graphics2D g2) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(pieceColor);
-        if (this.king == null){
-            this.king = createPiece();
+        if (this.piece == null){
+            this.piece = createPiece();
         }
-        g2.fill(king);
+        g2.fill(piece);
 
         if (this.isWhite()) {
             g2.setColor(PIECE_BLACK);
         } else {
             g2.setColor(PIECE_WHITE);
         }
-        g2.draw(king);
+        g2.draw(piece);
     }
 
     /**
-     * Testuje, zda je zobrazeny objekt hvezdy zasazen mysi
+     * Testuje, zda je zobrazeny figurka zasazena mysi
      *
      * @param x testovana souradnice X
      * @param y testovana souradnice Y
      * @return true, pokud zasah
      */
-    @Override
     public boolean isPieceHit(double x, double y) {
-        return (this.king != null && this.king.contains(x - this.sX, y - this.sY));
+        return (this.piece != null && this.piece.contains(x - this.sX, y - this.sY));
     }
 
     /**
@@ -176,7 +137,6 @@ public class King extends JPanel implements IPiece {
     /**
      * @return aktualni radka sachovnice
      */
-    @Override
     public int getRow() {
         return row;
     }
@@ -184,7 +144,6 @@ public class King extends JPanel implements IPiece {
     /**
      * @return aktualni sloupec sachovnice
      */
-    @Override
     public int getColumn() {
         return column;
     }
@@ -192,7 +151,6 @@ public class King extends JPanel implements IPiece {
     /**
      * @return aktualni pole sachovnice
      */
-    @Override
     public Field getField() {
         return field;
     }
@@ -200,7 +158,6 @@ public class King extends JPanel implements IPiece {
     /**
      * @return true, pokud je figurka bila, jinak false
      */
-    @Override
     public boolean isWhite() {
         return isWhite;
     }
@@ -208,7 +165,6 @@ public class King extends JPanel implements IPiece {
     /**
      * @return true, pokud figurka jiz byla vyhozena jinou figurkou, jinak false
      */
-    @Override
     public boolean isOut() {
         return isOut;
     }
@@ -216,7 +172,6 @@ public class King extends JPanel implements IPiece {
     /**
      * @return velikost figurky
      */
-    @Override
     public int getPieceSize() {
         return pieceSize;
     }
@@ -228,7 +183,6 @@ public class King extends JPanel implements IPiece {
      *
      * @param row aktualni radka sachovnice
      */
-    @Override
     public void setRow(int row) {
         this.row = row;
     }
@@ -238,7 +192,6 @@ public class King extends JPanel implements IPiece {
      *
      * @param column aktualni sloupec sachovnice
      */
-    @Override
     public void setColumn(int column) {
         this.column = column;
     }
@@ -248,7 +201,6 @@ public class King extends JPanel implements IPiece {
      *
      * @param field aktualni sloupec sachovnice
      */
-    @Override
     public void setField(Field field) {
         this.field = field;
     }
@@ -256,7 +208,6 @@ public class King extends JPanel implements IPiece {
     /**
      * @param isOut true, pokud figurka jiz byla vyhozena jinou figurkou, jinak false
      */
-    @Override
     public void setOut(boolean isOut) {
         this.isOut = isOut;
     }
@@ -266,10 +217,9 @@ public class King extends JPanel implements IPiece {
      *
      * @param size velikost figurky
      */
-    @Override
     public void setPieceSize(int size) {
         this.pieceSize = size;
-        this.king = createPiece();
+        this.piece = createPiece();
     }
 
     /**
@@ -277,7 +227,6 @@ public class King extends JPanel implements IPiece {
      *
      * @param pieceColor barva figurky
      */
-    @Override
     public void setPieceColor(Color pieceColor) {
         this.pieceColor = pieceColor;
     }

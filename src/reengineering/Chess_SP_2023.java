@@ -43,7 +43,7 @@ public class Chess_SP_2023 {
 				int mouseY = e.getY();
 
 				if (chessBoard.contains(mouseX, mouseY)) {
-					IPiece piece = chessBoard.getFocusedPiece(mouseX, mouseY);
+					APiece piece = chessBoard.getFocusedPiece(mouseX, mouseY);
 
 					if (piece != null) {
 						chessBoard.mouseDragged(e, piece);
@@ -81,7 +81,7 @@ public class Chess_SP_2023 {
 				int mouseY = e.getY();
 
 				if (chessBoard.contains(mouseX, mouseY)) {
-					IPiece piece = chessBoard.getFocusedPiece(mouseX, mouseY);
+					APiece piece = chessBoard.getFocusedPiece(mouseX, mouseY);
 					if (piece != null) {
 						chessBoard.mouseReleased(e, piece);
 						chessBoard.repaint();

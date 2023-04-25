@@ -1,3 +1,5 @@
+package The1stPhase_final;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Path2D;
@@ -145,10 +147,8 @@ public class Bishop extends JPanel implements IPiece {
      */
     @Override
     public boolean isPieceHit(double x, double y) {
-        //TODO: test, zda hvezda zasazena
         return (this.bishop != null &&
-                this.bishop.contains(
-                        x - this.sX, y - this.sY));
+                this.bishop.contains(x - this.sX, y - this.sY));
     }
 
     /**

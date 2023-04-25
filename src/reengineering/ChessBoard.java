@@ -38,7 +38,7 @@ public class ChessBoard extends JPanel {
     private final Field[][] fieldBoard = new Field[8][8];
 
     /** Odkaz na aktualne mysi presouvanou figurku */
-    public IPiece focusedPiece;
+    public APiece focusedPiece;
 
     /** Deklarace pole pesaku */
     private final Pawn[] pawns;
@@ -121,7 +121,7 @@ public class ChessBoard extends JPanel {
      * @param y souradnice Y
      * @return mysi zamerena figurka nebo null
      */
-    public IPiece getFocusedPiece(int x, int y) {
+    public APiece getFocusedPiece(int x, int y) {
         if (focusedPiece == null) {
             for (Pawn pawn : pawns) {
                 if (pawn.isPieceHit(x, y)) {
@@ -401,7 +401,7 @@ public class ChessBoard extends JPanel {
      * @param g graficky kontext
      * @param piece konkretni kreslena figurka
      */
-    public void paintPiece(Graphics g, IPiece piece) {
+    public void paintPiece(Graphics g, APiece piece) {
         Graphics2D g2 = (Graphics2D) g;
         AffineTransform old = g2.getTransform();
         piece.setPieceSize(this.getRectSize());
@@ -416,7 +416,7 @@ public class ChessBoard extends JPanel {
      *
      * @param piece aktualizovana figurka
      */
-    public void updatePiecesLocations(IPiece piece) {
+    public void updatePiecesLocations(APiece piece) {
         piece.moveTo(
                 (int) rectBoard[piece.getRow()][piece.getColumn()].getX() + getRectSize()/2,
                 (int) rectBoard[piece.getRow()][piece.getColumn()].getY() + getRectSize()/2
@@ -430,7 +430,7 @@ public class ChessBoard extends JPanel {
      * @param e mouse event
      * @param focusedPiece zamerena figurka
      */
-    public void mouseDragged(MouseEvent e, IPiece focusedPiece) {
+    public void mouseDragged(MouseEvent e, APiece focusedPiece) {
             focusedPiece.setPieceColor(Color.RED);
             focusedPiece.moveTo(e.getX(), e.getY());
     }
@@ -443,7 +443,7 @@ public class ChessBoard extends JPanel {
      * @param e mouse event
      * @param focusedPiece zamerena figurka
      */
-    public void mouseReleased(MouseEvent e, IPiece focusedPiece) {
+    public void mouseReleased(MouseEvent e, APiece focusedPiece) {
         Rectangle focusedRectangle;
         for (int row = 0; row < 8; row++) {
             for (int column = 0; column < 8; column++) {

@@ -1,1 +1,1 @@
-java -cp .\bin Zahozeno.Chess_SP_2023 %*
+java -cp .\bin Zahozeno.The1stPhase_final.Chess_SP_2023 %*

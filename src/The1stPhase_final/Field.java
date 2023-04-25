@@ -1,3 +1,5 @@
+package The1stPhase_final;
+
 /**
  * Trida reprezentujici jedno konkretni pole sachovnice
  *
@@ -88,7 +90,7 @@ public class Field {
 
     @Override
     public String toString() {
-        return String.format("Field: row = %d; column = %d; Piece = %s", row, column, piece);
+        return String.format("The1stPhase_final.Field: row = %d; column = %d; Piece = %s", row, column, piece);
     }
 }
 

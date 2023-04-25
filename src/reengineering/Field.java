@@ -9,7 +9,7 @@ package reengineering;
 public class Field {
 
     /** Figurka na danem poli */
-    private IPiece piece;
+    private APiece piece;
 
     /** Radka sachovnice */
     private int row;
@@ -27,7 +27,7 @@ public class Field {
      * @param row radka sachovnice
      * @param column sloupec sachovnice
      */
-    public Field(IPiece piece, int row, int column) {
+    public Field(APiece piece, int row, int column) {
         this.piece = piece;
         this.row = row;
         this.column = column;
@@ -53,7 +53,7 @@ public class Field {
     /**
      * @return figurka na poli
      */
-    public IPiece getPiece() {
+    public APiece getPiece() {
         return piece;
     }
 
@@ -83,14 +83,14 @@ public class Field {
     /**
      * @param piece figurka na poli
      */
-    public void setPiece(IPiece piece) {
+    public void setPiece(APiece piece) {
         this.piece = piece;
         isUsed = piece != null;
     }
 
     @Override
     public String toString() {
-        return String.format("Field: row = %d; column = %d; Piece = %s", row, column, piece);
+        return String.format("The1stPhase_final.Field: row = %d; column = %d; Piece = %s", row, column, piece);
     }
 }
 

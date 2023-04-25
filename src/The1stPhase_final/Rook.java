@@ -1,20 +1,22 @@
+package The1stPhase_final;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Path2D;
 
 /**
- * Trida reprezentujici figurku kralovny
+ * Trida reprezentujici figurku veze
  *
  * @author Dominik Nedved, A22B0109P
  * @version 26.03.2023
  */
-public class Queen extends JPanel implements IPiece {
+public class Rook extends JPanel implements IPiece {
 
     /** Polovina velikosti figurky */
     private double halfSize;
 
     /** Vykreslovaci cesta figurky */
-    private Path2D queen;
+    private Path2D rook;
 
     /** Stredova souradnice X figurky */
     private int sX;
@@ -52,7 +54,7 @@ public class Queen extends JPanel implements IPiece {
      * @param sY souradnice stredove souradnice Y
      * @param isWhite test na barvu figurky (bila/cerna)
      */
-    public Queen(int sX, int sY, boolean isWhite) {
+    public Rook(int sX, int sY, boolean isWhite) {
         this.sX = sX;
         this.sY = sY;
         this.isWhite = isWhite;
@@ -87,30 +89,34 @@ public class Queen extends JPanel implements IPiece {
      */
     @Override
     public Path2D createPiece() {
-        queen = new Path2D.Double();
-        queen.moveTo(-halfSize, halfSize);	// levy dolni roh
-        queen.lineTo(halfSize, halfSize);	// pravy dolni roh
-        queen.lineTo(halfSize, halfSize - halfSize/3.0);	// pravy vrchol podstavy pesaka
-        queen.lineTo(halfSize/3.0, halfSize - halfSize/2.0); // zlom tela
-        //queen.lineTo(halfSize/5.0, 0); // 2. zlom tela
+        rook = new Path2D.Double();
+        rook.moveTo(-halfSize, halfSize);	// levy dolni roh
+        rook.lineTo(halfSize, halfSize);	// pravy dolni roh
+        rook.lineTo(halfSize, halfSize - halfSize/3.0);	// pravy vrchol podstavy
+        rook.lineTo(halfSize/2.0, -halfSize/2.0); // pravy roh vrcholu "tela"
 
-        queen.lineTo(halfSize/4.0, -halfSize/4.0); // pravy horni roh tela
+        rook.lineTo(halfSize/1.5, -halfSize/1.5);
+        rook.lineTo(halfSize/1.5, -halfSize);
 
-        queen.lineTo(halfSize/2.0, -halfSize);  // pravy horni roh hlavy
-        queen.lineTo(halfSize/6.0, -halfSize/1.5);
-        queen.lineTo(0, -halfSize); 		// spicka hlavy
-        queen.lineTo(-halfSize/6.0, -halfSize/1.5);
-        queen.lineTo(-halfSize/2.0, -halfSize); // levy horni roh hlavy
+        rook.lineTo(halfSize/3.0, -halfSize);
+        rook.lineTo(halfSize/3.0, -halfSize/1.3);   // prava hradba dolu
+        rook.lineTo(halfSize/6.0, -halfSize/1.3);   // prava hradba doleva
+        rook.lineTo(halfSize/6.0, -halfSize);          // prostredni hradba nahoru
+        rook.lineTo(-halfSize/6.0, -halfSize);          // prostredni hradba doleva
+        rook.lineTo(-halfSize/6.0, -halfSize/1.3);   // prostredni hradba dolu
+        rook.lineTo(-halfSize/3.0, -halfSize/1.3);   // leva hradba dolni levy roh
+        rook.lineTo(-halfSize/3.0, -halfSize);          // leva hradba nahoru
 
-        queen.lineTo(-halfSize/4.0, -halfSize/4.0); // levy horni roh tela
-        //queen.lineTo(-halfSize/5.0, 0); // 2. zlom tela
-        queen.lineTo(-halfSize/3.0, halfSize - halfSize/2.0);// zlom tela
-        queen.lineTo(-halfSize, halfSize - halfSize/3.0);	// levy vrchol podstavy pesaka
-        queen.lineTo(-halfSize, halfSize);
+        rook.lineTo(-halfSize/1.5, -halfSize);
+        rook.lineTo(-halfSize/1.5, -halfSize/1.5);
+        rook.lineTo(-halfSize/2.0, -halfSize/2.0); // levy roh vrcholu "tela"
 
-        queen.closePath();
+        rook.lineTo(-halfSize, halfSize - halfSize/3.0);	// levy vrchol podstavy
+        rook.lineTo(-halfSize, halfSize);
 
-        return queen;
+        rook.closePath();
+
+        return rook;
     }
 
     /**
@@ -122,17 +128,17 @@ public class Queen extends JPanel implements IPiece {
     public void paintPiece(Graphics2D g2) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(pieceColor);
-        if (this.queen == null){
-            this.queen = createPiece();
+        if (this.rook == null){
+            this.rook = createPiece();
         }
-        g2.fill(queen);
+        g2.fill(rook);
 
         if (this.isWhite()) {
             g2.setColor(PIECE_BLACK);
         } else {
             g2.setColor(PIECE_WHITE);
         }
-        g2.draw(queen);
+        g2.draw(rook);
     }
 
     /**
@@ -144,7 +150,10 @@ public class Queen extends JPanel implements IPiece {
      */
     @Override
     public boolean isPieceHit(double x, double y) {
-        return (this.queen != null && this.queen.contains(x - this.sX, y - this.sY));
+        //TODO: test, zda hvezda zasazena
+        return (this.rook != null &&
+                this.rook.contains(
+                        x - this.sX, y - this.sY));
     }
 
     /**
@@ -256,7 +265,7 @@ public class Queen extends JPanel implements IPiece {
     @Override
     public void setPieceSize(int size) {
         this.pieceSize = size;
-        this.queen = createPiece();
+        this.rook = createPiece();
     }
 
     /**
