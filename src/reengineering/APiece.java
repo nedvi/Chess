@@ -111,14 +111,14 @@ public abstract class APiece extends JPanel {
     }
 
     /**
-     * Testuje, zda je zobrazeny figurka zasazena mysi
+     * Testuje, zda je zobrazena figurka zasazena mysi
      *
      * @param x testovana souradnice X
      * @param y testovana souradnice Y
      * @return true, pokud zasah
      */
     public boolean isPieceHit(double x, double y) {
-        return (this.piece != null && this.piece.contains(x - this.sX, y - this.sY));
+        return (this.piece.contains(x - this.sX, y - this.sY));
     }
 
     /**
@@ -176,6 +176,22 @@ public abstract class APiece extends JPanel {
         return pieceSize;
     }
 
+    /**
+     * Getter pro stredovou souradnici X
+     * @return stredova souradnice X
+     */
+    public int getsX() {
+        return sX;
+    }
+
+    /**
+     * Getter pro stredovou souradnici Y
+     * @return stredova souradnice Y
+     */
+    public int getsY() {
+        return sY;
+    }
+
     //======================================== Settery ========================================
 
     /**
@@ -229,5 +245,10 @@ public abstract class APiece extends JPanel {
      */
     public void setPieceColor(Color pieceColor) {
         this.pieceColor = pieceColor;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s; %s", getClass().getSimpleName(), getField());
     }
 }

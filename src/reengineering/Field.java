@@ -88,9 +88,13 @@ public class Field {
         isUsed = piece != null;
     }
 
+    public void setUsed(boolean used) {
+        isUsed = used;
+    }
+
     @Override
     public String toString() {
-        return String.format("The1stPhase_final.Field: row = %d; column = %d; Piece = %s", row, column, piece);
+        return String.format("Field: row = %d; column = %d; Piece = %s", row, column, piece);
     }
 }
 
