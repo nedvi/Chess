@@ -1,8 +1,5 @@
 package reengineering;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Move{
     public static boolean pawnMove(APiece pawn, int wantedRow, int wantedCol) {
         if (pawn.isWhite()) {
@@ -182,6 +179,59 @@ public class Move{
                         }
                         return false;
                     }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean knightMove(APiece knight, int wantedRow, int wantedCol) {
+        int tempRow = knight.getRow();
+        int tempCol = knight.getColumn();
+
+        //TODO: Pro bile kone
+        if (knight.isWhite()) {
+            boolean passed = false;
+            // kratsi kroky u row, delsi u col
+            if ((wantedRow == tempRow + 1 && wantedCol == tempCol + 2) || (wantedRow == tempRow + 1 && wantedCol == tempCol - 2) || (wantedRow == tempRow - 1 && wantedCol == tempCol + 2) || (wantedRow == tempRow - 1 && wantedCol == tempCol - 2)) {
+                passed = true;
+            }
+            // delsi kroky u row, kratsi u col
+            else if ((wantedRow == tempRow + 2 && wantedCol == tempCol + 1) || (wantedRow == tempRow + 2 && wantedCol == tempCol - 1) || (wantedRow == tempRow - 2 && wantedCol == tempCol + 1) || (wantedRow == tempRow - 2 && wantedCol == tempCol - 1)) {
+                passed = true;
+            }
+            if (passed) {
+                APiece pieceInWay = ChessBoard.fieldBoard[wantedRow][wantedCol].getPiece();
+                if (pieceInWay != null) {
+                    return !pieceInWay.isWhite();
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean queenMove(APiece knight, int wantedRow, int wantedCol) {
+        if (rookMove(knight, wantedRow, wantedCol)) {
+            return true;
+        } else return bishopMove(knight, wantedRow, wantedCol);
+    }
+
+    public static boolean kingMove(APiece king, int wantedRow, int wantedCol) {
+        int tempRow = king.getRow();
+        int tempCol = king.getColumn();
+        if (king.isWhite()) {
+            boolean passed = false;
+            if (wantedRow == tempRow - 1 || wantedRow == tempRow || wantedRow == tempRow + 1) {
+                if (wantedCol == tempCol - 1 || wantedCol == tempCol || wantedCol == tempCol + 1) {
+                    passed = true;
+                }
+            }
+            if (passed) {
+                APiece pieceInWay = ChessBoard.fieldBoard[wantedRow][wantedCol].getPiece();
+                if (pieceInWay != null) {
+                    return !pieceInWay.isWhite();
                 }
                 return true;
             }

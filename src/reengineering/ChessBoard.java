@@ -553,13 +553,12 @@ public class ChessBoard extends JPanel {
                         validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
                     } else if (focusedPiece.getClass().getSimpleName().equals("Bishop") && Move.bishopMove(focusedPiece, row, column)) {
                         validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
-                    } else if (focusedPiece.getClass().getSimpleName().equals("Queen")) {
-                        // Moznosti kralovny = kombinace pohybu veze a strelce
-                        if (Move.rookMove(focusedPiece, row, column)) {
-                            validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
-                        } else if (Move.bishopMove(focusedPiece, row, column)) {
-                            validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
-                        }
+                    } else if (focusedPiece.getClass().getSimpleName().equals("Knight") && Move.knightMove(focusedPiece, row, column)) {
+                        validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
+                    } else if (focusedPiece.getClass().getSimpleName().equals("Queen") && Move.queenMove(focusedPiece, row, column)) {
+                        validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
+                    } else if (focusedPiece.getClass().getSimpleName().equals("King") && Move.kingMove(focusedPiece, row, column)) {
+                        validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
                     }
                 }
             }
