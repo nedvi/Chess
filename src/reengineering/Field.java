@@ -9,7 +9,7 @@ package reengineering;
 public class Field {
 
     /** Figurka na danem poli */
-    private APiece piece;
+    private APiece piece = null;
 
     /** Radka sachovnice */
     private int row;
@@ -18,20 +18,17 @@ public class Field {
     private int column;
 
     /** Kontrola obsazenosti pole */
-    private boolean isUsed;
+    private boolean isUsed = false;
 
     /**
      * Konstruktor pole
      *
-     * @param piece figurka na danem poli
      * @param row radka sachovnice
      * @param column sloupec sachovnice
      */
-    public Field(APiece piece, int row, int column) {
-        this.piece = piece;
+    public Field(int row, int column) {
         this.row = row;
         this.column = column;
-        isUsed = piece != null;
     }
 
     //======================================== Gettery ========================================

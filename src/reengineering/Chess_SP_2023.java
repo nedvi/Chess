@@ -2,9 +2,7 @@ package reengineering;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.*;
 
 /**
  * Spousteci trida semsestralni prace z predmetu KIV/UPG -> Sachy
@@ -97,6 +95,12 @@ public class Chess_SP_2023 {
 			@Override
 			public void mouseExited(MouseEvent e) {
 
+			}
+		});
+
+		chessBoard.addComponentListener(new ComponentAdapter() {
+			public void componentResized(ComponentEvent e) {
+				chessBoard.repaint();
 			}
 		});
 

@@ -2,6 +2,8 @@ package reengineering;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
@@ -38,42 +40,36 @@ public class ChessBoard extends JPanel {
     private final Rectangle[][] rectBoard = new Rectangle[8][8];
 
     /** 2D pole pro praci s funkcionalnim zobrazenim sachovnice */
-    private final Field[][] fieldBoard = new Field[8][8];
+    public static final Field[][] fieldBoard = new Field[8][8];
 
     /** Odkaz na aktualne mysi presouvanou figurku */
     public APiece focusedPiece;
 
     /** Deklarace pole pesaku */
-    private final List<Pawn> pawns;
+    private List<Pawn> pawns;
 
     /** Deklarace pole vezi */
-    private final List<Rook> rooks;
+    private List<Rook> rooks;
 
     /** Deklarace pole koni */
-    private final List<Knight> knights;
+    private List<Knight> knights;
 
     /** Deklarace pole strelcu */
-    private final List<Bishop> bishops;
+    private List<Bishop> bishops;
 
     /** Deklarace pole kraloven */
-    private final List<Queen> queens;
+    private List<Queen> queens;
 
     /** Deklarace pole kralu */
-    private final List<King> kings;
+    private List<King> kings;
 
     private APiece lastMovedPiece;
 
-    private final List<APiece> eliminatedPieces;
+    private List<APiece> eliminatedPieces;
 
-    /**
-     * Konstruktor sachovnice
-     */
-    public ChessBoard() {
-        this.setMinimumSize(new Dimension(800, 600));
+    public static boolean promotion;
 
-        isFirstLoad = true;
-        focusedPiece = null;
-
+    private void init() {
         // Pesaci
         pawns = new ArrayList<>();
         for (int i = 0; i < 8; i++) {               // Cerni pesaci
@@ -121,6 +117,38 @@ public class ChessBoard extends JPanel {
         kings.add(new King(0, 0, true));
 
         eliminatedPieces = new ArrayList<>();
+
+        // Inicializace instanci poli
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                Field actualField = new Field(i, j);
+                fieldBoard[i][j] = actualField;
+            }
+        }
+
+        promotion = false;
+    }
+
+    /**
+     * Konstruktor sachovnice
+     */
+    public ChessBoard() {
+        this.setMinimumSize(new Dimension(800, 600));
+        isFirstLoad = true;
+        focusedPiece = null;
+        int timerDelay = 20;
+
+        // Osetreni repaintu pri actionPerformed.
+        // Volani repaint() kdekoliv ve tride totiz jen dava pozadavek
+        // na co nejdrivejsi prekresleni v aktualnim vlakne,
+        // coz se muze projevit podstatne pozdeji (nebo vubec xd)
+        new Timer(timerDelay, new ActionListener(){
+            public void actionPerformed(ActionEvent e) {
+                repaint();
+            }
+        }).start();
+        init();
+
     }
 
     /**
@@ -131,225 +159,175 @@ public class ChessBoard extends JPanel {
      * @return mysi zamerena figurka nebo null
      */
     public APiece getFocusedPiece(int x, int y) {
-        if (focusedPiece == null) {
-            for (Pawn pawn : pawns) {
-                if (pawn.isPieceHit(x, y)) {
-                    focusedPiece = pawn;
-                    return focusedPiece;
-                }
-            }
-            for (Rook rook : rooks) {
-                if (rook.isPieceHit(x, y)) {
-                    focusedPiece = rook;
-                    return focusedPiece;
-                }
-            }
-            for (Knight knight : knights) {
-                if (knight.isPieceHit(x, y)) {
-                    focusedPiece = knight;
-                    return focusedPiece;
-                }
-            }
-            for (Bishop bishop : bishops) {
-                if (bishop.isPieceHit(x, y)) {
-                    focusedPiece = bishop;
-                    return focusedPiece;
-                }
-            }
-            for (Queen queen : queens) {
-                if (queen.isPieceHit(x, y)) {
-                    focusedPiece = queen;
-                    return focusedPiece;
-                }
-            }
-            for (King king : kings) {
-                if (king.isPieceHit(x, y)) {
-                    focusedPiece = king;
-                    return focusedPiece;
-                }
-            }
-        } else {
+        List<APiece> allPieces = getAllPieces();
+
+        if (focusedPiece != null) {
             return focusedPiece;
+        }
+        for (APiece piece : allPieces) {
+            if (piece.isPieceHit(x, y)) {
+                focusedPiece = piece;
+                return focusedPiece;
+            }
         }
         return null;
     }
 
-    /**
-     * Zajistuje spravne rozvrzeni figurek pri prvotnim nacteni
-     */
-    public void firstLoad() {
-        // Pesaci
-        int pawnColumn = 0;
-        for (int i = 0; i < pawns.size(); i++) {
-            Pawn actualPawn = pawns.get(i);
-            if (i < 8) {
-                actualPawn.setRow(1);
-                actualPawn.setColumn(i);
+    public List<APiece> getAllPieces() {
+        List<APiece> allPieces = new ArrayList<>();
 
-            } else {
-                actualPawn.setRow(6);
-                actualPawn.setColumn(pawnColumn);
-                pawnColumn++;
-            }
-            actualPawn.setField(fieldBoard[actualPawn.getRow()][actualPawn.getColumn()]);
-            actualPawn.getField().setPiece(actualPawn);
-            actualPawn.getField().setUsed(true);
-            actualPawn.moveTo(
-                    (int) (rectBoard[actualPawn.getRow()][actualPawn.getColumn()].getX() + this.getRectSize() / 2),
-                    (int) (rectBoard[actualPawn.getRow()][actualPawn.getColumn()].getY() + this.getRectSize() / 2)
-            );
-            actualPawn.repaint();
-        }
+        allPieces.addAll(pawns);
+        allPieces.addAll(rooks);
+        allPieces.addAll(knights);
+        allPieces.addAll(bishops);
+        allPieces.addAll(queens);
+        allPieces.addAll(kings);
 
-        // Veze
-        int rookColumn = 0;
-        for (int i = 0; i < rooks.size(); i++) {
-            Rook actualRook = rooks.get(i);
-            if (i<2) {
-                actualRook.setRow(0);
-                actualRook.setColumn(i * 7);
-                actualRook.setField(fieldBoard[actualRook.getRow()][actualRook.getColumn()]);
-            } else {
-                actualRook.setRow(7);
-                actualRook.setColumn(rookColumn);
-                actualRook.setField(fieldBoard[actualRook.getRow()][actualRook.getColumn()]);
-                rookColumn += 7;
-            }
-            actualRook.moveTo(
-                    (int) (rectBoard[actualRook.getRow()][actualRook.getColumn()].getX() + this.getRectSize() / 2),
-                    (int) (rectBoard[actualRook.getRow()][actualRook.getColumn()].getY() + this.getRectSize() / 2)
-            );
-        }
-
-        // Kone
-        for (int i = 0; i < knights.size(); i++) {
-            Knight actualKnight = knights.get(i);
-            if (i<2) {
-                actualKnight.setRow(0);
-                if(i==0) {
-                    actualKnight.setColumn(1);
-                } else {
-                    actualKnight.setColumn(6);
-                }
-            } else {
-                actualKnight.setRow(7);
-                if(i==2) {
-                    actualKnight.setColumn(1);
-                } else {
-                    actualKnight.setColumn(6);
-                }
-            }
-            actualKnight.setField(fieldBoard[actualKnight.getRow()][actualKnight.getColumn()]);
-            actualKnight.getField().setUsed(true);
-            actualKnight.moveTo(
-                    (int) (rectBoard[actualKnight.getRow()][actualKnight.getColumn()].getX() + this.getRectSize() / 2),
-                    (int) (rectBoard[actualKnight.getRow()][actualKnight.getColumn()].getY() + this.getRectSize() / 2)
-            );
-        }
-
-        // Strelci
-        for (int i = 0; i < bishops.size(); i++) {
-            Bishop actualBishop = bishops.get(i);
-            if (i<2) {
-                actualBishop.setRow(0);
-                if(i==0) {
-                    actualBishop.setColumn(2);
-                } else {
-                    actualBishop.setColumn(5);
-                }
-            } else {
-                actualBishop.setRow(7);
-                if(i==2) {
-                    actualBishop.setColumn(2);
-                } else {
-                    actualBishop.setColumn(5);
-                }
-            }
-            actualBishop.setField(fieldBoard[actualBishop.getRow()][actualBishop.getColumn()]);
-            actualBishop.moveTo(
-                    (int) (rectBoard[actualBishop.getRow()][actualBishop.getColumn()].getX() + this.getRectSize() / 2),
-                    (int) (rectBoard[actualBishop.getRow()][actualBishop.getColumn()].getY() + this.getRectSize() / 2)
-            );
-        }
-
-        // Kralovny
-        for (int i = 0; i < queens.size(); i++) {
-            Queen actualQueen = queens.get(i);
-                actualQueen.setRow(i*7);
-                actualQueen.setColumn(3);
-                actualQueen.setField(fieldBoard[actualQueen.getRow()][actualQueen.getColumn()]);
-            actualQueen.moveTo(
-                    (int) (rectBoard[actualQueen.getRow()][actualQueen.getColumn()].getX() + this.getRectSize() / 2),
-                    (int) (rectBoard[actualQueen.getRow()][actualQueen.getColumn()].getY() + this.getRectSize() / 2)
-            );
-        }
-
-        // Kralove
-        for (int i = 0; i < kings.size(); i++) {
-            King actualKing = kings.get(i);
-            actualKing.setRow(i*7);
-            actualKing.setColumn(4);
-            actualKing.setField(fieldBoard[actualKing.getRow()][actualKing.getColumn()]);
-            actualKing.moveTo(
-                    (int) (rectBoard[actualKing.getRow()][actualKing.getColumn()].getX() + this.getRectSize() / 2),
-                    (int) (rectBoard[actualKing.getRow()][actualKing.getColumn()].getY() + this.getRectSize() / 2)
-            );
-        }
-        isFirstLoad = false;
+        return allPieces;
     }
 
-    /**
-     * Vykresleni komponenty
-     *
-     * @param g graficky kontext
-     */
     @Override
-    public void paint(Graphics g) {
-        super.paint(g);
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
         paintChessBoard(g);
 
         if (lastWidth != this.getWidth() || lastHeight != this.getHeight()) {    // Aktualizace pozic pri zmene velikosti okna
-            // Pesaci
-            for (Pawn pawn : pawns) {
-                updatePiecesLocations(pawn);
-                paintPiece(g, pawn);
-            }
-            // Veze
-            for (Rook rook : rooks) {
-                updatePiecesLocations(rook);
-                paintPiece(g, rook);
-            }
-            // Kone
-            for (Knight knight : knights) {
-                updatePiecesLocations(knight);
-                paintPiece(g, knight);
-            }
-            // Strelci
-            for (Bishop bishop : bishops) {
-                updatePiecesLocations(bishop);
-                paintPiece(g, bishop);
-            }
-            // Kralovny
-            for (Queen queen : queens) {
-                updatePiecesLocations(queen);
-                paintPiece(g, queen);
-            }
-            // Kralove
-            for (King king : kings) {
-                updatePiecesLocations(king);
-                paintPiece(g, king);
+            // Aktualizace pozic
+            for (APiece piece : getAllPieces()) {
+                updatePiecesLocations(piece);
+                paintPiece(g, piece);
             }
             lastWidth = this.getWidth();
             lastHeight = this.getHeight();
         } else {
             if(isFirstLoad) {       // Test na prvotni nacteni
-                firstLoad();
+                //TODO First Load (uz hotovo, jen abych to nemusel hledat xd)
+                // Pesaci
+                int pawnColumn = 0;
+                for (int i = 0; i < pawns.size(); i++) {
+                    Pawn actualPawn = pawns.get(i);
+                    if (i < 8) {
+                        actualPawn.setRow(1);
+                        actualPawn.setColumn(i);
+                    } else {
+                        actualPawn.setRow(6);
+                        actualPawn.setColumn(pawnColumn);
+                        pawnColumn++;
+                    }
+                    fieldUpdate(actualPawn);
+                    actualPawn.moveTo(
+                            (int) (rectBoard[actualPawn.getRow()][actualPawn.getColumn()].getX() + this.getRectSize() / 2),
+                            (int) (rectBoard[actualPawn.getRow()][actualPawn.getColumn()].getY() + this.getRectSize() / 2)
+                    );
+                    paintPiece(g, actualPawn);
+                }
+
+                // Veze
+                int rookColumn = 0;
+                for (int i = 0; i < rooks.size(); i++) {
+                    Rook actualRook = rooks.get(i);
+                    if (i<2) {
+                        actualRook.setRow(0);
+                        actualRook.setColumn(i * 7);
+                        actualRook.setField(fieldBoard[actualRook.getRow()][actualRook.getColumn()]);
+                    } else {
+                        actualRook.setRow(7);
+                        actualRook.setColumn(rookColumn);
+                        actualRook.setField(fieldBoard[actualRook.getRow()][actualRook.getColumn()]);
+                        rookColumn += 7;
+                    }
+                    fieldUpdate(actualRook);
+                    actualRook.moveTo(
+                            (int) (rectBoard[actualRook.getRow()][actualRook.getColumn()].getX() + this.getRectSize() / 2),
+                            (int) (rectBoard[actualRook.getRow()][actualRook.getColumn()].getY() + this.getRectSize() / 2)
+                    );
+                    paintPiece(g, actualRook);
+                }
+
+                // Kone
+                for (int i = 0; i < knights.size(); i++) {
+                    Knight actualKnight = knights.get(i);
+                    if (i<2) {
+                        actualKnight.setRow(0);
+                        if(i==0) {
+                            actualKnight.setColumn(1);
+                        } else {
+                            actualKnight.setColumn(6);
+                        }
+                    } else {
+                        actualKnight.setRow(7);
+                        if(i==2) {
+                            actualKnight.setColumn(1);
+                        } else {
+                            actualKnight.setColumn(6);
+                        }
+                    }
+                    fieldUpdate(actualKnight);
+                    actualKnight.moveTo(
+                            (int) (rectBoard[actualKnight.getRow()][actualKnight.getColumn()].getX() + this.getRectSize() / 2),
+                            (int) (rectBoard[actualKnight.getRow()][actualKnight.getColumn()].getY() + this.getRectSize() / 2)
+                    );
+                    paintPiece(g, actualKnight);
+                }
+
+                // Strelci
+                for (int i = 0; i < bishops.size(); i++) {
+                    Bishop actualBishop = bishops.get(i);
+                    if (i<2) {
+                        actualBishop.setRow(0);
+                        if(i==0) {
+                            actualBishop.setColumn(2);
+                        } else {
+                            actualBishop.setColumn(5);
+                        }
+                    } else {
+                        actualBishop.setRow(7);
+                        if(i==2) {
+                            actualBishop.setColumn(2);
+                        } else {
+                            actualBishop.setColumn(5);
+                        }
+                    }
+                    fieldUpdate(actualBishop);
+                    actualBishop.moveTo(
+                            (int) (rectBoard[actualBishop.getRow()][actualBishop.getColumn()].getX() + this.getRectSize() / 2),
+                            (int) (rectBoard[actualBishop.getRow()][actualBishop.getColumn()].getY() + this.getRectSize() / 2)
+                    );
+                    paintPiece(g, actualBishop);
+                }
+
+                // Kralovny
+                for (int i = 0; i < queens.size(); i++) {
+                    Queen actualQueen = queens.get(i);
+                    actualQueen.setRow(i*7);
+                    actualQueen.setColumn(3);
+
+                    fieldUpdate(actualQueen);
+                    actualQueen.moveTo(
+                            (int) (rectBoard[actualQueen.getRow()][actualQueen.getColumn()].getX() + this.getRectSize() / 2),
+                            (int) (rectBoard[actualQueen.getRow()][actualQueen.getColumn()].getY() + this.getRectSize() / 2)
+                    );
+                    paintPiece(g, actualQueen);
+                }
+
+                // Kralove
+                for (int i = 0; i < kings.size(); i++) {
+                    King actualKing = kings.get(i);
+                    actualKing.setRow(i*7);
+                    actualKing.setColumn(4);
+
+                    fieldUpdate(actualKing);
+                    actualKing.moveTo(
+                            (int) (rectBoard[actualKing.getRow()][actualKing.getColumn()].getX() + this.getRectSize() / 2),
+                            (int) (rectBoard[actualKing.getRow()][actualKing.getColumn()].getY() + this.getRectSize() / 2)
+                    );
+                    paintPiece(g, actualKing);
+                }
                 isFirstLoad = false;
             }
             // Pesaci
             for (Pawn pawn : pawns) {
-                if (!pawn.isOut())
-                    paintPiece(g, pawn);
+                paintPiece(g, pawn);
             }
             // Veze
             for (Rook rook : rooks) {
@@ -370,6 +348,7 @@ public class ChessBoard extends JPanel {
             // Kralove
             for (King king : kings) {
                 paintPiece(g, king);
+
             }
         }
     }
@@ -393,8 +372,6 @@ public class ChessBoard extends JPanel {
             for (int column = 0; column < 8; column++) {   // hraci pole
                 Rectangle actualRectangle = new Rectangle(x, y, rectSize, rectSize);
                 rectBoard[row][column] = actualRectangle;
-                Field actualField = new Field(null, row, column);
-                fieldBoard[row][column] = actualField;
                 if ((row % 2 == 0) == (column % 2 == 0))
                     g2.setColor(WHITE);
                 else
@@ -416,7 +393,6 @@ public class ChessBoard extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
         AffineTransform old = g2.getTransform();
         piece.setPieceSize(this.getRectSize());
-
         piece.paint(g2);
         g2.setTransform(old);
     }
@@ -433,6 +409,11 @@ public class ChessBoard extends JPanel {
                 (int) rectBoard[piece.getRow()][piece.getColumn()].getY() + getRectSize()/2
         );
         piece.setPieceSize(getRectSize());
+        try {
+            printBoardUseMatrix();
+        } catch (Exception e) {
+            System.out.println("Matrix null");
+        }
     }
 
     /**
@@ -447,95 +428,36 @@ public class ChessBoard extends JPanel {
     public void eliminate(APiece piece, int oldFocusedPieceRow, int oldFocusedPieceColumn) {
         double sX = piece.getsX();
         double sY = piece.getsY();
-
         boolean isWhitePiece = piece.isWhite();
 
-        Iterator<Pawn> pawnIterator = pawns.iterator();
-        while (pawnIterator.hasNext()) {
-            Pawn pawn = pawnIterator.next();
+        List<APiece> allPieces = new ArrayList<>();
+        allPieces.addAll(pawns);
+        allPieces.addAll(rooks);
+        allPieces.addAll(knights);
+        allPieces.addAll(bishops);
+        allPieces.addAll(queens);
 
-            if (pawn.isPieceHit(sX, sY) && !pawn.equals(piece)) {   // pokud je zasazen jiny pesak a zaroven neni roven sam sobe
-                if (pawn.isWhite() != isWhitePiece) {
-                    eliminatedPieces.add(pawn);
-                    pawnIterator.remove();
-                    System.out.println(pawn.getClass().getSimpleName() + " ELIMINATED");
+        for (APiece otherPiece : allPieces) {
+            if (otherPiece.isPieceHit(sX, sY) && !otherPiece.equals(piece)) {
+                if (otherPiece.isWhite() != isWhitePiece) {
+                    eliminatedPieces.add(otherPiece);
+                    if (pawns.contains(otherPiece)) {
+                        pawns.remove(otherPiece);
+                    } else if (rooks.contains(otherPiece)) {
+                        rooks.remove(otherPiece);
+                    } else if (knights.contains(otherPiece)) {
+                        knights.remove(otherPiece);
+                    } else if (bishops.contains(otherPiece)) {
+                        bishops.remove(otherPiece);
+                    } else if (queens.contains(otherPiece)) {
+                        queens.remove(otherPiece);
+                    }
+                    System.out.println(otherPiece.getClass().getSimpleName() + " ELIMINATED");
                 } else {
                     piece.setRow(oldFocusedPieceRow);
                     piece.setColumn(oldFocusedPieceColumn);
                     updatePiecesLocations(piece);
-                    System.out.format("Invalid move, %s moved back to the last valid position.\n", pawn.getClass().getSimpleName());
-                }
-            }
-        }
-
-        Iterator<Rook> rookIterator = rooks.iterator();
-        while (rookIterator.hasNext()) {
-            Rook rook = rookIterator.next();
-
-            if (rook.isPieceHit(sX, sY) && !rook.equals(piece)) {   // pokud je zasazen jiny pesak a zaroven neni roven sam sobe
-                if (rook.isWhite() != isWhitePiece) {
-                    eliminatedPieces.add(rook);
-                    rookIterator.remove();
-                    System.out.println(rook.getClass().getSimpleName() + " ELIMINATED");
-                } else {
-                    piece.setRow(oldFocusedPieceRow);
-                    piece.setColumn(oldFocusedPieceColumn);
-                    updatePiecesLocations(piece);
-                    System.out.format("Invalid move, %s moved back to the last valid position.\n", rook.getClass().getSimpleName());
-                }
-            }
-        }
-
-        Iterator<Knight> knightIterator = knights.iterator();
-        while (knightIterator.hasNext()) {
-            Knight knight = knightIterator.next();
-
-            if (knight.isPieceHit(sX, sY) && !knight.equals(piece)) {   // pokud je zasazen jiny pesak a zaroven neni roven sam sobe
-                if (knight.isWhite() != isWhitePiece) {
-                    eliminatedPieces.add(knight);
-                    knightIterator.remove();
-                    System.out.println(knight.getClass().getSimpleName() + " ELIMINATED");
-                } else {
-                    piece.setRow(oldFocusedPieceRow);
-                    piece.setColumn(oldFocusedPieceColumn);
-                    updatePiecesLocations(piece);
-                    System.out.format("Invalid move, %s moved back to the last valid position.\n", knight.getClass().getSimpleName());
-                }
-            }
-        }
-
-        Iterator<Bishop> bishopIterator = bishops.iterator();
-        while (bishopIterator.hasNext()) {
-            Bishop bishop = bishopIterator.next();
-
-            if (bishop.isPieceHit(sX, sY) && !bishop.equals(piece)) {   // pokud je zasazen jiny pesak a zaroven neni roven sam sobe
-                if (bishop.isWhite() != isWhitePiece) {
-                    eliminatedPieces.add(bishop);
-                    bishopIterator.remove();
-                    System.out.println(bishop.getClass().getSimpleName() + " ELIMINATED");
-                } else {
-                    piece.setRow(oldFocusedPieceRow);
-                    piece.setColumn(oldFocusedPieceColumn);
-                    updatePiecesLocations(piece);
-                    System.out.format("Invalid move, %s moved back to the last valid position.\n", bishop.getClass().getSimpleName());
-                }
-            }
-        }
-
-        Iterator<Queen> queenIterator = queens.iterator();
-        while (queenIterator.hasNext()) {
-            Queen queen = queenIterator.next();
-
-            if (queen.isPieceHit(sX, sY) && !queen.equals(piece)) {   // pokud je zasazen jiny pesak a zaroven neni roven sam sobe
-                if (queen.isWhite() != isWhitePiece) {
-                    eliminatedPieces.add(queen);
-                    queenIterator.remove();
-                    System.out.println(queen.getClass().getSimpleName() + " ELIMINATED");
-                } else {
-                    piece.setRow(oldFocusedPieceRow);
-                    piece.setColumn(oldFocusedPieceColumn);
-                    updatePiecesLocations(piece);
-                    System.out.format("Invalid move, %s moved back to the last valid position.\n", queen.getClass().getSimpleName());
+                    System.out.format("Invalid move, %s moved back to the last valid position.\n", otherPiece.getClass().getSimpleName());
                 }
             }
         }
@@ -570,27 +492,27 @@ public class ChessBoard extends JPanel {
             gameOverSB.append("Hra skončila! Vítěz: Bílý");
         }
 
-        JOptionPane gameOverDialog = new JOptionPane(gameOverSB);
-        gameOverDialog.setVisible(true);
-
-
+        //JOptionPane gameOverPane = new JOptionPane(gameOverSB, JOptionPane.PLAIN_MESSAGE);
+        JOptionPane gameOverPane = new JOptionPane(gameOverSB, JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, null, new Object[]{}, null);
+        gameOverPane.setVisible(true);
 
         JButton newGameBTN = new JButton("New game");
-        gameOverDialog.add(newGameBTN);
+        gameOverPane.add(newGameBTN);
 
         JButton exitBTN = new JButton("Exit");
-        gameOverDialog.add(exitBTN);
-
+        gameOverPane.add(exitBTN);
 
         exitBTN.addActionListener(event -> System.exit(0));
-        JDialog dialog = gameOverDialog.createDialog(null, "Konec hry");
+        JDialog dialog = gameOverPane.createDialog(null, "Konec hry");
         newGameBTN.addActionListener(event -> {
-            firstLoad();
+            isFirstLoad = true;
+            init();
             dialog.setVisible(false);
         });
         dialog.setVisible(true);
-
     }
+
+
 
     /**
      * Metoda pro MouseMotionListener, ktera zajistuje zmenu barvy figurky pri tahnuti mysi a spravne aktualni souradnice
@@ -613,9 +535,8 @@ public class ChessBoard extends JPanel {
      */
     public void mouseReleased(MouseEvent e, APiece focusedPiece) {
 
-        int oldFocusedPieceRow = 1000;
-        int oldFocusedPieceColumn = 1000;
-
+        int oldFocusedPieceRow = 0;
+        int oldFocusedPieceColumn = 0;
 
         Rectangle focusedRectangle;
         for (int row = 0; row < 8; row++) {
@@ -626,21 +547,20 @@ public class ChessBoard extends JPanel {
                     oldFocusedPieceRow = focusedPiece.getRow();
                     oldFocusedPieceColumn = focusedPiece.getColumn();
 
-                    focusedPiece.moveTo((int) focusedRectangle.getX() + getRectSize() / 2, (int) focusedRectangle.getY() + getRectSize() / 2);
-                    focusedPiece.setRow(row);
-                    focusedPiece.setColumn(column);
-                    focusedPiece.setField(fieldBoard[row][column]);
-
-                    //TODO wtf to co je tenhle if blok LMAO
-                    if(focusedPiece.getField().isUsed()) {
-                        System.out.println(focusedPiece.getField().getPiece() + " is out!");
-                        focusedPiece.getField().getPiece().setOut(true);
-
-                        focusedPiece.getField().setPiece(focusedPiece);     // nastaveni figurky do noveho fieldu
+                    if (focusedPiece.getClass().getSimpleName().equals("Pawn") && Move.pawnMove(focusedPiece, row, column)) {
+                        validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
+                    } else if (focusedPiece.getClass().getSimpleName().equals("Rook") && Move.rookMove(focusedPiece, row, column)) {
+                        validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
+                    } else if (focusedPiece.getClass().getSimpleName().equals("Bishop") && Move.bishopMove(focusedPiece, row, column)) {
+                        validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
+                    } else if (focusedPiece.getClass().getSimpleName().equals("Queen")) {
+                        // Moznosti kralovny = kombinace pohybu veze a strelce
+                        if (Move.rookMove(focusedPiece, row, column)) {
+                            validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
+                        } else if (Move.bishopMove(focusedPiece, row, column)) {
+                            validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
+                        }
                     }
-                    focusedPiece.getField().setUsed(true);
-                    System.out.println(" to field [row: " + focusedPiece.getField().getRow() + "; column: " + focusedPiece.getField().getColumn() + "; isUsed:" + focusedPiece.getField().isUsed() + "]");
-
                 }
             }
             if (focusedPiece.isWhite()) {
@@ -650,10 +570,61 @@ public class ChessBoard extends JPanel {
             }
             updatePiecesLocations(focusedPiece);
             lastMovedPiece = focusedPiece;
-
         }
         eliminate(lastMovedPiece, oldFocusedPieceRow, oldFocusedPieceColumn);
+        if (promotion) {
+            promotion(focusedPiece);
+        }
         this.focusedPiece = null;   // obstara odebrani focusu po pusteni mysi
+    }
+
+    public void validMove(APiece focusedPiece, Rectangle focusedRectangle, int row, int column, int  oldFocusedPieceRow, int oldFocusedPieceColumn) {
+        focusedPiece.moveTo(
+                (int) focusedRectangle.getX() + getRectSize() / 2,
+                (int) focusedRectangle.getY() + getRectSize() / 2);
+        focusedPiece.setRow(row);
+        focusedPiece.setColumn(column);
+        focusedPiece.setField(fieldBoard[row][column]);
+
+        fieldBoard[oldFocusedPieceRow][oldFocusedPieceColumn].setPiece(null);   // nastaveni stare bunky na prazdnou
+        fieldUpdate(focusedPiece);
+    }
+
+    /**
+     * Aktualizuje info o poli u figurky a info o figurce u pole
+     *
+     * @param piece aktualizovana figurka
+     */
+    public void fieldUpdate(APiece piece) {
+        piece.setField(fieldBoard[piece.getRow()][piece.getColumn()]);
+        fieldBoard[piece.getRow()][piece.getColumn()].setPiece(piece);
+        updatePiecesLocations(piece);
+    }
+
+    private void promotion(APiece pawn) {
+        int pawnRow = pawn.getRow();
+        int pawnCol = pawn.getColumn();
+        int pawnSx = pawn.getsX();
+        int pawnSy = pawn.getsY();
+        boolean pawnIsWhite = pawn.isWhite();
+
+        Iterator<Pawn> pawnIterator = pawns.iterator();
+        while (pawnIterator.hasNext()) {
+            Pawn pawnTemp = pawnIterator.next();
+            if (pawnTemp.equals(pawn)) {
+                pawnIterator.remove();
+                System.out.print("Pawn removed, ");
+            }
+        }
+
+        Queen queen = new Queen(pawnSx, pawnSy, pawnIsWhite);
+        queen.setRow(pawnRow);
+        queen.setColumn(pawnCol);
+        queens.add(queen);
+        fieldUpdate(queen);
+        System.out.println("Queen summoned.");
+        promotion = false;
+        System.out.println("Promotion = false");
     }
 
     //======================================== Gettery ========================================
@@ -663,5 +634,15 @@ public class ChessBoard extends JPanel {
      */
     public int getRectSize() {
         return rectSize;
+    }
+
+    private void printBoardUseMatrix() {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                System.out.print(fieldBoard[i][j].isUsed() + "\t|\t");
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
 }

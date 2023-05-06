@@ -42,9 +42,6 @@ public abstract class APiece extends JPanel {
     /** Pole figurky */
     private Field field;
 
-    /** Test na to, zda je figurka stale ve hre */
-    private boolean isOut;
-
     //======================================== Konstruktory ========================================
 
     /**
@@ -58,7 +55,6 @@ public abstract class APiece extends JPanel {
         this.sX = sX;
         this.sY = sY;
         this.isWhite = isWhite;
-        this.isOut = false;
         if (isWhite) {
             setPieceColor(PIECE_WHITE);
         } else {
@@ -163,13 +159,6 @@ public abstract class APiece extends JPanel {
     }
 
     /**
-     * @return true, pokud figurka jiz byla vyhozena jinou figurkou, jinak false
-     */
-    public boolean isOut() {
-        return isOut;
-    }
-
-    /**
      * @return velikost figurky
      */
     public int getPieceSize() {
@@ -219,13 +208,6 @@ public abstract class APiece extends JPanel {
      */
     public void setField(Field field) {
         this.field = field;
-    }
-
-    /**
-     * @param isOut true, pokud figurka jiz byla vyhozena jinou figurkou, jinak false
-     */
-    public void setOut(boolean isOut) {
-        this.isOut = isOut;
     }
 
     /**
