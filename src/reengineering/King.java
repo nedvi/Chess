@@ -19,7 +19,7 @@ public class King extends APiece {
      * @param sY souradnice stredove souradnice Y
      * @param isWhite test na barvu figurky (bila/cerna)
      */
-    public King(int sX, int sY, boolean isWhite) {
+    public King(double sX, double sY, boolean isWhite) {
         super(sX, sY, isWhite);
     }
 

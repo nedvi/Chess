@@ -19,7 +19,7 @@ public class Pawn extends APiece {
 	 * @param sY souradnice stredove souradnice Y
 	 * @param isWhite test na barvu figurky (bila/cerna)
 	 */
-	public Pawn(int sX, int sY, boolean isWhite) {
+	public Pawn(double sX, double sY, boolean isWhite) {
 		super(sX, sY, isWhite);
 	}
 

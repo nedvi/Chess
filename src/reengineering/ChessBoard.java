@@ -63,11 +63,13 @@ public class ChessBoard extends JPanel {
     /** Deklarace pole kralu */
     private List<King> kings;
 
-    private APiece lastMovedPiece;
-
     private List<APiece> eliminatedPieces;
 
     public static boolean promotion;
+
+    private long startTime = System.currentTimeMillis();
+
+    private Timer moveTimer;
 
     private void init() {
         // Pesaci
@@ -410,7 +412,7 @@ public class ChessBoard extends JPanel {
         );
         piece.setPieceSize(getRectSize());
         try {
-            printBoardUseMatrix();
+            //printBoardUseMatrix();
         } catch (Exception e) {
             System.out.println("Matrix null");
         }
@@ -437,11 +439,62 @@ public class ChessBoard extends JPanel {
         allPieces.addAll(bishops);
         allPieces.addAll(queens);
 
+        boolean enPassantDone = false;
+
+        APiece enPassantPiece = null;
+        APiece enPassantPieceLeft;
+        APiece enPassantPieceRight;
+
+        System.out.println("Dostane se to sem?");
+        System.out.println("A sem?");
+        if (piece.getClass().getSimpleName().equals("Pawn")) {
+            try {
+                enPassantPieceLeft = ChessBoard.fieldBoard[oldFocusedPieceRow][oldFocusedPieceColumn - 1].getPiece();
+                enPassantPiece = enPassantPieceLeft;
+            } catch (Exception e) {
+                System.out.println("En passant left null");
+            }
+
+            try {
+                enPassantPieceRight = ChessBoard.fieldBoard[oldFocusedPieceRow][oldFocusedPieceColumn + 1].getPiece();
+                enPassantPiece = enPassantPieceRight;
+            } catch (Exception e) {
+                System.out.println("En passant right null");
+            }
+        }
+
+        if (enPassantPiece != null) {
+            System.out.println("Je to null lmao?");
+            if (enPassantPiece.isEnPassant()) {
+                System.out.println("Je to enPassant lmao?");
+                if (enPassantPiece.isWhite() != piece.isWhite() && enPassantPiece.getColumn() == piece.getColumn()) {
+                    eliminatedPieces.add(enPassantPiece);
+                    System.out.println("En passant elimination works!");
+                    enPassantPiece.getField().setPiece(null);
+                    pawns.remove(enPassantPiece);
+                    enPassantDone = true;
+                }
+            }
+        }
+
+        for (Pawn pawn : pawns) {
+            if (pawn.isEnPassant()) {
+                if (!pawn.wasEnPassantAlready()) {
+                    pawn.setWasEnPassantAlready(true);
+                } else if (pawn.wasEnPassantAlready()) {
+                    pawn.setEnPassant(false);
+                    pawn.setWasEnPassantAlready(false);
+                }
+            }
+        }
+
+        printEnPassantMatrix();
+
         for (APiece otherPiece : allPieces) {
             if (otherPiece.isPieceHit(sX, sY) && !otherPiece.equals(piece)) {
                 if (otherPiece.isWhite() != isWhitePiece) {
                     eliminatedPieces.add(otherPiece);
-                    if (pawns.contains(otherPiece)) {
+                    if (pawns.contains(otherPiece) ) {
                         pawns.remove(otherPiece);
                     } else if (rooks.contains(otherPiece)) {
                         rooks.remove(otherPiece);
@@ -459,6 +512,9 @@ public class ChessBoard extends JPanel {
                     updatePiecesLocations(piece);
                     System.out.format("Invalid move, %s moved back to the last valid position.\n", otherPiece.getClass().getSimpleName());
                 }
+            } else if (enPassantDone) {
+                System.out.println("En passant successfuly finished");
+                enPassantDone = false;
             }
         }
 
@@ -481,6 +537,7 @@ public class ChessBoard extends JPanel {
                 }
             }
         }
+
     }
 
     private void gameOver(King eliminatedKing) {
@@ -511,8 +568,6 @@ public class ChessBoard extends JPanel {
         });
         dialog.setVisible(true);
     }
-
-
 
     /**
      * Metoda pro MouseMotionListener, ktera zajistuje zmenu barvy figurky pri tahnuti mysi a spravne aktualni souradnice
@@ -568,9 +623,8 @@ public class ChessBoard extends JPanel {
                 focusedPiece.setPieceColor(Pawn.PIECE_BLACK);
             }
             updatePiecesLocations(focusedPiece);
-            lastMovedPiece = focusedPiece;
         }
-        eliminate(lastMovedPiece, oldFocusedPieceRow, oldFocusedPieceColumn);
+
         if (promotion) {
             promotion(focusedPiece);
         }
@@ -578,15 +632,18 @@ public class ChessBoard extends JPanel {
     }
 
     public void validMove(APiece focusedPiece, Rectangle focusedRectangle, int row, int column, int  oldFocusedPieceRow, int oldFocusedPieceColumn) {
+        //TODO: zkusit iterovat pres pole pescu - pokud nekdo isEnPassant true - tak nastavit false
+
         focusedPiece.moveTo(
-                (int) focusedRectangle.getX() + getRectSize() / 2,
-                (int) focusedRectangle.getY() + getRectSize() / 2);
+                focusedRectangle.getX() + getRectSize() / 2.0,
+                focusedRectangle.getY() + getRectSize() / 2.0);
         focusedPiece.setRow(row);
         focusedPiece.setColumn(column);
         focusedPiece.setField(fieldBoard[row][column]);
 
         fieldBoard[oldFocusedPieceRow][oldFocusedPieceColumn].setPiece(null);   // nastaveni stare bunky na prazdnou
         fieldUpdate(focusedPiece);
+        eliminate(focusedPiece, oldFocusedPieceRow, oldFocusedPieceColumn);
     }
 
     /**
@@ -603,8 +660,8 @@ public class ChessBoard extends JPanel {
     private void promotion(APiece pawn) {
         int pawnRow = pawn.getRow();
         int pawnCol = pawn.getColumn();
-        int pawnSx = pawn.getsX();
-        int pawnSy = pawn.getsY();
+        double pawnSx = pawn.getsX();
+        double pawnSy = pawn.getsY();
         boolean pawnIsWhite = pawn.isWhite();
 
         Iterator<Pawn> pawnIterator = pawns.iterator();
@@ -643,5 +700,18 @@ public class ChessBoard extends JPanel {
             System.out.println();
         }
         System.out.println();
+    }
+
+    private void printEnPassantMatrix() {
+        System.out.println("Black en passant pawns");
+        for (Pawn pawn : pawns) {
+            if (!pawn.isWhite())
+                System.out.print(pawn.isEnPassant() + "\t|\t");
+        }
+        System.out.println("\nWhite en passant pawns");
+        for (Pawn pawn : pawns) {
+            if (pawn.isWhite())
+                System.out.print(pawn.isEnPassant() + "\t|\t");
+        }
     }
 }

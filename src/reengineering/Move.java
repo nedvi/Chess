@@ -1,10 +1,26 @@
 package reengineering;
 
-public class Move{
+public class Move {
     public static boolean pawnMove(APiece pawn, int wantedRow, int wantedCol) {
+        APiece enPassantPieceLeft = null;
+        APiece enPassantPieceRight = null;
+        if (pawn.getColumn() == 0) {
+            enPassantPieceRight = ChessBoard.fieldBoard[pawn.getRow()][pawn.getColumn() + 1].getPiece();
+        } else if (pawn.getColumn() == 7) {
+            enPassantPieceLeft = ChessBoard.fieldBoard[pawn.getRow()][pawn.getColumn() - 1].getPiece();
+        } else {
+            enPassantPieceLeft = ChessBoard.fieldBoard[pawn.getRow()][pawn.getColumn() - 1].getPiece();
+            enPassantPieceRight = ChessBoard.fieldBoard[pawn.getRow()][pawn.getColumn() + 1].getPiece();
+        }
         if (pawn.isWhite()) {
             //TODO: Pro bile pesce
             //TODO: Naimplementovat brani mimochodem
+
+
+            if ((enPassantPieceLeft != null && enPassantPieceLeft.isEnPassant() && !enPassantPieceLeft.isWhite() && enPassantPieceLeft.getColumn() != pawn.getColumn()) || (enPassantPieceRight != null && enPassantPieceRight.isEnPassant() && !enPassantPieceRight.isWhite() && enPassantPieceRight.getColumn() != pawn.getColumn())) {
+                System.out.println("Prosla ta zpicena en passant podminka? - bily vyhazuje cernou");
+                return true;
+            }
             if (wantedRow == pawn.getRow() - 1 && ((wantedCol == pawn.getColumn() - 1 ) || (wantedCol == pawn.getColumn() + 1)) && ChessBoard.fieldBoard[wantedRow][wantedCol].getPiece() != null) {
                 if (wantedRow == 0) {
                     ChessBoard.promotion = true;
@@ -14,6 +30,9 @@ public class Move{
             }
             if (pawn.getRow() == 6) {   // Kdyz je pesec na sve startovaci pozici
                 if (wantedRow < pawn.getRow() && wantedRow >= pawn.getRow() - 2 && pawn.getColumn() == wantedCol && ChessBoard.fieldBoard[wantedRow][wantedCol].getPiece() == null) {
+                    if (wantedRow == pawn.getRow() - 2) {
+                        pawn.setEnPassant(true);
+                    }
                     return true;
                 }
             } else if (wantedRow < pawn.getRow() && wantedRow == pawn.getRow() - 1 && pawn.getColumn() == wantedCol && ChessBoard.fieldBoard[wantedRow][wantedCol].getPiece() == null) {
@@ -26,6 +45,32 @@ public class Move{
 
         } else {
             //TODO: Pro cerne pesce
+
+            if ((enPassantPieceLeft != null && enPassantPieceLeft.isEnPassant() && enPassantPieceLeft.isWhite() && enPassantPieceLeft.getColumn() != pawn.getColumn()) || (enPassantPieceRight != null && enPassantPieceRight.isEnPassant() && enPassantPieceRight.isWhite() && enPassantPieceRight.getColumn() != pawn.getColumn())) {
+                System.out.println("Prosla ta zpicena podminka? - cernej vyhazuje bilou");
+                return true;
+            }
+            if (wantedRow == pawn.getRow() + 1 && ((wantedCol == pawn.getColumn() - 1 ) || (wantedCol == pawn.getColumn() + 1)) && ChessBoard.fieldBoard[wantedRow][wantedCol].getPiece() != null) {
+                if (wantedRow == 7) {
+                    ChessBoard.promotion = true;
+                    System.out.println("Promotion = true");
+                }
+                return true;
+            }
+            if (pawn.getRow() == 1) {   // Kdyz je pesec na sve startovaci pozici
+                if (wantedRow > pawn.getRow() && wantedRow <= pawn.getRow() + 2 && pawn.getColumn() == wantedCol && ChessBoard.fieldBoard[wantedRow][wantedCol].getPiece() == null) {
+                    if (wantedRow == pawn.getRow() + 2) {
+                        pawn.setEnPassant(true);
+                    }
+                    return true;
+                }
+            } else if (wantedRow > pawn.getRow() && wantedRow == pawn.getRow() + 1 && pawn.getColumn() == wantedCol && ChessBoard.fieldBoard[wantedRow][wantedCol].getPiece() == null) {
+                if (wantedRow == 0) {
+                    ChessBoard.promotion = true;
+                    System.out.println("Promotion = true");
+                }
+                return true;
+            }
         }
         return false;
     }

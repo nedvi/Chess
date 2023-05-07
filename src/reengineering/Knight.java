@@ -19,7 +19,7 @@ public class Knight extends APiece {
      * @param sY souradnice stredove souradnice Y
      * @param isWhite test na barvu figurky (bila/cerna)
      */
-    public Knight(int sX, int sY, boolean isWhite) {
+    public Knight(double sX, double sY, boolean isWhite) {
         super(sX, sY, isWhite);
     }
 

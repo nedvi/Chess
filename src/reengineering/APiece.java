@@ -19,10 +19,10 @@ public abstract class APiece extends JPanel {
     protected Path2D piece;
 
     /** Stredova souradnice X figurky */
-    private int sX;
+    private double sX;
 
     /** Stredova souradnice Y figurky */
-    private int sY;
+    private double sY;
 
     /** Barva figurky */
     private Color pieceColor;
@@ -42,6 +42,9 @@ public abstract class APiece extends JPanel {
     /** Pole figurky */
     private Field field;
 
+    private boolean enPassant = false;
+    private boolean wasEnPassantAlready = false;
+
     //======================================== Konstruktory ========================================
 
     /**
@@ -51,7 +54,7 @@ public abstract class APiece extends JPanel {
      * @param sY souradnice stredove souradnice Y
      * @param isWhite test na barvu figurky (bila/cerna)
      */
-    public APiece(int sX, int sY, boolean isWhite) {
+    public APiece(double sX, double sY, boolean isWhite) {
         this.sX = sX;
         this.sY = sY;
         this.isWhite = isWhite;
@@ -123,9 +126,15 @@ public abstract class APiece extends JPanel {
      * @param x souradnice X
      * @param y souradnice Y
      */
-    public void moveTo(int x, int y) {
+    public void moveTo(double x, double y) {
         this.sX = x;
         this.sY = y;
+    }
+
+    public double distanceTo(double x, double y) {
+        double dx = x - this.sX;
+        double dy = y - this.sY;
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
     //======================================== Gettery ========================================
@@ -169,7 +178,7 @@ public abstract class APiece extends JPanel {
      * Getter pro stredovou souradnici X
      * @return stredova souradnice X
      */
-    public int getsX() {
+    public double getsX() {
         return sX;
     }
 
@@ -177,8 +186,21 @@ public abstract class APiece extends JPanel {
      * Getter pro stredovou souradnici Y
      * @return stredova souradnice Y
      */
-    public int getsY() {
+    public double getsY() {
         return sY;
+    }
+
+    /**
+     * Kontrola, zda jde pesak vzit mimochodem
+     *
+     * @return true pokud jde vzit mimochodem (ihned po dvojtahu)
+     */
+    public boolean isEnPassant() {
+        return enPassant;
+    }
+
+    public boolean wasEnPassantAlready() {
+        return wasEnPassantAlready;
     }
 
     //======================================== Settery ========================================
@@ -227,6 +249,14 @@ public abstract class APiece extends JPanel {
      */
     public void setPieceColor(Color pieceColor) {
         this.pieceColor = pieceColor;
+    }
+
+    public void setEnPassant(boolean enPassant) {
+        this.enPassant = enPassant;
+    }
+
+    public void setWasEnPassantAlready(boolean wasEnPassantAlready) {
+        this.wasEnPassantAlready = wasEnPassantAlready;
     }
 
     @Override

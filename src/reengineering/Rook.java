@@ -19,7 +19,7 @@ public class Rook extends APiece {
      * @param sY souradnice stredove souradnice Y
      * @param isWhite test na barvu figurky (bila/cerna)
      */
-    public Rook(int sX, int sY, boolean isWhite) {
+    public Rook(double sX, double sY, boolean isWhite) {
         super(sX, sY, isWhite);
     }
 

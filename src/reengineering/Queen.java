@@ -19,7 +19,7 @@ public class Queen extends APiece {
      * @param sY souradnice stredove souradnice Y
      * @param isWhite test na barvu figurky (bila/cerna)
      */
-    public Queen(int sX, int sY, boolean isWhite) {
+    public Queen(double sX, double sY, boolean isWhite) {
         super(sX, sY, isWhite);
     }
 
