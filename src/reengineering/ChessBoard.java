@@ -2,8 +2,6 @@ package reengineering;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
@@ -14,7 +12,7 @@ import java.util.List;
  * Trida reprezentujici sachovnici
  *
  * @author Dominik Nedved, A22B0109P
- * @version 26.03.2023
+ * @version 07.05.2023
  */
 public class ChessBoard extends JPanel {
 
@@ -63,14 +61,17 @@ public class ChessBoard extends JPanel {
     /** Deklarace pole kralu */
     private List<King> kings;
 
+    /**
+     * Deklarace pole eliminiovanych
+     */
     private List<APiece> eliminatedPieces;
 
+    /** Kontrola probihajici promeny*/
     public static boolean promotion;
 
-    private long startTime = System.currentTimeMillis();
-
-    private Timer moveTimer;
-
+    /**
+     * Inicializacni metoda pro novou hru
+     */
     private void init() {
         // Pesaci
         pawns = new ArrayList<>();
@@ -144,11 +145,7 @@ public class ChessBoard extends JPanel {
         // Volani repaint() kdekoliv ve tride totiz jen dava pozadavek
         // na co nejdrivejsi prekresleni v aktualnim vlakne,
         // coz se muze projevit podstatne pozdeji (nebo vubec xd)
-        new Timer(timerDelay, new ActionListener(){
-            public void actionPerformed(ActionEvent e) {
-                repaint();
-            }
-        }).start();
+        new Timer(timerDelay, e -> repaint()).start();
         init();
 
     }
@@ -175,6 +172,11 @@ public class ChessBoard extends JPanel {
         return null;
     }
 
+    /**
+     * Vytvoreni jednoho seznamu vsech figurek na sachovnici
+     *
+     * @return seznam vsech figurek na sachovnici
+     */
     public List<APiece> getAllPieces() {
         List<APiece> allPieces = new ArrayList<>();
 
@@ -188,6 +190,11 @@ public class ChessBoard extends JPanel {
         return allPieces;
     }
 
+    /**
+     * Vykresleni celkoveho panelu
+     *
+     * @param g the <code>Graphics</code> object to protect
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -203,7 +210,6 @@ public class ChessBoard extends JPanel {
             lastHeight = this.getHeight();
         } else {
             if(isFirstLoad) {       // Test na prvotni nacteni
-                //TODO First Load (uz hotovo, jen abych to nemusel hledat xd)
                 // Pesaci
                 int pawnColumn = 0;
                 for (int i = 0; i < pawns.size(); i++) {
@@ -407,21 +413,17 @@ public class ChessBoard extends JPanel {
      */
     public void updatePiecesLocations(APiece piece) {
         piece.moveTo(
-                (int) rectBoard[piece.getRow()][piece.getColumn()].getX() + getRectSize()/2,
-                (int) rectBoard[piece.getRow()][piece.getColumn()].getY() + getRectSize()/2
+                (int) rectBoard[piece.getRow()][piece.getColumn()].getX() + getRectSize()/2.0,
+                (int) rectBoard[piece.getRow()][piece.getColumn()].getY() + getRectSize()/2.0
         );
         piece.setPieceSize(getRectSize());
-        try {
-            //printBoardUseMatrix();
-        } catch (Exception e) {
-            System.out.println("Matrix null");
-        }
     }
 
     /**
      * Metoda pro kontrolu, zda nebyla nektera z figurek eliminovana.
      * Pokud se ukaze, ze ano, figurka bude odebrana z hraciho pole a presune se do seznamu vyrazenych.
      * Zaroven je zde osetrena situace, kdy by se figurka snazila vyhodit figurku ze svych rad :).
+     * V metode je osetrena i druha cast brani mimochodem (prvni je v Move.pawnMove())
      *
      * @param piece posledni zahrana figurka
      * @param oldFocusedPieceRow uchovani indexu rady pro pripad nevalidniho tahu
@@ -445,8 +447,6 @@ public class ChessBoard extends JPanel {
         APiece enPassantPieceLeft;
         APiece enPassantPieceRight;
 
-        System.out.println("Dostane se to sem?");
-        System.out.println("A sem?");
         if (piece.getClass().getSimpleName().equals("Pawn")) {
             try {
                 enPassantPieceLeft = ChessBoard.fieldBoard[oldFocusedPieceRow][oldFocusedPieceColumn - 1].getPiece();
@@ -464,12 +464,9 @@ public class ChessBoard extends JPanel {
         }
 
         if (enPassantPiece != null) {
-            System.out.println("Je to null lmao?");
             if (enPassantPiece.isEnPassant()) {
-                System.out.println("Je to enPassant lmao?");
                 if (enPassantPiece.isWhite() != piece.isWhite() && enPassantPiece.getColumn() == piece.getColumn()) {
                     eliminatedPieces.add(enPassantPiece);
-                    System.out.println("En passant elimination works!");
                     enPassantPiece.getField().setPiece(null);
                     pawns.remove(enPassantPiece);
                     enPassantDone = true;
@@ -488,8 +485,6 @@ public class ChessBoard extends JPanel {
             }
         }
 
-        printEnPassantMatrix();
-
         for (APiece otherPiece : allPieces) {
             if (otherPiece.isPieceHit(sX, sY) && !otherPiece.equals(piece)) {
                 if (otherPiece.isWhite() != isWhitePiece) {
@@ -505,15 +500,13 @@ public class ChessBoard extends JPanel {
                     } else if (queens.contains(otherPiece)) {
                         queens.remove(otherPiece);
                     }
-                    System.out.println(otherPiece.getClass().getSimpleName() + " ELIMINATED");
+                    //System.out.println(otherPiece.getClass().getSimpleName() + " ELIMINATED");
                 } else {
                     piece.setRow(oldFocusedPieceRow);
                     piece.setColumn(oldFocusedPieceColumn);
                     updatePiecesLocations(piece);
-                    System.out.format("Invalid move, %s moved back to the last valid position.\n", otherPiece.getClass().getSimpleName());
                 }
             } else if (enPassantDone) {
-                System.out.println("En passant successfuly finished");
                 enPassantDone = false;
             }
         }
@@ -527,36 +520,40 @@ public class ChessBoard extends JPanel {
                     eliminatedPieces.add(king);
 
                     kingIterator.remove();
-                    System.out.println(king.getClass().getSimpleName() + " ELIMINATED");
+                    //System.out.println(king.getClass().getSimpleName() + " ELIMINATED");
                     gameOver(king);
                 } else {
                     piece.setRow(oldFocusedPieceRow);
                     piece.setColumn(oldFocusedPieceColumn);
                     updatePiecesLocations(piece);
-                    System.out.format("Invalid move, %s moved back to the last valid position.\n", king.getClass().getSimpleName());
                 }
             }
         }
 
     }
 
+    /**
+     * Metoda pro konec hry
+     * Zobrazi dialogove okno s vysledkem hry + informace o hre
+     *
+     * @param eliminatedKing vyrazeny kral
+     */
     private void gameOver(King eliminatedKing) {
         StringBuilder gameOverSB = new StringBuilder();
 
         if (eliminatedKing.isWhite()) {
-            gameOverSB.append("Hra skončila! Vítěz: Černý");
+            gameOverSB.append("Hra skoncila! Vitez: Cerny");
         } else {
-            gameOverSB.append("Hra skončila! Vítěz: Bílý");
+            gameOverSB.append("Hra skoncila! Vitez: Bily");
         }
 
-        //JOptionPane gameOverPane = new JOptionPane(gameOverSB, JOptionPane.PLAIN_MESSAGE);
         JOptionPane gameOverPane = new JOptionPane(gameOverSB, JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, null, new Object[]{}, null);
         gameOverPane.setVisible(true);
 
-        JButton newGameBTN = new JButton("New game");
+        JButton newGameBTN = new JButton("Nova hra");
         gameOverPane.add(newGameBTN);
 
-        JButton exitBTN = new JButton("Exit");
+        JButton exitBTN = new JButton("Ukoncit program");
         gameOverPane.add(exitBTN);
 
         exitBTN.addActionListener(event -> System.exit(0));
@@ -590,15 +587,14 @@ public class ChessBoard extends JPanel {
      */
     public void mouseReleased(MouseEvent e, APiece focusedPiece) {
 
-        int oldFocusedPieceRow = 0;
-        int oldFocusedPieceColumn = 0;
+        int oldFocusedPieceRow;
+        int oldFocusedPieceColumn;
 
         Rectangle focusedRectangle;
         for (int row = 0; row < 8; row++) {
             for (int column = 0; column < 8; column++) {
                 focusedRectangle = rectBoard[row][column];
                 if (focusedRectangle.contains(e.getX(), e.getY())) {
-
                     oldFocusedPieceRow = focusedPiece.getRow();
                     oldFocusedPieceColumn = focusedPiece.getColumn();
 
@@ -631,6 +627,16 @@ public class ChessBoard extends JPanel {
         this.focusedPiece = null;   // obstara odebrani focusu po pusteni mysi
     }
 
+    /**
+     * Provede jiz zvalidovany pohyb a korektne upravi vlastnosti figurek a poli, pripadne provede eliminaci jine figurky
+     *
+     * @param focusedPiece figurka, se kterou byl proveden pohyb
+     * @param focusedRectangle ctverec na sachovnici, na kterou je figurka presouvana
+     * @param row novy index radky
+     * @param column novy index sloupce
+     * @param oldFocusedPieceRow stary index radky
+     * @param oldFocusedPieceColumn stary index sloupce
+     */
     public void validMove(APiece focusedPiece, Rectangle focusedRectangle, int row, int column, int  oldFocusedPieceRow, int oldFocusedPieceColumn) {
         //TODO: zkusit iterovat pres pole pescu - pokud nekdo isEnPassant true - tak nastavit false
 
@@ -640,9 +646,9 @@ public class ChessBoard extends JPanel {
         focusedPiece.setRow(row);
         focusedPiece.setColumn(column);
         focusedPiece.setField(fieldBoard[row][column]);
-
         fieldBoard[oldFocusedPieceRow][oldFocusedPieceColumn].setPiece(null);   // nastaveni stare bunky na prazdnou
         fieldUpdate(focusedPiece);
+        focusedPiece.setMovedAlready(true);
         eliminate(focusedPiece, oldFocusedPieceRow, oldFocusedPieceColumn);
     }
 
@@ -657,6 +663,11 @@ public class ChessBoard extends JPanel {
         updatePiecesLocations(piece);
     }
 
+    /**
+     * Provede promenu pesce v kralovnu
+     *
+     * @param pawn promeneny pesec
+     */
     private void promotion(APiece pawn) {
         int pawnRow = pawn.getRow();
         int pawnCol = pawn.getColumn();
@@ -669,7 +680,6 @@ public class ChessBoard extends JPanel {
             Pawn pawnTemp = pawnIterator.next();
             if (pawnTemp.equals(pawn)) {
                 pawnIterator.remove();
-                System.out.print("Pawn removed, ");
             }
         }
 
@@ -678,9 +688,7 @@ public class ChessBoard extends JPanel {
         queen.setColumn(pawnCol);
         queens.add(queen);
         fieldUpdate(queen);
-        System.out.println("Queen summoned.");
         promotion = false;
-        System.out.println("Promotion = false");
     }
 
     //======================================== Gettery ========================================
@@ -690,28 +698,5 @@ public class ChessBoard extends JPanel {
      */
     public int getRectSize() {
         return rectSize;
-    }
-
-    private void printBoardUseMatrix() {
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                System.out.print(fieldBoard[i][j].isUsed() + "\t|\t");
-            }
-            System.out.println();
-        }
-        System.out.println();
-    }
-
-    private void printEnPassantMatrix() {
-        System.out.println("Black en passant pawns");
-        for (Pawn pawn : pawns) {
-            if (!pawn.isWhite())
-                System.out.print(pawn.isEnPassant() + "\t|\t");
-        }
-        System.out.println("\nWhite en passant pawns");
-        for (Pawn pawn : pawns) {
-            if (pawn.isWhite())
-                System.out.print(pawn.isEnPassant() + "\t|\t");
-        }
     }
 }

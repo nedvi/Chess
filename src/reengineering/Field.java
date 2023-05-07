@@ -4,7 +4,7 @@ package reengineering;
  * Trida reprezentujici jedno konkretni pole sachovnice
  *
  * @author Dominik Nedved, A22B0109P
- * @version 26.03.2023
+ * @version 07.05.2023
  */
 public class Field {
 
@@ -12,10 +12,10 @@ public class Field {
     private APiece piece = null;
 
     /** Radka sachovnice */
-    private int row;
+    private final int row;
 
     /** Sloupec sachovnice */
-    private int column;
+    private final int column;
 
     /** Kontrola obsazenosti pole */
     private boolean isUsed = false;
@@ -34,20 +34,6 @@ public class Field {
     //======================================== Gettery ========================================
 
     /**
-     * @return radek pole
-     */
-    public int getRow() {
-        return row;
-    }
-
-    /**
-     * @return sloupec pole
-     */
-    public int getColumn() {
-        return column;
-    }
-
-    /**
      * @return figurka na poli
      */
     public APiece getPiece() {
@@ -64,20 +50,6 @@ public class Field {
     //======================================== Settery ========================================
 
     /**
-     * @param row radek pole
-     */
-    public void setRow(int row) {
-        this.row = row;
-    }
-
-    /**
-     * @param column sloupec pole
-     */
-    public void setColumn(int column) {
-        this.column = column;
-    }
-
-    /**
      * @param piece figurka na poli
      */
     public void setPiece(APiece piece) {
@@ -85,10 +57,11 @@ public class Field {
         isUsed = piece != null;
     }
 
-    public void setUsed(boolean used) {
-        isUsed = used;
-    }
-
+    /**
+     * Modifikovany toString
+     *
+     * @return toString
+     */
     @Override
     public String toString() {
         return String.format("Field: row = %d; column = %d; Piece = %s", row, column, piece);

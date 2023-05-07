@@ -4,6 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Path2D;
 
+/**
+ * Trida reprezentujici zaklad kazde figurky
+ *
+ * @author Dominik Nedved, A22B0109P
+ * @version 07.05.2023
+ */
 public abstract class APiece extends JPanel {
 
     /** Konstanta barvy pro bile figurky  */
@@ -42,8 +48,14 @@ public abstract class APiece extends JPanel {
     /** Pole figurky */
     private Field field;
 
+    /** Kontrola, zda je mozno brat tohoto pesce mimochodem */
     private boolean enPassant = false;
+
+    /** Kontrola, zda jiz bylo mozno vzit tohoto pesce mimochodem */
     private boolean wasEnPassantAlready = false;
+
+    /** Kontrola, zda jiz probehl pohyb teto figurky */
+    private boolean movedAlready = false;
 
     //======================================== Konstruktory ========================================
 
@@ -131,12 +143,6 @@ public abstract class APiece extends JPanel {
         this.sY = y;
     }
 
-    public double distanceTo(double x, double y) {
-        double dx = x - this.sX;
-        double dy = y - this.sY;
-        return Math.sqrt(dx * dx + dy * dy);
-    }
-
     //======================================== Gettery ========================================
 
     /**
@@ -199,8 +205,22 @@ public abstract class APiece extends JPanel {
         return enPassant;
     }
 
+    /**
+     * Kontrola, zda jiz bylo mozno vzit tohoto pesce mimochodem
+     *
+     * @return true pokud jiz bylo mozno vzit tohoto pesce mimochodem, jinak false
+     */
     public boolean wasEnPassantAlready() {
         return wasEnPassantAlready;
+    }
+
+    /**
+     * Kontrola, zda jiz probehl pohyb teto figurky
+     *
+     * @return true, pokud jiz byl nejaky pohyb proveden, jinak false
+     */
+    public boolean isMovedAlready() {
+        return movedAlready;
     }
 
     //======================================== Settery ========================================
@@ -251,14 +271,38 @@ public abstract class APiece extends JPanel {
         this.pieceColor = pieceColor;
     }
 
+    /**
+     * Nastaveni, zda jde pesak vzit mimochodem
+     *
+     * @param enPassant true pokud muze byt pesak odebran mimochodem, jinak false
+     */
     public void setEnPassant(boolean enPassant) {
         this.enPassant = enPassant;
     }
 
+    /**
+     * Nastaveni zda jiz bylo mozno vzit tohoto pesce mimochodem
+     *
+     * @param wasEnPassantAlready true pokud bylo mozno vzit tohoto pesce mimochodem, jinak false
+     */
     public void setWasEnPassantAlready(boolean wasEnPassantAlready) {
         this.wasEnPassantAlready = wasEnPassantAlready;
     }
 
+    /**
+     * Nastaveni, zda jiz probehl pohyb teto figurky
+     *
+     * @param movedAlready true, pokud jiz byl nejaky pohyb proveden, jinak false
+     */
+    public void setMovedAlready(boolean movedAlready) {
+        this.movedAlready = movedAlready;
+    }
+
+    /**
+     * Modifikovany toString
+     *
+     * @return toString
+     */
     @Override
     public String toString() {
         return String.format("%s; %s", getClass().getSimpleName(), getField());

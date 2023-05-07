@@ -8,7 +8,7 @@ import java.awt.event.*;
  * Spousteci trida semsestralni prace z predmetu KIV/UPG -> Sachy
  *
  * @author Dominik Nedved, A22B0109P
- * @version 26.03.2023
+ * @version 07.05.2023
  */
 public class Chess_SP_2023 {
 
@@ -99,6 +99,12 @@ public class Chess_SP_2023 {
 		});
 
 		chessBoard.addComponentListener(new ComponentAdapter() {
+			/**
+			 * Zajistuje kontrolu resize okna a rozliseni.
+			 * Jedna zajimavost - viz dokumentace
+			 *
+			 * @param e the event to be processed
+			 */
 			public void componentResized(ComponentEvent e) {
 				chessBoard.repaint();
 			}

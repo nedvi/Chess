@@ -6,7 +6,7 @@ import java.awt.geom.Path2D;
  * Trida reprezentujici figurku pesaka
  *
  * @author Dominik Nedved, A22B0109P
- * @version 26.03.2023
+ * @version 07.05.2023
  */
 public class Pawn extends APiece {
 
