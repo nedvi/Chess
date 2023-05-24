@@ -1,5 +1,3 @@
-package reengineering;
-
 /**
  * Trida reprezentujici validator pohybu figurek
  *

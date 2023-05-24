@@ -1,5 +1,3 @@
-package reengineering;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -61,9 +59,7 @@ public class ChessBoard extends JPanel {
     /** Deklarace pole kralu */
     private List<King> kings;
 
-    /**
-     * Deklarace pole eliminiovanych
-     */
+    /** Deklarace pole eliminiovanych */
     private List<APiece> eliminatedPieces;
 
     /** Kontrola probihajici promeny*/
@@ -452,14 +448,14 @@ public class ChessBoard extends JPanel {
                 enPassantPieceLeft = ChessBoard.fieldBoard[oldFocusedPieceRow][oldFocusedPieceColumn - 1].getPiece();
                 enPassantPiece = enPassantPieceLeft;
             } catch (Exception e) {
-                System.out.println("En passant left null");
+                //System.out.println("En passant left null");
             }
 
             try {
                 enPassantPieceRight = ChessBoard.fieldBoard[oldFocusedPieceRow][oldFocusedPieceColumn + 1].getPiece();
                 enPassantPiece = enPassantPieceRight;
             } catch (Exception e) {
-                System.out.println("En passant right null");
+                //System.out.println("En passant right null");
             }
         }
 
