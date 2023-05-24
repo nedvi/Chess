@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.TimerTask;
 
 /**
  * Spousteci trida semsestralni prace z predmetu KIV/UPG -> Sachy
@@ -43,7 +44,6 @@ public class Chess_SP_2023 {
 
 					if (piece != null) {
 						chessBoard.mouseDragged(e, piece);
-						//piece.repaint();
 						chessBoard.repaint();
 					}
 				}
@@ -76,11 +76,35 @@ public class Chess_SP_2023 {
 				int mouseX = e.getX();
 				int mouseY = e.getY();
 
+
+
 				if (chessBoard.contains(mouseX, mouseY)) {
 					APiece piece = chessBoard.getFocusedPiece(mouseX, mouseY);
+
+
 					if (piece != null) {
+
+
 						chessBoard.mouseReleased(e, piece);
-						chessBoard.repaint();
+
+//						ActionListener timerAction = new ActionListener() {
+//							public void actionPerformed(ActionEvent evt) {
+//								if(chessBoard.isMoving) {
+//									chessBoard.repaint();
+//									System.out.println("Akce provedena");
+//								}
+//
+//							}
+//						};
+//						Timer timer = new Timer(10, timerAction);
+//						timer.setRepeats(true);
+//						timer.start();
+
+
+
+
+//						chessBoard.repaint();
+
 					}
 				}
 			}
@@ -106,7 +130,17 @@ public class Chess_SP_2023 {
 			public void componentResized(ComponentEvent e) {
 				chessBoard.repaint();
 			}
+
+
 		});
+
+		java.util.Timer tm = new java.util.Timer();
+		tm.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				chessBoard.repaint();
+			}
+		}, 0, 10);	// hodnoty v [ms] -> 50x za sekundu je naplanovano volani run()
 
 		okno.add(chessBoard); // prida komponentu
 		okno.pack(); // udela resize okna dle komponent

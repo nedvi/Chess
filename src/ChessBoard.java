@@ -14,6 +14,16 @@ import java.util.List;
  */
 public class ChessBoard extends JPanel {
 
+    public boolean isMoving;
+    public int startX;
+    public int startY;
+    public int targetX;
+    public int targetY;
+    private int moveStep;
+    private final int MOVE_DELAY = 10;
+    private boolean mouseWasReleased = false;
+
+
     /** Velikost strany ctverce, jenz reprezentuje vizualizaci jednoho hraciho pole */
     private int rectSize;
 
@@ -59,7 +69,9 @@ public class ChessBoard extends JPanel {
     /** Deklarace pole kralu */
     private List<King> kings;
 
-    /** Deklarace pole eliminiovanych */
+    /**
+     * Deklarace pole eliminiovanych
+     */
     private List<APiece> eliminatedPieces;
 
     /** Kontrola probihajici promeny*/
@@ -135,13 +147,13 @@ public class ChessBoard extends JPanel {
         this.setMinimumSize(new Dimension(800, 600));
         isFirstLoad = true;
         focusedPiece = null;
-        int timerDelay = 20;
+        int timerDelay = 25;
 
         // Osetreni repaintu pri actionPerformed.
         // Volani repaint() kdekoliv ve tride totiz jen dava pozadavek
         // na co nejdrivejsi prekresleni v aktualnim vlakne,
         // coz se muze projevit podstatne pozdeji (nebo vubec xd)
-        new Timer(timerDelay, e -> repaint()).start();
+//        new Timer(timerDelay, e -> repaint()).start();
         init();
 
     }
@@ -161,6 +173,7 @@ public class ChessBoard extends JPanel {
         }
         for (APiece piece : allPieces) {
             if (piece.isPieceHit(x, y)) {
+
                 focusedPiece = piece;
                 return focusedPiece;
             }
@@ -186,6 +199,38 @@ public class ChessBoard extends JPanel {
         return allPieces;
     }
 
+    private void animateMove(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g;
+
+        if (moveStep <= 10) {
+            int currentX = startX + (targetX - startX) * moveStep / 10 +1;
+            int currentY = startY + (targetY - startY) * moveStep / 10 +1;
+            System.out.println("MoveStep: " + moveStep + "; StartX: " + startX + "; StartY: " + startY + ";targetX: " + targetX + "; targetY: " + targetY +"; CurrentX: " + currentX + "; CurrentY: " + currentY);
+
+
+            for (APiece piece : getAllPieces()) {
+                if (piece == focusedPiece) {
+                    piece.moveTo(currentX, currentY);
+//                    repaint();
+                }
+//                paintPiece(g2, piece);
+            }
+
+            moveStep++;
+            try {
+                Thread.sleep(MOVE_DELAY);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+//            repaint();
+        } else {
+            isMoving = false;
+            moveStep = 0;
+            this.focusedPiece = null;   // obstara odebrani focusu po pusteni mysi
+//            repaint();
+        }
+    }
+
     /**
      * Vykresleni celkoveho panelu
      *
@@ -194,8 +239,12 @@ public class ChessBoard extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
         paintChessBoard(g);
 
+        if (!isFirstLoad && mouseWasReleased && isMoving) {
+            animateMove(g);
+        }
         if (lastWidth != this.getWidth() || lastHeight != this.getHeight()) {    // Aktualizace pozic pri zmene velikosti okna
             // Aktualizace pozic
             for (APiece piece : getAllPieces()) {
@@ -353,6 +402,10 @@ public class ChessBoard extends JPanel {
             for (King king : kings) {
                 paintPiece(g, king);
 
+            }
+
+            if (isMoving) {
+                animateMove(g);
             }
         }
     }
@@ -569,8 +622,8 @@ public class ChessBoard extends JPanel {
      * @param focusedPiece zamerena figurka
      */
     public void mouseDragged(MouseEvent e, APiece focusedPiece) {
-            focusedPiece.setPieceColor(Color.RED);
-            focusedPiece.moveTo(e.getX(), e.getY());
+        focusedPiece.setPieceColor(Color.RED);
+        focusedPiece.moveTo(e.getX(), e.getY());
     }
 
     /**
@@ -582,9 +635,10 @@ public class ChessBoard extends JPanel {
      * @param focusedPiece zamerena figurka
      */
     public void mouseReleased(MouseEvent e, APiece focusedPiece) {
-
         int oldFocusedPieceRow;
         int oldFocusedPieceColumn;
+
+
 
         Rectangle focusedRectangle;
         for (int row = 0; row < 8; row++) {
@@ -593,6 +647,8 @@ public class ChessBoard extends JPanel {
                 if (focusedRectangle.contains(e.getX(), e.getY())) {
                     oldFocusedPieceRow = focusedPiece.getRow();
                     oldFocusedPieceColumn = focusedPiece.getColumn();
+                    startX = (int) rectBoard[oldFocusedPieceRow][oldFocusedPieceColumn].getX()+rectSize/2;
+                    startY = (int) rectBoard[oldFocusedPieceRow][oldFocusedPieceColumn].getY()+rectSize/2;
 
                     if (focusedPiece.getClass().getSimpleName().equals("Pawn") && Move.pawnMove(focusedPiece, row, column)) {
                         validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
@@ -620,7 +676,8 @@ public class ChessBoard extends JPanel {
         if (promotion) {
             promotion(focusedPiece);
         }
-        this.focusedPiece = null;   // obstara odebrani focusu po pusteni mysi
+
+        mouseWasReleased = true;
     }
 
     /**
@@ -642,6 +699,12 @@ public class ChessBoard extends JPanel {
         focusedPiece.setRow(row);
         focusedPiece.setColumn(column);
         focusedPiece.setField(fieldBoard[row][column]);
+
+        targetX = (int) focusedPiece.getsX();
+        targetY = (int) focusedPiece.getsY();
+        moveStep = 1;
+        isMoving = true;
+
         fieldBoard[oldFocusedPieceRow][oldFocusedPieceColumn].setPiece(null);   // nastaveni stare bunky na prazdnou
         fieldUpdate(focusedPiece);
         focusedPiece.setMovedAlready(true);
@@ -695,4 +758,5 @@ public class ChessBoard extends JPanel {
     public int getRectSize() {
         return rectSize;
     }
+
 }
