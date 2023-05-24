@@ -20,8 +20,11 @@ public class ChessBoard extends JPanel {
     public int targetX;
     public int targetY;
     private int moveStep;
-    private final int MOVE_DELAY = 10;
+
     private boolean mouseWasReleased = false;
+
+    private long millisecStart;
+    private boolean isNewAnimation = true;
 
 
     /** Velikost strany ctverce, jenz reprezentuje vizualizaci jednoho hraciho pole */
@@ -199,35 +202,34 @@ public class ChessBoard extends JPanel {
         return allPieces;
     }
 
-    private void animateMove(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g;
+    private void animateMove() {
+        if (isNewAnimation) {
+            millisecStart = System.currentTimeMillis();
+            isNewAnimation = false;
+        }
 
-        if (moveStep <= 10) {
-            int currentX = startX + (targetX - startX) * moveStep / 10 +1;
-            int currentY = startY + (targetY - startY) * moveStep / 10 +1;
+        final int MAX_SUM_OF_STEPS = 33;
+
+        if (moveStep <= MAX_SUM_OF_STEPS) {
+            int currentX = startX + (targetX - startX) * moveStep / MAX_SUM_OF_STEPS;
+            int currentY = startY + (targetY - startY) * moveStep / MAX_SUM_OF_STEPS;
             System.out.println("MoveStep: " + moveStep + "; StartX: " + startX + "; StartY: " + startY + ";targetX: " + targetX + "; targetY: " + targetY +"; CurrentX: " + currentX + "; CurrentY: " + currentY);
 
 
             for (APiece piece : getAllPieces()) {
                 if (piece == focusedPiece) {
                     piece.moveTo(currentX, currentY);
-//                    repaint();
                 }
-//                paintPiece(g2, piece);
             }
 
             moveStep++;
-            try {
-                Thread.sleep(MOVE_DELAY);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-//            repaint();
         } else {
             isMoving = false;
             moveStep = 0;
             this.focusedPiece = null;   // obstara odebrani focusu po pusteni mysi
-//            repaint();
+            long millisecEnd = System.currentTimeMillis();
+            System.out.println("Presun trval " + (millisecEnd - millisecStart) + " ms.");
+            isNewAnimation = true;
         }
     }
 
@@ -243,7 +245,7 @@ public class ChessBoard extends JPanel {
         paintChessBoard(g);
 
         if (!isFirstLoad && mouseWasReleased && isMoving) {
-            animateMove(g);
+            animateMove();
         }
         if (lastWidth != this.getWidth() || lastHeight != this.getHeight()) {    // Aktualizace pozic pri zmene velikosti okna
             // Aktualizace pozic
@@ -402,10 +404,6 @@ public class ChessBoard extends JPanel {
             for (King king : kings) {
                 paintPiece(g, king);
 
-            }
-
-            if (isMoving) {
-                animateMove(g);
             }
         }
     }
@@ -647,8 +645,8 @@ public class ChessBoard extends JPanel {
                 if (focusedRectangle.contains(e.getX(), e.getY())) {
                     oldFocusedPieceRow = focusedPiece.getRow();
                     oldFocusedPieceColumn = focusedPiece.getColumn();
-                    startX = (int) rectBoard[oldFocusedPieceRow][oldFocusedPieceColumn].getX()+rectSize/2;
-                    startY = (int) rectBoard[oldFocusedPieceRow][oldFocusedPieceColumn].getY()+rectSize/2;
+                    startX = (int) rectBoard[oldFocusedPieceRow][oldFocusedPieceColumn].getX() + rectSize / 2;
+                    startY = (int) rectBoard[oldFocusedPieceRow][oldFocusedPieceColumn].getY() + rectSize / 2;
 
                     if (focusedPiece.getClass().getSimpleName().equals("Pawn") && Move.pawnMove(focusedPiece, row, column)) {
                         validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
@@ -662,6 +660,8 @@ public class ChessBoard extends JPanel {
                         validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
                     } else if (focusedPiece.getClass().getSimpleName().equals("King") && Move.kingMove(focusedPiece, row, column)) {
                         validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
+                    } else {
+                        this.focusedPiece = null;   // obstara odebrani focusu po pusteni mysi
                     }
                 }
             }
@@ -709,6 +709,7 @@ public class ChessBoard extends JPanel {
         fieldUpdate(focusedPiece);
         focusedPiece.setMovedAlready(true);
         eliminate(focusedPiece, oldFocusedPieceRow, oldFocusedPieceColumn);
+
     }
 
     /**
