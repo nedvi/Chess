@@ -23,12 +23,14 @@ public class Move {
         } else if (pawn.getColumn() == 7) {
             enPassantPieceLeft = ChessBoard.fieldBoard[pawn.getRow()][pawn.getColumn() - 1].getPiece();
         } else {
-            enPassantPieceLeft = ChessBoard.fieldBoard[pawn.getRow()][pawn.getColumn() - 1].getPiece();
             enPassantPieceRight = ChessBoard.fieldBoard[pawn.getRow()][pawn.getColumn() + 1].getPiece();
+            enPassantPieceLeft = ChessBoard.fieldBoard[pawn.getRow()][pawn.getColumn() - 1].getPiece();
+
         }
 
         if (pawn.isWhite()) {       // Pro bile pesce
-            if ((enPassantPieceLeft != null && enPassantPieceLeft.isEnPassant() && !enPassantPieceLeft.isWhite() && enPassantPieceLeft.getColumn() != pawn.getColumn()) || (enPassantPieceRight != null && enPassantPieceRight.isEnPassant() && !enPassantPieceRight.isWhite() && enPassantPieceRight.getColumn() != pawn.getColumn())) {
+            if ((enPassantPieceLeft != null && enPassantPieceLeft.isEnPassant() && !enPassantPieceLeft.isWhite() && enPassantPieceLeft.getColumn() != pawn.getColumn())
+                    || (enPassantPieceRight != null && enPassantPieceRight.isEnPassant() && !enPassantPieceRight.isWhite() && enPassantPieceRight.getColumn() != pawn.getColumn())) {
                 return true;
             }
             if (wantedRow == pawn.getRow() - 1 && ((wantedCol == pawn.getColumn() - 1 ) || (wantedCol == pawn.getColumn() + 1)) && ChessBoard.fieldBoard[wantedRow][wantedCol].getPiece() != null) {
@@ -68,7 +70,7 @@ public class Move {
                     return true;
                 }
             } else if (wantedRow > pawn.getRow() && wantedRow == pawn.getRow() + 1 && pawn.getColumn() == wantedCol && ChessBoard.fieldBoard[wantedRow][wantedCol].getPiece() == null) {
-                if (wantedRow == 0) {
+                if (wantedRow == 7) {
                     ChessBoard.promotion = true;
                 }
                 return true;
@@ -92,6 +94,10 @@ public class Move {
             int[] rowIndexesInWayArray = null;
             int tempCol = rook.getColumn();
             int[] colIndexesInWayArray = null;
+
+            if (tempRow == wantedRow && tempCol == wantedCol) {
+                return false;
+            }
 
             // pro pohyb nahoru a dolu
             if(rook.getColumn() == wantedCol) {

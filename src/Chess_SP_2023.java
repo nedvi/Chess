@@ -1,6 +1,17 @@
+import org.jfree.pdf.PDFDocument;
+import org.jfree.pdf.PDFGraphics2D;
+import org.jfree.pdf.PDFHints;
+import org.jfree.pdf.Page;
+import org.jfree.svg.SVGGraphics2D;
+import org.jfree.svg.SVGUtils;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.TimerTask;
 
 /**
@@ -14,6 +25,10 @@ public class Chess_SP_2023 {
 	/** Konstanta titulku okna */
 	private static final String MAIN_TITLE_STR = "UPG - Chess SP, Dominik Nedved A22B0109P";
 
+	private static int pngScreenshotCount = 0;
+	private static int pdfScreenshotCount = 0;
+	private static int svgScreenshotCount = 0;
+
 	/**
 	 * Spousteci metoda programu
 	 *
@@ -24,8 +39,37 @@ public class Chess_SP_2023 {
 		okno.setTitle(MAIN_TITLE_STR);
 		okno.setSize(800, 600);
 		okno.setMinimumSize(new Dimension(800, 600));
+		okno.setLayout(new BorderLayout());
+
+		JMenuBar menubar = new JMenuBar();
+
+		JMenu graf = new JMenu("Graf");
+		menubar.add(graf);
+
+		JMenu exportMenu = new JMenu("Export");
+		menubar.add(exportMenu);
+
+		JMenuItem pngExportMI = new JMenuItem("PNG");
+		exportMenu.add(pngExportMI);
+
+		JMenuItem pdfExportMI = new JMenuItem("PDF");
+		exportMenu.add(pdfExportMI);
+
+		JMenuItem svgExportMI = new JMenuItem("SVG");
+		exportMenu.add(svgExportMI);
+
+
+
+		pngExportMI.addMouseListener(exportToPng(okno));
+		pdfExportMI.addMouseListener(exportToPdf(okno));
+		svgExportMI.addMouseListener(exportToSvg(okno));
+
+
+
+		okno.add(menubar, BorderLayout.NORTH);
 
 		ChessBoard chessBoard = new ChessBoard();
+
 
 		chessBoard.addMouseMotionListener(new MouseMotionListener() {
 
@@ -76,35 +120,11 @@ public class Chess_SP_2023 {
 				int mouseX = e.getX();
 				int mouseY = e.getY();
 
-
-
 				if (chessBoard.contains(mouseX, mouseY)) {
 					APiece piece = chessBoard.getFocusedPiece(mouseX, mouseY);
 
-
 					if (piece != null) {
-
-
 						chessBoard.mouseReleased(e, piece);
-
-//						ActionListener timerAction = new ActionListener() {
-//							public void actionPerformed(ActionEvent evt) {
-//								if(chessBoard.isMoving) {
-//									chessBoard.repaint();
-//									System.out.println("Akce provedena");
-//								}
-//
-//							}
-//						};
-//						Timer timer = new Timer(10, timerAction);
-//						timer.setRepeats(true);
-//						timer.start();
-
-
-
-
-//						chessBoard.repaint();
-
 					}
 				}
 			}
@@ -130,8 +150,6 @@ public class Chess_SP_2023 {
 			public void componentResized(ComponentEvent e) {
 				chessBoard.repaint();
 			}
-
-
 		});
 
 		java.util.Timer tm = new java.util.Timer();
@@ -140,7 +158,7 @@ public class Chess_SP_2023 {
 			public void run() {
 				chessBoard.repaint();
 			}
-		}, 0, 10);	// hodnoty v [ms] -> 50x za sekundu je naplanovano volani run()
+		}, 0, 10);
 
 		okno.add(chessBoard); // prida komponentu
 		okno.pack(); // udela resize okna dle komponent
@@ -148,5 +166,119 @@ public class Chess_SP_2023 {
 		okno.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		okno.setLocationRelativeTo(null); // vycentrovat na obrazovce
 		okno.setVisible(true);
+	}
+
+	private static MouseListener exportToPng(JFrame frame) {
+		return new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+
+			}
+			@Override
+			public void mousePressed(MouseEvent e) {
+
+			}
+
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				frame.getGraphics();
+				Container c = frame.getContentPane();
+				BufferedImage im = new BufferedImage(c.getWidth(), c.getHeight(), BufferedImage.TYPE_INT_ARGB);
+				c.paint(im.getGraphics());
+
+				try {
+					String fileName = String.format("Screenshot_%d.png", pngScreenshotCount);
+					ImageIO.write(im, "PNG", new File(fileName));
+					System.out.println("Export to PNG successful");
+					pngScreenshotCount++;
+				} catch (IOException ex) {
+					throw new RuntimeException(ex);
+				}
+			}
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+
+			}
+		};
+	}
+
+	private static MouseListener exportToPdf(JFrame frame) {
+		return new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				PDFDocument pdf = new PDFDocument();
+				Container c = frame.getContentPane();
+				Page page = pdf.createPage(new Rectangle(c.getWidth(), c.getHeight()));
+				PDFGraphics2D g2 = page.getGraphics2D();
+				g2.setRenderingHint(PDFHints.KEY_DRAW_STRING_TYPE, PDFHints.VALUE_DRAW_STRING_TYPE_VECTOR);
+				frame.getContentPane().paint(g2);
+				String fileName = String.format("Screenshot_%d.pdf", pdfScreenshotCount);
+				pdf.writeToFile(new File(fileName));
+				System.out.println("Export to PDF successful");
+				pdfScreenshotCount++;
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+
+			}
+		};
+	}
+
+	private static MouseListener exportToSvg(JFrame frame) {
+		return new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+
+			}
+			@Override
+			public void mousePressed(MouseEvent e) {
+
+			}
+
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				Container c = frame.getContentPane();
+				SVGGraphics2D g2 = new SVGGraphics2D(c.getWidth(), c.getHeight());
+				c.paint(g2);
+				String fileName = String.format("Screenshot_%d.svg",svgScreenshotCount);
+				File f = new File(fileName);
+				try {
+					SVGUtils.writeToSVG(f, g2.getSVGElement());
+					System.out.println("Export to SVG successful");
+					svgScreenshotCount++;
+
+				} catch (IOException ex) {
+					System.err.println(ex);
+				}
+			}
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+
+			}
+		};
 	}
 }

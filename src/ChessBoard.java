@@ -613,6 +613,8 @@ public class ChessBoard extends JPanel {
         dialog.setVisible(true);
     }
 
+
+
     /**
      * Metoda pro MouseMotionListener, ktera zajistuje zmenu barvy figurky pri tahnuti mysi a spravne aktualni souradnice
      *
@@ -639,12 +641,19 @@ public class ChessBoard extends JPanel {
 
 
         Rectangle focusedRectangle;
+
         for (int row = 0; row < 8; row++) {
             for (int column = 0; column < 8; column++) {
+
                 focusedRectangle = rectBoard[row][column];
-                if (focusedRectangle.contains(e.getX(), e.getY())) {
+
+
+                if (e.getX() < rectBoard[0][0].getX() || e.getX() > (rectBoard[7][7].getX() + rectSize)) {   // osetreni pripadu, kdy by figurka byla "pustena" mimo sachovnici - delalo to blbosti, jako zachovani focusu u te posledni figurky misto aktualni
+                    this.focusedPiece = null;   // obstara odebrani focusu po pusteni mysi
+                } else if (focusedRectangle.contains(e.getX(), e.getY())) {
                     oldFocusedPieceRow = focusedPiece.getRow();
                     oldFocusedPieceColumn = focusedPiece.getColumn();
+
                     startX = (int) rectBoard[oldFocusedPieceRow][oldFocusedPieceColumn].getX() + rectSize / 2;
                     startY = (int) rectBoard[oldFocusedPieceRow][oldFocusedPieceColumn].getY() + rectSize / 2;
 
@@ -663,10 +672,13 @@ public class ChessBoard extends JPanel {
                     } else {
                         this.focusedPiece = null;   // obstara odebrani focusu po pusteni mysi
                     }
+                } else {
+//                    this.focusedPiece = null;   // obstara odebrani focusu po pusteni mysi
                 }
             }
             if (focusedPiece.isWhite()) {
                 focusedPiece.setPieceColor(Pawn.PIECE_WHITE);
+
             } else {
                 focusedPiece.setPieceColor(Pawn.PIECE_BLACK);
             }
@@ -743,12 +755,74 @@ public class ChessBoard extends JPanel {
             }
         }
 
-        Queen queen = new Queen(pawnSx, pawnSy, pawnIsWhite);
-        queen.setRow(pawnRow);
-        queen.setColumn(pawnCol);
-        queens.add(queen);
-        fieldUpdate(queen);
-        promotion = false;
+
+        StringBuilder promotionSB = new StringBuilder();
+
+        if (pawnIsWhite) {
+            promotionSB.append("Promena bileho pesaka. Vyberte si figurku:");
+        } else {
+            promotionSB.append("Promena cerneho pesaka. Vyberte si figurku:");
+        }
+
+        JOptionPane gameOverPane = new JOptionPane(promotionSB, JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, null, new Object[]{}, null);
+        gameOverPane.setVisible(true);
+
+        JButton queenBTN = new JButton("Kralovna");
+        gameOverPane.add(queenBTN);
+
+        JButton rookBTN = new JButton("Vez");
+        gameOverPane.add(rookBTN);
+
+        JButton knightBTN = new JButton("Kun");
+        gameOverPane.add(knightBTN);
+
+        JButton bishopBTN = new JButton("Strelec");
+        gameOverPane.add(bishopBTN);
+
+        JDialog dialog = gameOverPane.createDialog(null, "Promena");
+        queenBTN.addActionListener(event -> {
+            Queen queen = new Queen(pawnSx, pawnSy, pawnIsWhite);
+            queen.setRow(pawnRow);
+            queen.setColumn(pawnCol);
+            queens.add(queen);
+            fieldUpdate(queen);
+            promotion = false;
+            dialog.setVisible(false);
+        });
+
+
+        rookBTN.addActionListener(event -> {
+            Rook rook = new Rook(pawnSx, pawnSy, pawnIsWhite);
+            rook.setRow(pawnRow);
+            rook.setColumn(pawnCol);
+            rooks.add(rook);
+            fieldUpdate(rook);
+            promotion = false;
+            dialog.setVisible(false);
+        });
+
+        knightBTN.addActionListener(event -> {
+            Knight knight = new Knight(pawnSx, pawnSy, pawnIsWhite);
+            knight.setRow(pawnRow);
+            knight.setColumn(pawnCol);
+            knights.add(knight);
+            fieldUpdate(knight);
+            promotion = false;
+            dialog.setVisible(false);
+        });
+
+        bishopBTN.addActionListener(event -> {
+            Bishop bishop = new Bishop(pawnSx, pawnSy, pawnIsWhite);
+            bishop.setRow(pawnRow);
+            bishop.setColumn(pawnCol);
+            bishops.add(bishop);
+            fieldUpdate(bishop);
+            promotion = false;
+            dialog.setVisible(false);
+        });
+
+
+        dialog.setVisible(true);
     }
 
     //======================================== Gettery ========================================

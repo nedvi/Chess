@@ -8,5 +8,8 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="JavaFX19" level="application" />
+    <orderEntry type="library" name="org.jfree.svg-5.0.5" level="project" />
+    <orderEntry type="library" name="org.jfree.svg-5.0.51" level="project" />
+    <orderEntry type="library" name="org.jfree.pdf-2.0.1" level="project" />
   </component>
 </module>
