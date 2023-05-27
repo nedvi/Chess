@@ -6,6 +6,148 @@
  */
 public class Move {
 
+//    /**
+//     * Osetruje validni pohyb pesaka, a to vcetne brani mimochodem a promeny za kralovnu
+//     *
+//     * @param pawn pesak, se kterym chce hrac pohybovat
+//     * @param wantedRow pozadovany index radky
+//     * @param wantedCol pozadovany index sloupce
+//     * @return true, pokud je pohyb validni, jinak false
+//     */
+//    public static boolean pawnMove(APiece pawn, int wantedRow, int wantedCol, ChessBoard chessBoard) {
+//        int pawnRow = pawn.getRow();
+//        int pawnCol = pawn.getColumn();
+//        Field wantedField = chessBoard.getFieldBoard()[wantedRow][wantedCol];
+//
+////        if (wantedField == chessBoard.fieldBoard[pawnCol + 1][pawnRow + 1]) {       // Brani mimochodem doprava
+////            if (wantedField.getPiece() != null && wantedField.getPiece().isEnPassant()) {
+////                return true;
+////            }
+////        } else if (wantedField == chessBoard.fieldBoard[pawnCol - 1][pawnRow + 1]) { // Brani mimochodem doleva
+////            if (wantedField.getPiece() != null && wantedField.getPiece().isEnPassant()) {
+////                return true;
+////            }
+////        }
+//        APiece enPassantPieceLeft = null;
+//        APiece enPassantPieceRight = null;
+//
+//        // Pokud jsme se nehli ani o jedno pole
+//        if (pawnRow == wantedRow && pawnCol == wantedCol) {
+//            return false;
+//        }
+//
+//
+//        //====================================== Bili pesci ======================================
+//        if (pawn.isWhite()) {
+//            if (pawnCol != 7
+//                    && pawnRow != 0
+//                    && wantedField == chessBoard.fieldBoard[pawnRow - 1][pawnCol + 1]
+//                    && chessBoard.fieldBoard[pawnRow][pawnCol + 1].getPiece() != null
+//                    && !chessBoard.fieldBoard[pawnRow][pawnCol + 1].getPiece().isWhite()
+//                    && chessBoard.fieldBoard[pawnRow][pawnCol + 1].getPiece().isEnPassant()
+//                    && chessBoard.fieldBoard[pawnRow][pawnCol + 1].getPiece().wasEnPassantAlready()
+//                    && wantedRow == 2) {       // Brani mimochodem doprava mimo column 7
+//                System.out.println("Projde to sem? - Bily");
+//                return true;
+//            } else if (pawnCol != 0
+//                    && pawnRow != 0
+//                    && wantedField == chessBoard.fieldBoard[pawnRow - 1][pawnCol - 1]
+//                    && chessBoard.fieldBoard[pawnRow][pawnCol - 1].getPiece() != null
+//                    && !chessBoard.fieldBoard[pawnRow][pawnCol - 1].getPiece().isWhite()
+//                    && chessBoard.fieldBoard[pawnRow][pawnCol - 1].getPiece().isEnPassant()
+//                    && chessBoard.fieldBoard[pawnRow][pawnCol - 1].getPiece().wasEnPassantAlready()
+//                    && wantedRow == 2) {  // Brani mimochodem doleva mimo column 0
+//                return true;
+//            } else if (!pawn.isMovedAlready()) {   // Pokud pohyb pesce jeste nenastal
+//                if (wantedRow == pawnRow - 1 && wantedCol == pawnCol + 1 && wantedField.getPiece() != null && !wantedField.getPiece().isWhite()) {   // Eliminace cerneho doprava
+//                    return true;
+//                } else if (wantedRow == pawnRow - 1 && wantedCol == pawnCol - 1 && wantedField.getPiece() != null && !wantedField.getPiece().isWhite()) {   // Eliminace cerneho doleva
+//                    return true;
+//                } else if (wantedRow == pawnRow - 1 && wantedCol == pawnCol) {             // pohyb o jedno pole
+//                    if (wantedField.getPiece() == null) {
+//                        return true;
+//                    }
+//                } else if (wantedRow == pawnRow - 2 && wantedCol == pawnCol && chessBoard.getFieldBoard()[pawnRow-1][pawnCol].getPiece() == null) {      // pohyb o dve pole
+//                    if (wantedField.getPiece() == null) {
+//                        pawn.setEnPassant(true);
+//                        return true;
+//                    }
+//                }
+//            } else if (wantedRow == pawnRow - 1 && wantedCol == pawnCol && wantedField.getPiece() == null) {             // pohyb o jedno pole
+//                if (wantedRow == 0) {
+//                    pawn.setPromoted(true);
+//                }
+//                return true;
+//            } else if (wantedRow == pawnRow - 1 && wantedCol == pawnCol + 1 && wantedField.getPiece() != null && !wantedField.getPiece().isWhite()) {   // Eliminace cerneho doprava
+//                if (wantedRow == 0) {
+//                    pawn.setPromoted(true);
+//                }
+//                return true;
+//            } else if (wantedRow == pawnRow - 1 && wantedCol == pawnCol - 1 && wantedField.getPiece() != null && !wantedField.getPiece().isWhite()) {   // Eliminace cerneho doleva
+//                if (wantedRow == 0) {
+//                    pawn.setPromoted(true);
+//                }
+//                return true;
+//            }
+//        }
+//
+//        //====================================== Cerni pesci ======================================
+//        else {
+//            System.out.println("Jsem cernej pesak!");
+//            if (pawnCol != 7
+//                    && pawnRow != 7
+//                    && wantedField == chessBoard.fieldBoard[pawnRow + 1][pawnCol + 1]
+//                    && chessBoard.fieldBoard[pawnRow][pawnCol + 1].getPiece() != null
+//                    && chessBoard.fieldBoard[pawnRow][pawnCol + 1].getPiece().isWhite()
+//                    && chessBoard.fieldBoard[pawnRow][pawnCol + 1].getPiece().isEnPassant()
+//                    && chessBoard.fieldBoard[pawnRow][pawnCol + 1].getPiece().wasEnPassantAlready()
+//                    && wantedRow == 2) {       // Brani mimochodem doprava mimo column 7
+//                System.out.println("Projde to sem? Cerny");
+//                return true;
+//            } else if (pawnCol != 0
+//                    && pawnRow != 7
+//                    && wantedField == chessBoard.fieldBoard[pawnRow + 1][pawnCol - 1]
+//                    && chessBoard.fieldBoard[pawnRow][pawnCol - 1].getPiece() != null
+//                    && chessBoard.fieldBoard[pawnRow][pawnCol - 1].getPiece().isWhite()
+//                    && chessBoard.fieldBoard[pawnRow][pawnCol - 1].getPiece().isEnPassant()
+//                    && chessBoard.fieldBoard[pawnRow][pawnCol - 1].getPiece().wasEnPassantAlready()
+//                    && wantedRow == 2) {  // Brani mimochodem doleva mimo column 0
+//                return true;
+//            } else if (!pawn.isMovedAlready()) {   // Pokud pohyb pesce jeste nenastal
+//                if (wantedRow == pawnRow + 1 && wantedCol == pawnCol + 1 && wantedField.getPiece() != null && wantedField.getPiece().isWhite()) {   // Eliminace bileho doprava
+//                    return true;
+//                } else if (wantedRow == pawnRow + 1 && wantedCol == pawnCol - 1 && wantedField.getPiece() != null && wantedField.getPiece().isWhite()) {   // Eliminace bileho doleva
+//                    return true;
+//                } else if (wantedRow == pawnRow + 1 && wantedCol == pawnCol) {             // pohyb o jedno pole
+//                    if (wantedField.getPiece() == null) {
+//                        return true;
+//                    }
+//                } else if (wantedRow == pawnRow + 2 && wantedCol == pawnCol && chessBoard.getFieldBoard()[pawnRow+1][pawnCol].getPiece() == null) {      // pohyb o dve pole
+//                    if (wantedField.getPiece() == null) {
+//                        pawn.setEnPassant(true);
+//                        return true;
+//                    }
+//                }
+//            } else if (wantedRow == pawnRow + 1 && wantedCol == pawnCol && wantedField.getPiece() == null) {             // pohyb o jedno pole
+//                if (wantedRow == 7) {
+//                    pawn.setPromoted(true);
+//                }
+//                return true;
+//            } else if (wantedRow == pawnRow + 1 && wantedCol == pawnCol + 1 && wantedField.getPiece() != null && wantedField.getPiece().isWhite()) {   // Eliminace bileho doprava
+//                if (wantedRow == 7) {
+//                    pawn.setPromoted(true);
+//                }
+//                return true;
+//            } else if (wantedRow == pawnRow + 1 && wantedCol == pawnCol - 1 && wantedField.getPiece() != null && wantedField.getPiece().isWhite()) {   // Eliminace bileho doleva
+//                if (wantedRow == 7) {
+//                    pawn.setPromoted(true);
+//                }
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+
     /**
      * Osetruje validni pohyb pesaka, a to vcetne brani mimochodem a promeny za kralovnu
      *
@@ -14,64 +156,91 @@ public class Move {
      * @param wantedCol pozadovany index sloupce
      * @return true, pokud je pohyb validni, jinak false
      */
-    public static boolean pawnMove(APiece pawn, int wantedRow, int wantedCol) {
+    public static boolean pawnMove(APiece pawn, int wantedRow, int wantedCol, ChessBoard chessBoard, boolean movingNow) {
         APiece enPassantPieceLeft = null;
         APiece enPassantPieceRight = null;
 
+        if (pawn.getRow() == wantedRow && pawn.getColumn() == wantedCol) {
+            return false;
+        }
+
         if (pawn.getColumn() == 0) {
-            enPassantPieceRight = ChessBoard.fieldBoard[pawn.getRow()][pawn.getColumn() + 1].getPiece();
+            enPassantPieceRight = chessBoard.getFieldBoard()[pawn.getRow()][pawn.getColumn() + 1].getPiece();
         } else if (pawn.getColumn() == 7) {
-            enPassantPieceLeft = ChessBoard.fieldBoard[pawn.getRow()][pawn.getColumn() - 1].getPiece();
+            enPassantPieceLeft = chessBoard.getFieldBoard()[pawn.getRow()][pawn.getColumn() - 1].getPiece();
         } else {
-            enPassantPieceRight = ChessBoard.fieldBoard[pawn.getRow()][pawn.getColumn() + 1].getPiece();
-            enPassantPieceLeft = ChessBoard.fieldBoard[pawn.getRow()][pawn.getColumn() - 1].getPiece();
+            enPassantPieceRight = chessBoard.getFieldBoard()[pawn.getRow()][pawn.getColumn() + 1].getPiece();
+            enPassantPieceLeft = chessBoard.getFieldBoard()[pawn.getRow()][pawn.getColumn() - 1].getPiece();
 
         }
 
         if (pawn.isWhite()) {       // Pro bile pesce
-            if ((enPassantPieceLeft != null && enPassantPieceLeft.isEnPassant() && !enPassantPieceLeft.isWhite() && enPassantPieceLeft.getColumn() != pawn.getColumn())
-                    || (enPassantPieceRight != null && enPassantPieceRight.isEnPassant() && !enPassantPieceRight.isWhite() && enPassantPieceRight.getColumn() != pawn.getColumn())) {
+            if ((enPassantPieceLeft != null
+                    && wantedRow == pawn.getRow() - 1
+                    && wantedCol == pawn.getColumn() - 1
+                    && enPassantPieceLeft.isEnPassant()
+                    && !enPassantPieceLeft.isWhite()
+                    && enPassantPieceLeft.getColumn() == pawn.getColumn() - 1)) {
+                return true;
+            } else if (enPassantPieceRight != null
+                    && wantedRow == pawn.getRow() - 1
+                    && wantedCol == pawn.getColumn() + 1
+                    && enPassantPieceRight.isEnPassant()
+                    && !enPassantPieceRight.isWhite()
+                    && enPassantPieceRight.getColumn() == pawn.getColumn() + 1) {
                 return true;
             }
-            if (wantedRow == pawn.getRow() - 1 && ((wantedCol == pawn.getColumn() - 1 ) || (wantedCol == pawn.getColumn() + 1)) && ChessBoard.fieldBoard[wantedRow][wantedCol].getPiece() != null) {
-                if (wantedRow == 0) {
-                    ChessBoard.promotion = true;
+            if (wantedRow == pawn.getRow() - 1 && ((wantedCol == pawn.getColumn() - 1 ) || (wantedCol == pawn.getColumn() + 1)) && (chessBoard.getFieldBoard()[wantedRow][wantedCol].getPiece() != null && !chessBoard.getFieldBoard()[wantedRow][wantedCol].getPiece().isWhite())) {
+                if (wantedRow == 0 && movingNow) {
+                    pawn.setPromoted(true);
                 }
                 return true;
             }
             if (pawn.getRow() == 6) {   // Kdyz je pesec na sve startovaci pozici
-                if (wantedRow < pawn.getRow() && wantedRow >= pawn.getRow() - 2 && pawn.getColumn() == wantedCol && ChessBoard.fieldBoard[wantedRow][wantedCol].getPiece() == null) {
-                    if (wantedRow == pawn.getRow() - 2) {
+                if (wantedRow < pawn.getRow() && wantedRow >= pawn.getRow() - 2 && pawn.getColumn() == wantedCol && chessBoard.getFieldBoard()[wantedRow][wantedCol].getPiece() == null && chessBoard.getFieldBoard()[pawn.getRow() - 1][pawn.getColumn()].getPiece() == null) {
+                    if (wantedRow == pawn.getRow() - 2 && movingNow) {
                         pawn.setEnPassant(true);
                     }
                     return true;
                 }
-            } else if (wantedRow < pawn.getRow() && wantedRow == pawn.getRow() - 1 && pawn.getColumn() == wantedCol && ChessBoard.fieldBoard[wantedRow][wantedCol].getPiece() == null) {
-                if (wantedRow == 0) {
-                    ChessBoard.promotion = true;
+            } else if (wantedRow < pawn.getRow() && wantedRow == pawn.getRow() - 1 && pawn.getColumn() == wantedCol && chessBoard.getFieldBoard()[wantedRow][wantedCol].getPiece() == null) {
+                if (wantedRow == 0 && movingNow) {
+                    pawn.setPromoted(true);
                 }
                 return true;
             }
         } else {        // Pro cerne pesce
-            if ((enPassantPieceLeft != null && enPassantPieceLeft.isEnPassant() && enPassantPieceLeft.isWhite() && enPassantPieceLeft.getColumn() != pawn.getColumn()) || (enPassantPieceRight != null && enPassantPieceRight.isEnPassant() && enPassantPieceRight.isWhite() && enPassantPieceRight.getColumn() != pawn.getColumn())) {
+            if ((enPassantPieceLeft != null
+                    && wantedRow == pawn.getRow() + 1
+                    && wantedCol == pawn.getColumn() - 1
+                    && enPassantPieceLeft.isEnPassant()
+                    && enPassantPieceLeft.isWhite()
+                    && enPassantPieceLeft.getColumn() == pawn.getColumn() - 1)) {
+                return true;
+            } else if (enPassantPieceRight != null
+                    && wantedRow == pawn.getRow() + 1
+                    && wantedCol == pawn.getColumn() + 1
+                    && enPassantPieceRight.isEnPassant()
+                    && enPassantPieceRight.isWhite()
+                    && enPassantPieceRight.getColumn() == pawn.getColumn() + 1) {
                 return true;
             }
-            if (wantedRow == pawn.getRow() + 1 && ((wantedCol == pawn.getColumn() - 1 ) || (wantedCol == pawn.getColumn() + 1)) && ChessBoard.fieldBoard[wantedRow][wantedCol].getPiece() != null) {
-                if (wantedRow == 7) {
-                    ChessBoard.promotion = true;
+            if (wantedRow == pawn.getRow() + 1 && ((wantedCol == pawn.getColumn() - 1 ) || (wantedCol == pawn.getColumn() + 1)) && (chessBoard.getFieldBoard()[wantedRow][wantedCol].getPiece() != null && chessBoard.getFieldBoard()[wantedRow][wantedCol].getPiece().isWhite())) {
+                if (wantedRow == 7 && movingNow) {
+                    pawn.setPromoted(true);
                 }
                 return true;
             }
             if (pawn.getRow() == 1) {   // Kdyz je pesec na sve startovaci pozici
-                if (wantedRow > pawn.getRow() && wantedRow <= pawn.getRow() + 2 && pawn.getColumn() == wantedCol && ChessBoard.fieldBoard[wantedRow][wantedCol].getPiece() == null) {
-                    if (wantedRow == pawn.getRow() + 2) {
+                if (wantedRow > pawn.getRow() && wantedRow <= pawn.getRow() + 2 && pawn.getColumn() == wantedCol && chessBoard.getFieldBoard()[wantedRow][wantedCol].getPiece() == null && chessBoard.getFieldBoard()[pawn.getRow() + 1][pawn.getColumn()].getPiece() == null) {
+                    if (wantedRow == pawn.getRow() + 2 && movingNow) {
                         pawn.setEnPassant(true);
                     }
                     return true;
                 }
-            } else if (wantedRow > pawn.getRow() && wantedRow == pawn.getRow() + 1 && pawn.getColumn() == wantedCol && ChessBoard.fieldBoard[wantedRow][wantedCol].getPiece() == null) {
-                if (wantedRow == 7) {
-                    ChessBoard.promotion = true;
+            } else if (wantedRow > pawn.getRow() && wantedRow == pawn.getRow() + 1 && pawn.getColumn() == wantedCol && chessBoard.getFieldBoard()[wantedRow][wantedCol].getPiece() == null) {
+                if (wantedRow == 7 && movingNow) {
+                    pawn.setPromoted(true);
                 }
                 return true;
             }
@@ -87,7 +256,7 @@ public class Move {
      * @param wantedCol pozadovany index sloupce
      * @return true, pokud je pohyb validni, jinak false
      */
-    public static boolean rookMove(APiece rook, int wantedRow, int wantedCol) {
+    public static boolean rookMove(APiece rook, int wantedRow, int wantedCol, ChessBoard chessBoard) {
         if (rook.getRow() == wantedRow || rook.getColumn() == wantedCol) {  // zaklad
             int sumOfSteps = 0;
             int tempRow = rook.getRow();
@@ -118,7 +287,7 @@ public class Move {
                 }
 
                 for (int i = 0; i < sumOfSteps; i++) {
-                    APiece pieceInWay = ChessBoard.fieldBoard[rowIndexesInWayArray[i]][wantedCol].getPiece();
+                    APiece pieceInWay = chessBoard.getFieldBoard()[rowIndexesInWayArray[i]][wantedCol].getPiece();
                     if (pieceInWay != null) {
                         if (i == sumOfSteps-1) {
                             return rook.isWhite() != pieceInWay.isWhite();
@@ -144,7 +313,7 @@ public class Move {
                 }
 
                 for (int i = 0; i < sumOfSteps; i++) {
-                    APiece pieceInWay = ChessBoard.fieldBoard[wantedRow][colIndexesInWayArray[i]].getPiece();
+                    APiece pieceInWay = chessBoard.getFieldBoard()[wantedRow][colIndexesInWayArray[i]].getPiece();
                     if (pieceInWay != null) {
                         if (i == sumOfSteps - 1) {
                             return rook.isWhite() != pieceInWay.isWhite();
@@ -166,7 +335,7 @@ public class Move {
      * @param wantedCol pozadovany index sloupce
      * @return true, pokud je pohyb validni, jinak false
      */
-    public static boolean bishopMove(APiece bishop, int wantedRow, int wantedCol) {
+    public static boolean bishopMove(APiece bishop, int wantedRow, int wantedCol, ChessBoard chessBoard) {
         int tempRow = bishop.getRow();
         int tempCol = bishop.getColumn();
 
@@ -215,7 +384,7 @@ public class Move {
             }
 
             for (int i = 0; i < sumOfRowSteps; i++) {
-                APiece pieceInWay = ChessBoard.fieldBoard[rowIndexesInWayArray[i]][colIndexesInWayArray[i]].getPiece();
+                APiece pieceInWay = chessBoard.getFieldBoard()[rowIndexesInWayArray[i]][colIndexesInWayArray[i]].getPiece();
                 if (pieceInWay != null) {
                     if (i == sumOfRowSteps-1) {
                         return bishop.isWhite() != pieceInWay.isWhite();
@@ -236,7 +405,7 @@ public class Move {
      * @param wantedCol pozadovany index sloupce
      * @return true, pokud je pohyb validni, jinak false
      */
-    public static boolean knightMove(APiece knight, int wantedRow, int wantedCol) {
+    public static boolean knightMove(APiece knight, int wantedRow, int wantedCol, ChessBoard chessBoard) {
         int tempRow = knight.getRow();
         int tempCol = knight.getColumn();
 
@@ -251,7 +420,7 @@ public class Move {
             passed = true;
         }
         if (passed) {
-            APiece pieceInWay = ChessBoard.fieldBoard[wantedRow][wantedCol].getPiece();
+            APiece pieceInWay = chessBoard.getFieldBoard()[wantedRow][wantedCol].getPiece();
             if (pieceInWay != null) {
                 return knight.isWhite() != pieceInWay.isWhite();
             }
@@ -268,10 +437,10 @@ public class Move {
      * @param wantedCol pozadovany index sloupce
      * @return true, pokud je pohyb validni, jinak false
      */
-    public static boolean queenMove(APiece queen, int wantedRow, int wantedCol) {
-        if (rookMove(queen, wantedRow, wantedCol)) {
+    public static boolean queenMove(APiece queen, int wantedRow, int wantedCol, ChessBoard chessBoard) {
+        if (rookMove(queen, wantedRow, wantedCol, chessBoard)) {
             return true;
-        } else return bishopMove(queen, wantedRow, wantedCol);
+        } else return bishopMove(queen, wantedRow, wantedCol, chessBoard);
     }
 
     /**
@@ -282,17 +451,55 @@ public class Move {
      * @param wantedCol pozadovany index sloupce
      * @return true, pokud je pohyb validni, jinak false
      */
-    public static boolean kingMove(APiece king, int wantedRow, int wantedCol) {
-        int tempRow = king.getRow();
-        int tempCol = king.getColumn();
+    public static boolean kingMove(APiece king, int wantedRow, int wantedCol, ChessBoard chessBoard, boolean movingNow) {
+        int kingRow = king.getRow();
+        int kingCol = king.getColumn();
+        Field wantedField = chessBoard.getFieldBoard()[wantedRow][wantedCol];
         boolean passed = false;
-        if (wantedRow == tempRow - 1 || wantedRow == tempRow || wantedRow == tempRow + 1) {
-            if (wantedCol == tempCol - 1 || wantedCol == tempCol || wantedCol == tempCol + 1) {
+
+        // ============================================== Rosada doprava ==============================================
+        if (!king.isMovedAlready()
+                && wantedCol > kingCol
+                && chessBoard.getFieldBoard()[kingRow][kingCol + 1].getPiece() == null
+                && chessBoard.getFieldBoard()[kingRow][kingCol + 2].getPiece() == null
+                && chessBoard.getFieldBoard()[kingRow][kingCol + 3].getPiece() != null
+                && chessBoard.getFieldBoard()[kingRow][kingCol + 3].getPiece().getClass().getSimpleName().equals("Rook")
+                && !chessBoard.getFieldBoard()[kingRow][kingCol + 3].getPiece().isMovedAlready()
+                && wantedRow == kingRow
+                && wantedCol == kingCol + 2) {
+            if (movingNow) {
+                king.setCastling(true);
+                chessBoard.setCastlingRook(chessBoard.getFieldBoard()[kingRow][7].getPiece());
+                System.out.println("Nastavena rosada pro vez na pozici: row - " + kingRow + "; col - " + 7);
+                System.out.println("kingRow = " + kingRow + "; KingCol = " + kingCol + ".");
+                System.out.println("wantedRow = " + wantedRow + "; wantedCol = " + wantedCol + ".");
+            }
+            return true;
+        // ============================================== Rosada doleva ==============================================
+        } else if (!king.isMovedAlready()
+                && wantedCol < kingCol
+                && chessBoard.getFieldBoard()[kingRow][kingCol - 1].getPiece() == null
+                && chessBoard.getFieldBoard()[kingRow][kingCol - 2].getPiece() == null
+                && chessBoard.getFieldBoard()[kingRow][kingCol - 3].getPiece() == null
+                && chessBoard.getFieldBoard()[kingRow][kingCol - 4].getPiece() != null
+                && chessBoard.getFieldBoard()[kingRow][kingCol - 4].getPiece().getClass().getSimpleName().equals("Rook")
+                && !chessBoard.getFieldBoard()[kingRow][kingCol - 4].getPiece().isMovedAlready()
+                && wantedRow == kingRow
+                && wantedCol == kingCol - 2) {
+            if (movingNow) {
+                king.setCastling(true);
+                chessBoard.setCastlingRook(chessBoard.getFieldBoard()[kingRow][0].getPiece());
+                System.out.println("Nastavena rosada pro vez na pozici: row - " + kingRow + "; col - " + 0 + ".");
+            }
+            return true;
+
+        } else if (wantedRow == kingRow - 1 || wantedRow == kingRow || wantedRow == kingRow + 1) {
+            if (wantedCol == kingCol - 1 || wantedCol == kingCol || wantedCol == kingCol + 1) {
                 passed = true;
             }
         }
         if (passed) {
-            APiece pieceInWay = ChessBoard.fieldBoard[wantedRow][wantedCol].getPiece();
+            APiece pieceInWay = chessBoard.getFieldBoard()[wantedRow][wantedCol].getPiece();
             if (pieceInWay != null) {
                 return king.isWhite() != pieceInWay.isWhite();
             }

@@ -55,6 +55,13 @@ public abstract class APiece extends JPanel {
     /** Kontrola, zda jiz probehl pohyb teto figurky */
     private boolean movedAlready = false;
 
+    private boolean isInCheck = false;
+
+    private boolean promoted = false;
+
+    private boolean castling = false;
+    private boolean castlingRight = false;
+    private boolean castlingLeft = false;
     //======================================== Konstruktory ========================================
 
     /**
@@ -221,6 +228,26 @@ public abstract class APiece extends JPanel {
         return movedAlready;
     }
 
+    public boolean isInCheck() {
+        return isInCheck;
+    }
+
+    public boolean isPromoted() {
+        return promoted;
+    }
+
+//    public boolean isCastlingRight() {
+//        return castlingRight;
+//    }
+//
+//    public boolean isCastlingLeft() {
+//        return castlingLeft;
+//    }
+
+    public boolean isCastling() {
+        return castling;
+    }
+
     //======================================== Settery ========================================
 
     /**
@@ -294,6 +321,26 @@ public abstract class APiece extends JPanel {
      */
     public void setMovedAlready(boolean movedAlready) {
         this.movedAlready = movedAlready;
+    }
+
+    public void setInCheck(boolean inCheck) {
+        isInCheck = inCheck;
+    }
+
+    public void setPromoted(boolean promoted) {
+        this.promoted = promoted;
+    }
+
+//    public void setCastlingRight(boolean castlingRight) {
+//        this.castlingRight = castlingRight;
+//    }
+//
+//    public void setCastlingLeft(boolean castlingLeft) {
+//        this.castlingLeft = castlingLeft;
+//    }
+
+    public void setCastling(boolean castling) {
+        this.castling = castling;
     }
 
     /**

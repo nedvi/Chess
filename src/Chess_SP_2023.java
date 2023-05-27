@@ -35,11 +35,11 @@ public class Chess_SP_2023 {
 	 * @param args parametry prikazove radky
 	 */
 	public static void main(String[] args) {
-		JFrame okno = new JFrame();
-		okno.setTitle(MAIN_TITLE_STR);
-		okno.setSize(800, 600);
-		okno.setMinimumSize(new Dimension(800, 600));
-		okno.setLayout(new BorderLayout());
+		JFrame frame = new JFrame();
+		frame.setTitle(MAIN_TITLE_STR);
+		frame.setSize(800, 600);
+		frame.setMinimumSize(new Dimension(800, 600));
+		frame.setLayout(new BorderLayout());
 
 		JMenuBar menubar = new JMenuBar();
 
@@ -58,17 +58,14 @@ public class Chess_SP_2023 {
 		JMenuItem svgExportMI = new JMenuItem("SVG");
 		exportMenu.add(svgExportMI);
 
+		pngExportMI.addMouseListener(exportToPng(frame));
+		pdfExportMI.addMouseListener(exportToPdf(frame));
+		svgExportMI.addMouseListener(exportToSvg(frame));
 
-
-		pngExportMI.addMouseListener(exportToPng(okno));
-		pdfExportMI.addMouseListener(exportToPdf(okno));
-		svgExportMI.addMouseListener(exportToSvg(okno));
-
-
-
-		okno.add(menubar, BorderLayout.NORTH);
+		frame.add(menubar, BorderLayout.NORTH);
 
 		ChessBoard chessBoard = new ChessBoard();
+
 
 
 		chessBoard.addMouseMotionListener(new MouseMotionListener() {
@@ -160,12 +157,12 @@ public class Chess_SP_2023 {
 			}
 		}, 0, 10);
 
-		okno.add(chessBoard); // prida komponentu
-		okno.pack(); // udela resize okna dle komponent
+		frame.add(chessBoard); // prida komponentu
+		frame.pack(); // udela resize okna dle komponent
 
-		okno.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		okno.setLocationRelativeTo(null); // vycentrovat na obrazovce
-		okno.setVisible(true);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLocationRelativeTo(null); // vycentrovat na obrazovce
+		frame.setVisible(true);
 	}
 
 	private static MouseListener exportToPng(JFrame frame) {
