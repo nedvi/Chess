@@ -19,6 +19,12 @@ public class ChessBoard extends JPanel {
     public int startY;
     public int targetX;
     public int targetY;
+
+    public int castlingRookStartX;
+    public int castlingRookStartY;
+    public int castlingRookTargetX;
+    public int castlingRookTargetY;
+
     private int moveStep;
 
     private boolean mouseWasReleased = false;
@@ -26,16 +32,28 @@ public class ChessBoard extends JPanel {
     private long millisecStart;
     private boolean isNewAnimation = true;
 
-    private Rectangle lastMovedFrom;
-    private Rectangle lastMovedTo;
+    private Field lastMovedFrom;
 
-    private List<Rectangle> validMoves;
+
+    private Field lastMovedTo;
+
+
+    private List<Field> validMoves;
+
+    /** Pole, pro ktere by byl dany kral v sachu (seznam se pouziva pouze pri validaci pohybu krale) */
+    private List<Field> checkFields;
+
     private boolean whitesTurn = true;
 
     private boolean mouseMovedFunctionOn = true;
 
     private APiece castlingRook = null;
 
+    private List<Double> whitePlayTimes;
+    private List<Double> blackPlayTimes;
+
+    private long playTimeStart;
+    private long playTimeEnd;
 
     /** Velikost strany ctverce, jenz reprezentuje vizualizaci jednoho hraciho pole */
     private int rectSize;
@@ -146,6 +164,13 @@ public class ChessBoard extends JPanel {
                 fieldBoard[i][j] = actualField;
             }
         }
+
+        whitePlayTimes = new ArrayList<>();
+        blackPlayTimes = new ArrayList<>();
+
+        playTimeStart = System.currentTimeMillis();
+
+        checkFields = null;
     }
 
     /**
@@ -219,12 +244,18 @@ public class ChessBoard extends JPanel {
         if (moveStep <= MAX_SUM_OF_STEPS) {
             int currentX = startX + (targetX - startX) * moveStep / MAX_SUM_OF_STEPS;
             int currentY = startY + (targetY - startY) * moveStep / MAX_SUM_OF_STEPS;
-//            System.out.println("MoveStep: " + moveStep + "; StartX: " + startX + "; StartY: " + startY + ";targetX: " + targetX + "; targetY: " + targetY +"; CurrentX: " + currentX + "; CurrentY: " + currentY);
 
+            int currentCastlingRookX = castlingRookStartX + (castlingRookTargetX - castlingRookStartX) * moveStep / MAX_SUM_OF_STEPS;
+            int currentCastlingRookY = castlingRookStartY + (castlingRookTargetY - castlingRookStartY) * moveStep / MAX_SUM_OF_STEPS;
+
+//            System.out.println("MoveStep: " + moveStep + "; StartX: " + startX + "; StartY: " + startY + ";targetX: " + targetX + "; targetY: " + targetY +"; CurrentX: " + currentX + "; CurrentY: " + currentY);
 
             for (APiece piece : getAllPieces()) {
                 if (piece == focusedPiece) {
                     piece.moveTo(currentX, currentY);
+                    if (castlingRook != null) {
+                        castlingRook.moveTo(currentCastlingRookX, currentCastlingRookY);
+                    }
                 }
             }
 
@@ -234,11 +265,31 @@ public class ChessBoard extends JPanel {
             moveStep = 0;
             this.focusedPiece = null;   // obstara odebrani focusu po pusteni mysi
             long millisecEnd = System.currentTimeMillis();
-            System.out.println("Presun trval " + (millisecEnd - millisecStart) + " ms.");
+//            System.out.println("Presun trval " + (millisecEnd - millisecStart) + " ms.");
+
+            playTimeEnd = System.currentTimeMillis();
+
+            long lastPlayTime = (playTimeEnd - playTimeStart);
+
+            double lastPlayTimeInSecond = (double) lastPlayTime / 1000;
+
+            if (whitesTurn) {
+//                if (whitePlayTimes.size() == 0) {
+//                    whitePlayTimes.add(lastPlayTime);
+//                }
+                blackPlayTimes.add(lastPlayTimeInSecond);
+                System.out.println("Tah cerneho trval " + lastPlayTime + " ms. Tedy " + lastPlayTimeInSecond + " s.");
+            } else {
+                whitePlayTimes.add(lastPlayTimeInSecond);
+                System.out.println("Tah bileho trval " + lastPlayTime + " ms. Tedy " + lastPlayTimeInSecond + " s.");
+            }
+
+            playTimeStart = System.currentTimeMillis();
             isNewAnimation = true;
             mouseMovedFunctionOn = true;
             validMoves = null;
             castlingRook = null;
+            checkFields = null;
         }
     }
 
@@ -390,6 +441,7 @@ public class ChessBoard extends JPanel {
                     );
                     paintPiece(g, actualKing);
                 }
+                whitesTurn = true;
                 isFirstLoad = false;
             }
             // Pesaci
@@ -415,7 +467,51 @@ public class ChessBoard extends JPanel {
             // Kralove
             for (King king : kings) {
                 paintPiece(g, king);
+            }
 
+
+
+            int XdistanceBetweenEliminatedWhites = rectSize;
+            int YdistanceBetweenEliminatedWhites = 0;
+            int XdistanceBetweenEliminatedBlacks = rectSize;
+            int YdistanceBetweenEliminatedBlacks = 0;
+
+            int sumOfWhiteEliminated = 0;
+            int sumOfBlackEliminated = 0;
+
+
+            if (eliminatedPieces != null) {
+                for (APiece piece : eliminatedPieces) {
+                    if (piece.isWhite() ) {
+                        if (sumOfWhiteEliminated == 4) {
+                            XdistanceBetweenEliminatedWhites = rectSize;
+                            YdistanceBetweenEliminatedWhites += rectSize/1.5;
+                            sumOfWhiteEliminated = 0;
+                        }
+                        piece.moveTo(
+                                rectBoard[0][7].getX() + rectSize/3.0 + XdistanceBetweenEliminatedWhites,
+                                rectBoard[0][7].getY() + rectSize/2.0 + YdistanceBetweenEliminatedWhites);
+                        XdistanceBetweenEliminatedWhites += rectSize/3.0;
+                        paintEliminatedPiece(g, piece);
+
+
+                        sumOfWhiteEliminated += 1;
+                    } else {
+                        if (sumOfBlackEliminated == 4) {
+                            XdistanceBetweenEliminatedBlacks = rectSize;
+                            YdistanceBetweenEliminatedBlacks += rectSize/1.5;
+                            sumOfBlackEliminated = 0;
+                        }
+                        piece.moveTo(
+                                rectBoard[7][7].getX() + rectSize/3.0 + XdistanceBetweenEliminatedBlacks,
+                                rectBoard[7][7].getY() + rectSize/2.0 - YdistanceBetweenEliminatedBlacks);
+                        XdistanceBetweenEliminatedBlacks += rectSize/3.0;
+                        paintEliminatedPiece(g, piece);
+
+
+                        sumOfBlackEliminated += 1;
+                    }
+                }
             }
         }
     }
@@ -433,40 +529,80 @@ public class ChessBoard extends JPanel {
         int y = this.getHeight()/2 - (10* rectSize)/2; //
         int posun = rectSize;
 
+        int alpha = 127; // 50% transparent
+        Color transparentOrange = new Color(255, 128, 0, alpha);
+        Color transparentGreen = new Color(16, 223, 33, alpha);
+
         for (int row = 0; row < 8; row++) {
             x = this.getWidth()/2 - (8* rectSize)/2;
             y += rectSize;
             for (int column = 0; column < 8; column++) {   // hraci pole
                 Rectangle actualRectangle = new Rectangle(x, y, rectSize, rectSize);
                 rectBoard[row][column] = actualRectangle;
-                if ((row % 2 == 0) == (column % 2 == 0))
-                    g2.setColor(WHITE);
-                else
-                    g2.setColor(BLACK);
 
-                g2.fill(actualRectangle);
+
+                if ((row % 2 == 0) == (column % 2 == 0)) {
+                    g2.setColor(WHITE);
+                    g2.fill(actualRectangle);
+                } else {
+                    g2.setColor(BLACK);
+                    g2.fill(actualRectangle);
+                }
+
+                // Zvyrazneni poslednoho tahu
+                if (lastMovedFrom != null && lastMovedTo != null) {
+
+                    if (row == lastMovedFrom.getRow() && column == lastMovedFrom.getColumn()) {
+                        g2.setColor(transparentOrange);
+                        g2.fill(actualRectangle);
+                    } else if (row == lastMovedTo.getRow() && column == lastMovedTo.getColumn()) {
+                        g2.setColor(transparentOrange);
+                        g2.fill(actualRectangle);
+                    }
+                }
+
+                // Zvyrazneni moznych tahu
+                if (validMoves != null) {
+                    for (Field validMove : validMoves) {
+                        if (row == validMove.getRow() && column == validMove.getColumn()) {
+                            g2.setColor(transparentGreen);
+                            g2.fill(actualRectangle);
+                        }
+                    }
+                }
+
                 x += posun;
             }
         }
 
-        // Zvyrazneni poslednoho tahu
-        if (lastMovedFrom != null && lastMovedTo != null) {
-            int alpha = 127; // 50% transparent
-            Color transparentOrange = new Color(255, 128, 0, alpha);
-            g2.setColor(transparentOrange);
-            g2.fill(lastMovedFrom);
-            g2.fill(lastMovedTo);
-        }
+//        // Zvyrazneni poslednoho tahu
+//        if (lastMovedFrom != null && lastMovedTo != null) {
+//
+//
+////            lastMovedFrom.setSize(rectSize,rectSize);
+////            lastMovedTo.setSize(rectSize,rectSize);
+//
+//            int alpha = 127; // 50% transparent
+//            Color transparentOrange = new Color(255, 128, 0, alpha);
+//            g2.setColor(transparentOrange);
+//
+//            y = this.getHeight()/2 - (10* rectSize)/2; //
+//
+//            for (int row = 0; row < 8; row++) {
+//                x = this.getWidth()/2 - (8* rectSize)/2;
+//                y += rectSize;
+//                for (int column = 0; column < 8; column++) {
+//                    if (rectBoard[row][column].equals(lastMovedFrom)) {
+//                        g2.fill(lastMovedFrom);
+//                    } else if (rectBoard[row][column].equals(lastMovedTo)) {
+//                        g2.fill(lastMovedTo);
+//                    }
+//                    x += posun;
+//                }
+//            }
+//        }
 
-        // Zvyrazneni moznych tahu
-        if (validMoves != null) {
-            for (Rectangle validMoveRect : validMoves) {
-                int alpha = 127; // 50% transparent
-                Color transparentGreen = new Color(16, 223, 33, alpha);
-                g2.setColor(transparentGreen);
-                g2.fill(validMoveRect);
-            }
-        }
+
     }
 
     /**
@@ -479,6 +615,20 @@ public class ChessBoard extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
         AffineTransform old = g2.getTransform();
         piece.setPieceSize(this.getRectSize());
+        piece.paint(g2);
+        g2.setTransform(old);
+    }
+
+    /**
+     * Vykresleni konkretni eliminovanou figurky
+     *
+     * @param g graficky kontext
+     * @param piece konkretni kreslena figurka
+     */
+    public void paintEliminatedPiece(Graphics g, APiece piece) {
+        Graphics2D g2 = (Graphics2D) g;
+        AffineTransform old = g2.getTransform();
+        piece.setPieceSize((int) (this.getRectSize()/1.25));
         piece.paint(g2);
         g2.setTransform(old);
     }
@@ -665,7 +815,9 @@ public class ChessBoard extends JPanel {
     private void gameOver(King eliminatedKing) {
         StringBuilder gameOverSB = new StringBuilder();
 
-        if (eliminatedKing.isWhite()) {
+        if (isDraw()) {
+            gameOverSB.append("Hra skoncila remizou!");
+        } else if (eliminatedKing.isWhite()) {
             gameOverSB.append("Hra skoncila! Vitez: Cerny");
         } else {
             gameOverSB.append("Hra skoncila! Vitez: Bily");
@@ -740,25 +892,21 @@ public class ChessBoard extends JPanel {
                         startX = (int) rectBoard[oldFocusedPieceRow][oldFocusedPieceColumn].getX() + rectSize / 2;
                         startY = (int) rectBoard[oldFocusedPieceRow][oldFocusedPieceColumn].getY() + rectSize / 2;
 
-
                         if (focusedPiece.getClass().getSimpleName().equals("King") && Move.kingMove(focusedPiece, row, column, this, true)) {
                             validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
-                            System.out.println("KING valid move passed (Row: " + row + "; Col: " + column);
-                        }
-                        getValidMoves(focusedPiece);      // Tady se pohyb provede
-                        if (validMoves.contains(rectBoard[row][column])) {
+                            mouseWasReleased = true;
+                            break;
+//                            System.out.println("KING valid move passed (Row: " + row + "; Col: " + column);
+                        } else if (getValidMoves(focusedPiece).contains(fieldBoard[row][column])) {
                             getValidMovesAndMakeOne(focusedPiece);
                             validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
-                            System.out.println("Valid move passed (Row: " + row + "; Col: " + column);
+//                            System.out.println("Valid move passed (Row: " + row + "; Col: " + column);
                             mouseWasReleased = true;
                         } else {
                             this.focusedPiece = null;   // obstara odebrani focusu po pusteni mysi
-                            lastMovedFrom = null;
-                            lastMovedTo = null;
                             validMoves = null;
                         }
                     } else {
-                        //TODO: Sem teoreticky nacpat mozne kroky po kliknuti
                         validMoves = null;
                         getValidMoves(focusedPiece);     // Tady se pouze ukazuji mozne pohyby, pohyb se ale neprovadi
 //                        System.out.println("Oznacena figurka na pozici: Row - " + focusedPiece.getRow() + ", Col - " + focusedPiece.getColumn());
@@ -778,7 +926,29 @@ public class ChessBoard extends JPanel {
         }
     }
 
-    public void getValidMoves(APiece piece) {
+    // pokud neni v sachu - true
+    public List<Field> getCheckFields(APiece king) {
+
+        checkFields = new ArrayList<>();
+        if (king.isWhite()) {
+            for (APiece piece : getAllPieces()) {
+                if (!piece.isWhite() && !piece.getClass().getSimpleName().equals("King)")) {
+                    getValidMoves(piece);
+                    checkFields.addAll(validMoves);
+                }
+            }
+        } else {
+            for (APiece piece : getAllPieces()) {
+                if (piece.isWhite() && !piece.getClass().getSimpleName().equals("King)")) {
+                    getValidMoves(piece);
+                    checkFields.addAll(validMoves);
+                }
+            }
+        }
+        return checkFields;
+    }
+
+    public List<Field> getValidMoves(APiece piece) {
         validMoves = new ArrayList<>();
 
         switch (piece.getClass().getSimpleName()) {
@@ -786,57 +956,64 @@ public class ChessBoard extends JPanel {
                 for (int row = 0; row < 8; row++) {
                     for (int col = 0; col < 8; col++) {
                         if (Move.pawnMove(piece, row, col, this, false)) {
-                            validMoves.add(rectBoard[row][col]);
+                            validMoves.add(fieldBoard[row][col]);
                         }
                     }
                 }
+                return validMoves;
             }
             case "Rook" -> {
                 for (int row = 0; row < 8; row++) {
                     for (int col = 0; col < 8; col++) {
                         if (Move.rookMove(piece, row, col, this)) {
-                            validMoves.add(rectBoard[row][col]);
+                            validMoves.add(fieldBoard[row][col]);
                         }
                     }
                 }
+                return validMoves;
             }
             case "Knight" -> {
                 for (int row = 0; row < 8; row++) {
                     for (int col = 0; col < 8; col++) {
                         if (Move.knightMove(piece, row, col, this)) {
-                            validMoves.add(rectBoard[row][col]);
+                            validMoves.add(fieldBoard[row][col]);
                         }
                     }
                 }
+                return validMoves;
             }
             case "Bishop" -> {
                 for (int row = 0; row < 8; row++) {
                     for (int col = 0; col < 8; col++) {
                         if (Move.bishopMove(piece, row, col, this)) {
-                            validMoves.add(rectBoard[row][col]);
+                            validMoves.add(fieldBoard[row][col]);
                         }
                     }
                 }
+                return validMoves;
             }
             case "Queen" -> {
                 for (int row = 0; row < 8; row++) {
                     for (int col = 0; col < 8; col++) {
                         if (Move.queenMove(piece, row, col, this)) {
-                            validMoves.add(rectBoard[row][col]);
+                            validMoves.add(fieldBoard[row][col]);
                         }
                     }
                 }
+                return validMoves;
             }
             case "King" -> {
                 for (int row = 0; row < 8; row++) {
                     for (int col = 0; col < 8; col++) {
                         if (Move.kingMove(piece, row, col, this, false)) {
-                            validMoves.add(rectBoard[row][col]);
+                            validMoves.add(fieldBoard[row][col]);
                         }
                     }
                 }
+                return validMoves;
             }
         }
+        return validMoves;
     }
 
     public void getValidMovesAndMakeOne(APiece piece) {
@@ -847,7 +1024,7 @@ public class ChessBoard extends JPanel {
                 for (int row = 0; row < 8; row++) {
                     for (int col = 0; col < 8; col++) {
                         if (Move.pawnMove(piece, row, col, this, true)) {
-                            validMoves.add(rectBoard[row][col]);
+                            validMoves.add(fieldBoard[row][col]);
                         }
                     }
                 }
@@ -856,7 +1033,7 @@ public class ChessBoard extends JPanel {
                 for (int row = 0; row < 8; row++) {
                     for (int col = 0; col < 8; col++) {
                         if (Move.rookMove(piece, row, col, this)) {
-                            validMoves.add(rectBoard[row][col]);
+                            validMoves.add(fieldBoard[row][col]);
                         }
                     }
                 }
@@ -865,7 +1042,7 @@ public class ChessBoard extends JPanel {
                 for (int row = 0; row < 8; row++) {
                     for (int col = 0; col < 8; col++) {
                         if (Move.knightMove(piece, row, col, this)) {
-                            validMoves.add(rectBoard[row][col]);
+                            validMoves.add(fieldBoard[row][col]);
                         }
                     }
                 }
@@ -874,7 +1051,7 @@ public class ChessBoard extends JPanel {
                 for (int row = 0; row < 8; row++) {
                     for (int col = 0; col < 8; col++) {
                         if (Move.bishopMove(piece, row, col, this)) {
-                            validMoves.add(rectBoard[row][col]);
+                            validMoves.add(fieldBoard[row][col]);
                         }
                     }
                 }
@@ -883,7 +1060,7 @@ public class ChessBoard extends JPanel {
                 for (int row = 0; row < 8; row++) {
                     for (int col = 0; col < 8; col++) {
                         if (Move.queenMove(piece, row, col, this)) {
-                            validMoves.add(rectBoard[row][col]);
+                            validMoves.add(fieldBoard[row][col]);
                         }
                     }
                 }
@@ -892,7 +1069,7 @@ public class ChessBoard extends JPanel {
                 for (int row = 0; row < 8; row++) {
                     for (int col = 0; col < 8; col++) {
                         if (Move.kingMove(piece, row, col, this, true)) {
-                            validMoves.add(rectBoard[row][col]);
+                            validMoves.add(fieldBoard[row][col]);
                         }
                     }
                 }
@@ -911,7 +1088,7 @@ public class ChessBoard extends JPanel {
      * @param oldFocusedPieceColumn stary index sloupce
      */
     public void validMove(APiece focusedPiece, Rectangle focusedRectangle, int row, int column, int  oldFocusedPieceRow, int oldFocusedPieceColumn) {
-        //TODO: zkusit iterovat pres pole pescu - pokud nekdo isEnPassant true - tak nastavit false
+
         validMoves = null;
         focusedPiece.moveTo(
                 focusedRectangle.getX() + getRectSize() / 2.0,
@@ -930,19 +1107,25 @@ public class ChessBoard extends JPanel {
         focusedPiece.setMovedAlready(true);
         eliminate(focusedPiece, oldFocusedPieceRow, oldFocusedPieceColumn);
 
-        lastMovedFrom = rectBoard[oldFocusedPieceRow][oldFocusedPieceColumn];
-        lastMovedTo = rectBoard[focusedPiece.getRow()][focusedPiece.getColumn()];
+        lastMovedFrom = fieldBoard[oldFocusedPieceRow][oldFocusedPieceColumn];
+        lastMovedTo = fieldBoard[focusedPiece.getRow()][focusedPiece.getColumn()];
 
-        if (focusedPiece.isPromoted()) {
-            promotion(focusedPiece);
-        }
+
 
         //========================================== Rosada doprava ==========================================
         if (focusedPiece.isCastling()) {
             if (castlingRook.getColumn() == 0) {
+
+                castlingRookStartX = (int) (getRectBoard()[oldFocusedPieceRow][0].getX() + getRectSize() / 2.0);
+                castlingRookStartY = (int) (getRectBoard()[oldFocusedPieceRow][0].getY() + getRectSize() / 2.0);
+
                 castlingRook.moveTo(
                         getRectBoard()[oldFocusedPieceRow][3].getX() + getRectSize() / 2.0,
                         getRectBoard()[oldFocusedPieceRow][3].getY() + getRectSize() / 2.0);
+
+                castlingRookTargetX = (int) (getRectBoard()[oldFocusedPieceRow][3].getX() + getRectSize() / 2.0);
+                castlingRookTargetY = (int) (getRectBoard()[oldFocusedPieceRow][3].getY() + getRectSize() / 2.0);
+
                 castlingRook.setRow(oldFocusedPieceRow);
                 castlingRook.setColumn(3);
                 castlingRook.setField(fieldBoard[oldFocusedPieceRow][3]);
@@ -951,9 +1134,17 @@ public class ChessBoard extends JPanel {
                 castlingRook.setMovedAlready(true);
                 focusedPiece.setCastling(false);
             } else if (castlingRook.getColumn() == 7) {
+
+                castlingRookStartX = (int) (getRectBoard()[oldFocusedPieceRow][7].getX() + getRectSize() / 2.0);
+                castlingRookStartY = (int) (getRectBoard()[oldFocusedPieceRow][7].getY() + getRectSize() / 2.0);
+
                 castlingRook.moveTo(
                         getRectBoard()[oldFocusedPieceRow][5].getX() + getRectSize() / 2.0,
                         getRectBoard()[oldFocusedPieceRow][5].getY() + getRectSize() / 2.0);
+
+                castlingRookTargetX = (int) (getRectBoard()[oldFocusedPieceRow][5].getX() + getRectSize() / 2.0);
+                castlingRookTargetY = (int) (getRectBoard()[oldFocusedPieceRow][5].getY() + getRectSize() / 2.0);
+
                 castlingRook.setRow(oldFocusedPieceRow);
                 castlingRook.setColumn(5);
                 castlingRook.setField(fieldBoard[oldFocusedPieceRow][5]);
@@ -962,28 +1153,35 @@ public class ChessBoard extends JPanel {
                 castlingRook.setMovedAlready(true);
                 focusedPiece.setCastling(false);
             }
-            castlingRook = null;
+
         }
-//        //========================================== Rosada doleva ==========================================
-//        else if (focusedPiece.isCastlingLeft()) {
-//            System.out.println("Levej castling done");
-//            APiece castlingRook = getFieldBoard()[oldFocusedPieceRow][oldFocusedPieceColumn - 4].getPiece();
-//            castlingRook.moveTo(
-//                    getRectBoard()[oldFocusedPieceRow][3].getX() + getRectSize() / 2.0,
-//                    getRectBoard()[oldFocusedPieceRow][3].getY() + getRectSize() / 2.0);
-//            fieldBoard[castlingRook.getRow()][castlingRook.getColumn()].setPiece(null);   // nastaveni stare bunky na prazdnou
-//
-//            castlingRook.setRow(oldFocusedPieceRow);
-//            castlingRook.setColumn(oldFocusedPieceColumn -1);
-//            castlingRook.setField(fieldBoard[oldFocusedPieceRow][oldFocusedPieceColumn - 1]);
-//            fieldUpdate(castlingRook);
-//            castlingRook.setMovedAlready(true);
-//            focusedPiece.setCastlingLeft(false);
-//        }
+        if (isDraw()) {
+            gameOver(null);
+        }
 
-        // Prepne na druheho hrace
-        whitesTurn = !whitesTurn;
+        if (focusedPiece.isPromoted()) {
+            whitesTurn = !whitesTurn;
+            promotion(focusedPiece);
+        } else {
+            whitesTurn = !whitesTurn;
+        }
+    }
 
+    /**
+     * Testovaci metoda na remizu
+     *
+     * @return true, pokud je remiza, jinak false
+     */
+    private boolean isDraw() {
+        // 2 kralove
+        if (getAllPieces().size() == 2 && kings.size() == 2) {
+            return true;
+        } else if (getAllPieces().size() == 3
+                && kings.size() == 2
+                && (knights.size() == 1 || bishops.size() == 1)) {  // 2 kralove + strelec/jezdec
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -1041,6 +1239,7 @@ public class ChessBoard extends JPanel {
         gameOverPane.add(bishopBTN);
 
         JDialog dialog = gameOverPane.createDialog(null, "Promena");
+        dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);   // Disable tlacitka X, aby nedoslo na situaci, kdy hrac zavre nabidku promeny bez vyberu figurky
         queenBTN.addActionListener(event -> {
             Queen queen = new Queen(pawnSx, pawnSy, pawnIsWhite);
             queen.setRow(pawnRow);
@@ -1105,5 +1304,13 @@ public class ChessBoard extends JPanel {
 
     public void setCastlingRook(APiece castlingRook) {
         this.castlingRook = castlingRook;
+    }
+
+    public List<Double> getWhitePlayTimes() {
+        return whitePlayTimes;
+    }
+
+    public List<Double> getBlackPlayTimes() {
+        return blackPlayTimes;
     }
 }

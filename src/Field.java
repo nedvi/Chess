@@ -38,6 +38,14 @@ public class Field {
         return piece;
     }
 
+    public int getRow() {
+        return row;
+    }
+
+    public int getColumn() {
+        return column;
+    }
+
     /**
      * @return true pokud figurka na poli je, jinak false
      */

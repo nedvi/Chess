@@ -1,3 +1,5 @@
+import java.util.List;
+
 /**
  * Trida reprezentujici validator pohybu figurek
  *
@@ -5,148 +7,6 @@
  * @version 07.05.2023
  */
 public class Move {
-
-//    /**
-//     * Osetruje validni pohyb pesaka, a to vcetne brani mimochodem a promeny za kralovnu
-//     *
-//     * @param pawn pesak, se kterym chce hrac pohybovat
-//     * @param wantedRow pozadovany index radky
-//     * @param wantedCol pozadovany index sloupce
-//     * @return true, pokud je pohyb validni, jinak false
-//     */
-//    public static boolean pawnMove(APiece pawn, int wantedRow, int wantedCol, ChessBoard chessBoard) {
-//        int pawnRow = pawn.getRow();
-//        int pawnCol = pawn.getColumn();
-//        Field wantedField = chessBoard.getFieldBoard()[wantedRow][wantedCol];
-//
-////        if (wantedField == chessBoard.fieldBoard[pawnCol + 1][pawnRow + 1]) {       // Brani mimochodem doprava
-////            if (wantedField.getPiece() != null && wantedField.getPiece().isEnPassant()) {
-////                return true;
-////            }
-////        } else if (wantedField == chessBoard.fieldBoard[pawnCol - 1][pawnRow + 1]) { // Brani mimochodem doleva
-////            if (wantedField.getPiece() != null && wantedField.getPiece().isEnPassant()) {
-////                return true;
-////            }
-////        }
-//        APiece enPassantPieceLeft = null;
-//        APiece enPassantPieceRight = null;
-//
-//        // Pokud jsme se nehli ani o jedno pole
-//        if (pawnRow == wantedRow && pawnCol == wantedCol) {
-//            return false;
-//        }
-//
-//
-//        //====================================== Bili pesci ======================================
-//        if (pawn.isWhite()) {
-//            if (pawnCol != 7
-//                    && pawnRow != 0
-//                    && wantedField == chessBoard.fieldBoard[pawnRow - 1][pawnCol + 1]
-//                    && chessBoard.fieldBoard[pawnRow][pawnCol + 1].getPiece() != null
-//                    && !chessBoard.fieldBoard[pawnRow][pawnCol + 1].getPiece().isWhite()
-//                    && chessBoard.fieldBoard[pawnRow][pawnCol + 1].getPiece().isEnPassant()
-//                    && chessBoard.fieldBoard[pawnRow][pawnCol + 1].getPiece().wasEnPassantAlready()
-//                    && wantedRow == 2) {       // Brani mimochodem doprava mimo column 7
-//                System.out.println("Projde to sem? - Bily");
-//                return true;
-//            } else if (pawnCol != 0
-//                    && pawnRow != 0
-//                    && wantedField == chessBoard.fieldBoard[pawnRow - 1][pawnCol - 1]
-//                    && chessBoard.fieldBoard[pawnRow][pawnCol - 1].getPiece() != null
-//                    && !chessBoard.fieldBoard[pawnRow][pawnCol - 1].getPiece().isWhite()
-//                    && chessBoard.fieldBoard[pawnRow][pawnCol - 1].getPiece().isEnPassant()
-//                    && chessBoard.fieldBoard[pawnRow][pawnCol - 1].getPiece().wasEnPassantAlready()
-//                    && wantedRow == 2) {  // Brani mimochodem doleva mimo column 0
-//                return true;
-//            } else if (!pawn.isMovedAlready()) {   // Pokud pohyb pesce jeste nenastal
-//                if (wantedRow == pawnRow - 1 && wantedCol == pawnCol + 1 && wantedField.getPiece() != null && !wantedField.getPiece().isWhite()) {   // Eliminace cerneho doprava
-//                    return true;
-//                } else if (wantedRow == pawnRow - 1 && wantedCol == pawnCol - 1 && wantedField.getPiece() != null && !wantedField.getPiece().isWhite()) {   // Eliminace cerneho doleva
-//                    return true;
-//                } else if (wantedRow == pawnRow - 1 && wantedCol == pawnCol) {             // pohyb o jedno pole
-//                    if (wantedField.getPiece() == null) {
-//                        return true;
-//                    }
-//                } else if (wantedRow == pawnRow - 2 && wantedCol == pawnCol && chessBoard.getFieldBoard()[pawnRow-1][pawnCol].getPiece() == null) {      // pohyb o dve pole
-//                    if (wantedField.getPiece() == null) {
-//                        pawn.setEnPassant(true);
-//                        return true;
-//                    }
-//                }
-//            } else if (wantedRow == pawnRow - 1 && wantedCol == pawnCol && wantedField.getPiece() == null) {             // pohyb o jedno pole
-//                if (wantedRow == 0) {
-//                    pawn.setPromoted(true);
-//                }
-//                return true;
-//            } else if (wantedRow == pawnRow - 1 && wantedCol == pawnCol + 1 && wantedField.getPiece() != null && !wantedField.getPiece().isWhite()) {   // Eliminace cerneho doprava
-//                if (wantedRow == 0) {
-//                    pawn.setPromoted(true);
-//                }
-//                return true;
-//            } else if (wantedRow == pawnRow - 1 && wantedCol == pawnCol - 1 && wantedField.getPiece() != null && !wantedField.getPiece().isWhite()) {   // Eliminace cerneho doleva
-//                if (wantedRow == 0) {
-//                    pawn.setPromoted(true);
-//                }
-//                return true;
-//            }
-//        }
-//
-//        //====================================== Cerni pesci ======================================
-//        else {
-//            System.out.println("Jsem cernej pesak!");
-//            if (pawnCol != 7
-//                    && pawnRow != 7
-//                    && wantedField == chessBoard.fieldBoard[pawnRow + 1][pawnCol + 1]
-//                    && chessBoard.fieldBoard[pawnRow][pawnCol + 1].getPiece() != null
-//                    && chessBoard.fieldBoard[pawnRow][pawnCol + 1].getPiece().isWhite()
-//                    && chessBoard.fieldBoard[pawnRow][pawnCol + 1].getPiece().isEnPassant()
-//                    && chessBoard.fieldBoard[pawnRow][pawnCol + 1].getPiece().wasEnPassantAlready()
-//                    && wantedRow == 2) {       // Brani mimochodem doprava mimo column 7
-//                System.out.println("Projde to sem? Cerny");
-//                return true;
-//            } else if (pawnCol != 0
-//                    && pawnRow != 7
-//                    && wantedField == chessBoard.fieldBoard[pawnRow + 1][pawnCol - 1]
-//                    && chessBoard.fieldBoard[pawnRow][pawnCol - 1].getPiece() != null
-//                    && chessBoard.fieldBoard[pawnRow][pawnCol - 1].getPiece().isWhite()
-//                    && chessBoard.fieldBoard[pawnRow][pawnCol - 1].getPiece().isEnPassant()
-//                    && chessBoard.fieldBoard[pawnRow][pawnCol - 1].getPiece().wasEnPassantAlready()
-//                    && wantedRow == 2) {  // Brani mimochodem doleva mimo column 0
-//                return true;
-//            } else if (!pawn.isMovedAlready()) {   // Pokud pohyb pesce jeste nenastal
-//                if (wantedRow == pawnRow + 1 && wantedCol == pawnCol + 1 && wantedField.getPiece() != null && wantedField.getPiece().isWhite()) {   // Eliminace bileho doprava
-//                    return true;
-//                } else if (wantedRow == pawnRow + 1 && wantedCol == pawnCol - 1 && wantedField.getPiece() != null && wantedField.getPiece().isWhite()) {   // Eliminace bileho doleva
-//                    return true;
-//                } else if (wantedRow == pawnRow + 1 && wantedCol == pawnCol) {             // pohyb o jedno pole
-//                    if (wantedField.getPiece() == null) {
-//                        return true;
-//                    }
-//                } else if (wantedRow == pawnRow + 2 && wantedCol == pawnCol && chessBoard.getFieldBoard()[pawnRow+1][pawnCol].getPiece() == null) {      // pohyb o dve pole
-//                    if (wantedField.getPiece() == null) {
-//                        pawn.setEnPassant(true);
-//                        return true;
-//                    }
-//                }
-//            } else if (wantedRow == pawnRow + 1 && wantedCol == pawnCol && wantedField.getPiece() == null) {             // pohyb o jedno pole
-//                if (wantedRow == 7) {
-//                    pawn.setPromoted(true);
-//                }
-//                return true;
-//            } else if (wantedRow == pawnRow + 1 && wantedCol == pawnCol + 1 && wantedField.getPiece() != null && wantedField.getPiece().isWhite()) {   // Eliminace bileho doprava
-//                if (wantedRow == 7) {
-//                    pawn.setPromoted(true);
-//                }
-//                return true;
-//            } else if (wantedRow == pawnRow + 1 && wantedCol == pawnCol - 1 && wantedField.getPiece() != null && wantedField.getPiece().isWhite()) {   // Eliminace bileho doleva
-//                if (wantedRow == 7) {
-//                    pawn.setPromoted(true);
-//                }
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
 
     /**
      * Osetruje validni pohyb pesaka, a to vcetne brani mimochodem a promeny za kralovnu
@@ -454,9 +314,13 @@ public class Move {
     public static boolean kingMove(APiece king, int wantedRow, int wantedCol, ChessBoard chessBoard, boolean movingNow) {
         int kingRow = king.getRow();
         int kingCol = king.getColumn();
-        Field wantedField = chessBoard.getFieldBoard()[wantedRow][wantedCol];
         boolean passed = false;
 
+//        List<Field> checkFields = chessBoard.getCheckFields(king);
+//        Field wantedField = chessBoard.getFieldBoard()[wantedRow][wantedCol];
+//        if (checkFields.contains(wantedField)) {
+//            return false;
+//        }
         // ============================================== Rosada doprava ==============================================
         if (!king.isMovedAlready()
                 && wantedCol > kingCol

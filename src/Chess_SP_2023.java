@@ -1,9 +1,24 @@
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.xy.DefaultXYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.pdf.PDFDocument;
 import org.jfree.pdf.PDFGraphics2D;
 import org.jfree.pdf.PDFHints;
 import org.jfree.pdf.Page;
 import org.jfree.svg.SVGGraphics2D;
 import org.jfree.svg.SVGUtils;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.time.Millisecond;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -13,6 +28,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.TimerTask;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Spousteci trida semsestralni prace z predmetu KIV/UPG -> Sachy
@@ -29,13 +47,17 @@ public class Chess_SP_2023 {
 	private static int pdfScreenshotCount = 0;
 	private static int svgScreenshotCount = 0;
 
+	private static JFrame frame;
+	private static ChessBoard chessBoard;
+	private static JPanel graphPanel;
+
 	/**
 	 * Spousteci metoda programu
 	 *
 	 * @param args parametry prikazove radky
 	 */
 	public static void main(String[] args) {
-		JFrame frame = new JFrame();
+		frame = new JFrame();
 		frame.setTitle(MAIN_TITLE_STR);
 		frame.setSize(800, 600);
 		frame.setMinimumSize(new Dimension(800, 600));
@@ -43,9 +65,19 @@ public class Chess_SP_2023 {
 
 		JMenuBar menubar = new JMenuBar();
 
-		JMenu graf = new JMenu("Graf");
-		menubar.add(graf);
+		//=============================== Graf menu ===============================
+		JMenu content = new JMenu("Zobrazit");
+		menubar.add(content);
 
+		JMenuItem showGraph = new JMenuItem("Graf");
+		content.add(showGraph);
+		showGraph.addMouseListener(getGraph());
+
+		JMenuItem showChessBoard = new JMenuItem("Sachovnici");
+		content.add(showChessBoard);
+		showChessBoard.addMouseListener(getChessBoard());
+
+		//=============================== Export menu ===============================
 		JMenu exportMenu = new JMenu("Export");
 		menubar.add(exportMenu);
 
@@ -58,16 +90,15 @@ public class Chess_SP_2023 {
 		JMenuItem svgExportMI = new JMenuItem("SVG");
 		exportMenu.add(svgExportMI);
 
+
+
 		pngExportMI.addMouseListener(exportToPng(frame));
 		pdfExportMI.addMouseListener(exportToPdf(frame));
 		svgExportMI.addMouseListener(exportToSvg(frame));
 
 		frame.add(menubar, BorderLayout.NORTH);
 
-		ChessBoard chessBoard = new ChessBoard();
-
-
-
+		chessBoard = new ChessBoard();
 		chessBoard.addMouseMotionListener(new MouseMotionListener() {
 
 			/**
@@ -95,7 +126,6 @@ public class Chess_SP_2023 {
 
 			}
 		});
-
 		chessBoard.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -136,7 +166,6 @@ public class Chess_SP_2023 {
 
 			}
 		});
-
 		chessBoard.addComponentListener(new ComponentAdapter() {
 			/**
 			 * Zajistuje kontrolu resize okna a rozliseni.
@@ -163,6 +192,87 @@ public class Chess_SP_2023 {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null); // vycentrovat na obrazovce
 		frame.setVisible(true);
+	}
+
+	private static MouseListener getChessBoard() {
+		return new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+			}
+
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				if (graphPanel != null) {
+					graphPanel.setVisible(false);
+					frame.remove(graphPanel);
+					chessBoard.setVisible(true);
+					frame.add(chessBoard); // prida komponentu
+				}
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+
+			}
+		};
+	}
+
+	private static MouseListener getGraph() {
+		return new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+			}
+
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				//TODO: graf
+				if (chessBoard != null) {
+					chessBoard.setVisible(false);
+					frame.remove(chessBoard);
+					if (graphPanel == null) {
+						graphPanel = getTimeSeriesChartExample();
+						graphPanel.addComponentListener(new ComponentAdapter() {
+							/**
+							 * Zajistuje kontrolu resize okna a rozliseni.
+							 *
+							 * @param e the event to be processed
+							 */
+							public void componentResized(ComponentEvent e) {
+								graphPanel.repaint();
+							}
+						});
+					}
+					updateData(chessBoard.getWhitePlayTimes(), chessBoard.getBlackPlayTimes());
+					graphPanel.setVisible(true);
+					frame.add(graphPanel);
+				}
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+
+			}
+		};
 	}
 
 	private static MouseListener exportToPng(JFrame frame) {
@@ -278,4 +388,86 @@ public class Chess_SP_2023 {
 			}
 		};
 	}
+
+
+	private static XYSeries player1Series;
+	private static XYSeries player2Series;
+
+
+
+	public static JPanel getTimeSeriesChartExample() {
+		// Vytvoření seznamu pro hráče 1 a hráče 2 s předanými hodnotami
+		List<Double> player1Data = chessBoard.getWhitePlayTimes();
+		List<Double> player2Data = chessBoard.getBlackPlayTimes();
+
+		// Inicializace datové sady
+		XYSeriesCollection dataset = new XYSeriesCollection();
+
+		// Inicializace série pro hráče 1 a přidání hodnot
+		player1Series = new XYSeries("Hráč 1 (bílý)");
+		for (int i = 0; i < player1Data.size(); i++) {
+			player1Series.add(i + 1, player1Data.get(i));
+		}
+		dataset.addSeries(player1Series);
+
+		// Inicializace série pro hráče 2 a přidání hodnot
+		player2Series = new XYSeries("Hráč 2 (černý)");
+		for (int i = 0; i < player2Data.size(); i++) {
+			player2Series.add(i + 1, player2Data.get(i));
+		}
+		dataset.addSeries(player2Series);
+
+		// Vytvoření grafu
+		JFreeChart chart = ChartFactory.createXYLineChart(
+				"Graf s časy odehraných tahů hráčů",
+				"Pořadí tahu",
+				"Uplynulý čas tahu (s)",
+				dataset,
+				PlotOrientation.VERTICAL,
+				true,
+				true,
+				false
+		);
+
+		// Pro celociselnou oxu X
+		XYPlot plot = (XYPlot) chart.getPlot();
+		NumberAxis xAxis = (NumberAxis) plot.getDomainAxis();
+		xAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+
+		// Nastavení zvýraznění extrémů
+		XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
+		renderer.setDefaultShapesVisible(true); //setBaseShapesVisible(true);
+
+
+		// Nastavení stylu grafu
+		chart.getXYPlot().setBackgroundPaint(Color.WHITE);
+		chart.getXYPlot().setDomainGridlinePaint(Color.BLACK);
+		chart.getXYPlot().setRangeGridlinePaint(Color.BLACK);
+		chart.getXYPlot().setDomainCrosshairVisible(true);
+		chart.getXYPlot().setRangeCrosshairVisible(true);
+
+		// Vytvoření panelu pro graf
+		ChartPanel chartPanel = new ChartPanel(chart);
+		chartPanel.setPreferredSize(new java.awt.Dimension(500, 300));
+
+		// Vytvoření hlavního okna aplikace
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(chartPanel, BorderLayout.CENTER);
+
+		return panel;
+	}
+
+	public static void updateData(List<Double> player1Data, List<Double> player2Data) {
+		// Aktualizace datových sad
+		player1Series.clear();
+		for (int i = 0; i < player1Data.size(); i++) {
+			player1Series.add(i + 1, player1Data.get(i));
+		}
+
+		player2Series.clear();
+		for (int i = 0; i < player2Data.size(); i++) {
+			player2Series.add(i + 1, player2Data.get(i));
+		}
+	}
+
 }
