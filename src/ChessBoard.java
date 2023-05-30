@@ -39,6 +39,7 @@ public class ChessBoard extends JPanel {
 
 
     private List<Field> validMoves;
+    private List<Field> checkPositions;
 
     /** Pole, pro ktere by byl dany kral v sachu (seznam se pouziva pouze pri validaci pohybu krale) */
     private List<Field> checkFields;
@@ -51,6 +52,9 @@ public class ChessBoard extends JPanel {
 
     private List<Double> whitePlayTimes;
     private List<Double> blackPlayTimes;
+
+    private String patString;
+    private boolean isDraw;
 
     private long playTimeStart;
     private long playTimeEnd;
@@ -108,7 +112,7 @@ public class ChessBoard extends JPanel {
     /**
      * Inicializacni metoda pro novou hru
      */
-    private void init() {
+    public void init() {
         // Pesaci
         pawns = new ArrayList<>();
         for (int i = 0; i < 8; i++) {               // Cerni pesaci
@@ -171,6 +175,8 @@ public class ChessBoard extends JPanel {
         playTimeStart = System.currentTimeMillis();
 
         checkFields = null;
+
+        isDraw = false;
     }
 
     /**
@@ -248,8 +254,6 @@ public class ChessBoard extends JPanel {
             int currentCastlingRookX = castlingRookStartX + (castlingRookTargetX - castlingRookStartX) * moveStep / MAX_SUM_OF_STEPS;
             int currentCastlingRookY = castlingRookStartY + (castlingRookTargetY - castlingRookStartY) * moveStep / MAX_SUM_OF_STEPS;
 
-//            System.out.println("MoveStep: " + moveStep + "; StartX: " + startX + "; StartY: " + startY + ";targetX: " + targetX + "; targetY: " + targetY +"; CurrentX: " + currentX + "; CurrentY: " + currentY);
-
             for (APiece piece : getAllPieces()) {
                 if (piece == focusedPiece) {
                     piece.moveTo(currentX, currentY);
@@ -265,7 +269,6 @@ public class ChessBoard extends JPanel {
             moveStep = 0;
             this.focusedPiece = null;   // obstara odebrani focusu po pusteni mysi
             long millisecEnd = System.currentTimeMillis();
-//            System.out.println("Presun trval " + (millisecEnd - millisecStart) + " ms.");
 
             playTimeEnd = System.currentTimeMillis();
 
@@ -278,10 +281,8 @@ public class ChessBoard extends JPanel {
 //                    whitePlayTimes.add(lastPlayTime);
 //                }
                 blackPlayTimes.add(lastPlayTimeInSecond);
-                System.out.println("Tah cerneho trval " + lastPlayTime + " ms. Tedy " + lastPlayTimeInSecond + " s.");
             } else {
                 whitePlayTimes.add(lastPlayTimeInSecond);
-                System.out.println("Tah bileho trval " + lastPlayTime + " ms. Tedy " + lastPlayTimeInSecond + " s.");
             }
 
             playTimeStart = System.currentTimeMillis();
@@ -303,6 +304,10 @@ public class ChessBoard extends JPanel {
         super.paintComponent(g);
 
         paintChessBoard(g);
+
+        if (isDraw) {
+            gameOver(null, false);
+        }
 
         if (!isFirstLoad && mouseWasReleased && isMoving) {
             animateMove();
@@ -774,7 +779,6 @@ public class ChessBoard extends JPanel {
                     } else if (queens.contains(otherPiece)) {
                         queens.remove(otherPiece);
                     }
-                    //System.out.println(otherPiece.getClass().getSimpleName() + " ELIMINATED");
                 } else {
                     piece.setRow(oldFocusedPieceRow);
                     piece.setColumn(oldFocusedPieceColumn);
@@ -794,8 +798,7 @@ public class ChessBoard extends JPanel {
                     eliminatedPieces.add(king);
 
                     kingIterator.remove();
-                    //System.out.println(king.getClass().getSimpleName() + " ELIMINATED");
-                    gameOver(king);
+                    gameOver(king, false);
                 } else {
                     piece.setRow(oldFocusedPieceRow);
                     piece.setColumn(oldFocusedPieceColumn);
@@ -812,17 +815,20 @@ public class ChessBoard extends JPanel {
      *
      * @param eliminatedKing vyrazeny kral
      */
-    private void gameOver(King eliminatedKing) {
+    private void gameOver(King eliminatedKing, boolean isPat) {
+
         StringBuilder gameOverSB = new StringBuilder();
 
-        if (isDraw()) {
+        if (isDraw() || isDraw) {
             gameOverSB.append("Hra skoncila remizou!");
+        } else if (isPat) {
+            gameOverSB.append(patString);
         } else if (eliminatedKing.isWhite()) {
             gameOverSB.append("Hra skoncila! Vitez: Cerny");
         } else {
             gameOverSB.append("Hra skoncila! Vitez: Bily");
         }
-
+        isDraw = false;
         JOptionPane gameOverPane = new JOptionPane(gameOverSB, JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, null, new Object[]{}, null);
         gameOverPane.setVisible(true);
 
@@ -896,11 +902,11 @@ public class ChessBoard extends JPanel {
                             validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
                             mouseWasReleased = true;
                             break;
-//                            System.out.println("KING valid move passed (Row: " + row + "; Col: " + column);
-                        } else if (getValidMoves(focusedPiece).contains(fieldBoard[row][column])) {
+                        }
+                        getAllValidMoves(focusedPiece);      // Tady se pohyb provede
+                        if (validMoves.contains(fieldBoard[row][column])) {
                             getValidMovesAndMakeOne(focusedPiece);
                             validMove(focusedPiece, focusedRectangle, row, column, oldFocusedPieceRow, oldFocusedPieceColumn);
-//                            System.out.println("Valid move passed (Row: " + row + "; Col: " + column);
                             mouseWasReleased = true;
                         } else {
                             this.focusedPiece = null;   // obstara odebrani focusu po pusteni mysi
@@ -908,8 +914,7 @@ public class ChessBoard extends JPanel {
                         }
                     } else {
                         validMoves = null;
-                        getValidMoves(focusedPiece);     // Tady se pouze ukazuji mozne pohyby, pohyb se ale neprovadi
-//                        System.out.println("Oznacena figurka na pozici: Row - " + focusedPiece.getRow() + ", Col - " + focusedPiece.getColumn());
+                        getAllValidMoves(focusedPiece);     // Tady se pouze ukazuji mozne pohyby, pohyb se ale neprovadi
                     }
                 }
                 if (focusedPiece.isWhite()) {
@@ -926,94 +931,247 @@ public class ChessBoard extends JPanel {
         }
     }
 
-    // pokud neni v sachu - true
+
     public List<Field> getCheckFields(APiece king) {
 
         checkFields = new ArrayList<>();
-        if (king.isWhite()) {
-            for (APiece piece : getAllPieces()) {
-                if (!piece.isWhite() && !piece.getClass().getSimpleName().equals("King)")) {
-                    getValidMoves(piece);
-                    checkFields.addAll(validMoves);
-                }
-            }
-        } else {
-            for (APiece piece : getAllPieces()) {
-                if (piece.isWhite() && !piece.getClass().getSimpleName().equals("King)")) {
-                    getValidMoves(piece);
-                    checkFields.addAll(validMoves);
-                }
-            }
-        }
+
+        getAllCheckPositions(king);
+        checkFields.addAll(checkPositions);
+
         return checkFields;
     }
 
-    public List<Field> getValidMoves(APiece piece) {
-        validMoves = new ArrayList<>();
 
-        switch (piece.getClass().getSimpleName()) {
-            case "Pawn" -> {
-                for (int row = 0; row < 8; row++) {
-                    for (int col = 0; col < 8; col++) {
-                        if (Move.pawnMove(piece, row, col, this, false)) {
-                            validMoves.add(fieldBoard[row][col]);
+    public void getAllCheckPositions(APiece king) {
+        checkPositions = new ArrayList<>();
+        for (APiece piece : getAllPieces()) {
+            if (piece.isWhite() != king.isWhite()) {
+                switch (piece.getClass().getSimpleName()) {
+                    case "Pawn" -> {
+                        for (int row = 0; row < 8; row++) {
+                            for (int col = 0; col < 8; col++) {
+//                                if (Move.pawnMove(piece, row, col, this, false)) {
+//                                    checkPositions.add(fieldBoard[row][col]);
+//                                }
+                                if (piece.isWhite() && row == piece.getRow() - 1 && col > 0 && col < 7 && (col == piece.getColumn() - 1 || col == piece.getColumn() + 1)) {
+                                    checkPositions.add(fieldBoard[row][col]);
+                                }
+                                if (piece.isWhite() && row == piece.getRow() - 1 && col == 0 && col == piece.getColumn() - 1) {
+                                    checkPositions.add(fieldBoard[row][col]);
+                                }
+                                if (piece.isWhite() && row == piece.getRow() - 1 && col == 7 && col == piece.getColumn() + 1) {
+                                    checkPositions.add(fieldBoard[row][col]);
+                                }
+                                if (!piece.isWhite() && row == piece.getRow() + 1 && col > 0 && col < 7 && (col == piece.getColumn() - 1 || col == piece.getColumn() + 1)) {
+                                    checkPositions.add(fieldBoard[row][col]);
+                                }
+                                if (!piece.isWhite() && row == piece.getRow() + 1 && col == 0 && col == piece.getColumn() - 1) {
+                                    checkPositions.add(fieldBoard[row][col]);
+                                }
+                                if (!piece.isWhite() && row == piece.getRow() + 1 && col == 7 && col == piece.getColumn() + 1) {
+                                    checkPositions.add(fieldBoard[row][col]);
+                                }
+                            }
+                        }
+                    }
+                    case "Rook" -> {
+                        for (int row = 0; row < 8; row++) {
+                            for (int col = 0; col < 8; col++) {
+                                if (Move.rookMove(piece, row, col, this)) {
+                                    checkPositions.add(fieldBoard[row][col]);
+                                }
+                            }
+                        }
+                    }
+                    case "Knight" -> {
+                        for (int row = 0; row < 8; row++) {
+                            for (int col = 0; col < 8; col++) {
+                                if (Move.knightMove(piece, row, col, this)) {
+                                    checkPositions.add(fieldBoard[row][col]);
+                                }
+                            }
+                        }
+                    }
+                    case "Bishop" -> {
+                        for (int row = 0; row < 8; row++) {
+                            for (int col = 0; col < 8; col++) {
+                                if (Move.bishopMove(piece, row, col, this)) {
+                                    checkPositions.add(fieldBoard[row][col]);
+                                }
+                            }
+                        }
+                    }
+                    case "Queen" -> {
+                        for (int row = 0; row < 8; row++) {
+                            for (int col = 0; col < 8; col++) {
+                                if (Move.queenMove(piece, row, col, this)) {
+                                    checkPositions.add(fieldBoard[row][col]);
+                                }
+//                                if (row == king.getRow()) {
+//                                    if (col != 0 && king.getColumn() < piece.getColumn()) {
+//                                        checkPositions.add(fieldBoard[row][col - 1]);
+//                                    } else {
+//                                         if (col != 7) {
+//                                             checkPositions.add(fieldBoard[row][col + 1]);
+////                                         } else {
+////                                            checkPositions.add(fieldBoard[row][col]);
+//                                         }
+//                                    }
+//                                } else if (col == king.getColumn()) {
+//                                    if (row != 0 && king.getRow() < piece.getRow()) {
+//                                        checkPositions.add(fieldBoard[row - 1][col]);
+//                                    } else {
+//                                        if (row != 7) {
+//                                            checkPositions.add(fieldBoard[row + 1][col]);
+////                                        } else {
+////                                            checkPositions.add(fieldBoard[row][col]);
+//                                        }
+//                                    }
+//                                }
+                            }
+                        }
+                    }
+                    case "King" -> {
+                        for (int row = 0; row < 8; row++) {
+                            for (int col = 0; col < 8; col++) {
+                                if (row == piece.getRow() - 1 && col > 0 && col < 7 && (col == piece.getColumn() - 1 || col == piece.getColumn() + 1)) {
+                                    checkPositions.add(fieldBoard[row][col]);
+                                }
+                                if (row == piece.getRow() - 1 && col == 0 && col == piece.getColumn() - 1) {
+                                    checkPositions.add(fieldBoard[row][col]);
+                                }
+                                if (row == piece.getRow() - 1 && col == 7 && col == piece.getColumn() + 1) {
+                                    checkPositions.add(fieldBoard[row][col]);
+                                }
+                                if (row == piece.getRow() - 1 && col == piece.getColumn()) {
+                                    checkPositions.add(fieldBoard[row][col]);
+                                }
+                                if (row == piece.getRow() + 1 && col > 0 && col < 7 && (col == piece.getColumn() - 1 || col == piece.getColumn() + 1)) {
+                                    checkPositions.add(fieldBoard[row][col]);
+                                }
+                                if (row == piece.getRow() + 1 && col == 0 && col == piece.getColumn() - 1) {
+                                    checkPositions.add(fieldBoard[row][col]);
+                                }
+                                if (row == piece.getRow() + 1 && col == 7 && col == piece.getColumn() + 1) {
+                                    checkPositions.add(fieldBoard[row][col]);
+                                }
+                                if (row == piece.getRow() + 1 && col == piece.getColumn()) {
+                                    checkPositions.add(fieldBoard[row][col]);
+                                }
+                            }
                         }
                     }
                 }
-                return validMoves;
-            }
-            case "Rook" -> {
-                for (int row = 0; row < 8; row++) {
-                    for (int col = 0; col < 8; col++) {
-                        if (Move.rookMove(piece, row, col, this)) {
-                            validMoves.add(fieldBoard[row][col]);
-                        }
-                    }
-                }
-                return validMoves;
-            }
-            case "Knight" -> {
-                for (int row = 0; row < 8; row++) {
-                    for (int col = 0; col < 8; col++) {
-                        if (Move.knightMove(piece, row, col, this)) {
-                            validMoves.add(fieldBoard[row][col]);
-                        }
-                    }
-                }
-                return validMoves;
-            }
-            case "Bishop" -> {
-                for (int row = 0; row < 8; row++) {
-                    for (int col = 0; col < 8; col++) {
-                        if (Move.bishopMove(piece, row, col, this)) {
-                            validMoves.add(fieldBoard[row][col]);
-                        }
-                    }
-                }
-                return validMoves;
-            }
-            case "Queen" -> {
-                for (int row = 0; row < 8; row++) {
-                    for (int col = 0; col < 8; col++) {
-                        if (Move.queenMove(piece, row, col, this)) {
-                            validMoves.add(fieldBoard[row][col]);
-                        }
-                    }
-                }
-                return validMoves;
-            }
-            case "King" -> {
-                for (int row = 0; row < 8; row++) {
-                    for (int col = 0; col < 8; col++) {
-                        if (Move.kingMove(piece, row, col, this, false)) {
-                            validMoves.add(fieldBoard[row][col]);
-                        }
-                    }
-                }
-                return validMoves;
             }
         }
-        return validMoves;
+    }
+
+    public void getAllValidMoves(APiece piece) {
+        validMoves = new ArrayList<>();
+
+//        if ((whitesTurn && !getWhiteKing().isInCheck()) || (!whitesTurn && !getBlackKing().isInCheck())) {
+            switch (piece.getClass().getSimpleName()) {
+                case "Pawn" -> {
+                    for (int row = 0; row < 8; row++) {
+                        for (int col = 0; col < 8; col++) {
+                            if (Move.pawnMove(piece, row, col, this, false)) {
+                                validMoves.add(fieldBoard[row][col]);
+                            }
+                        }
+                    }
+                }
+                case "Rook" -> {
+                    for (int row = 0; row < 8; row++) {
+                        for (int col = 0; col < 8; col++) {
+                            if (Move.rookMove(piece, row, col, this)) {
+                                validMoves.add(fieldBoard[row][col]);
+                            }
+                        }
+                    }
+                }
+                case "Knight" -> {
+                    for (int row = 0; row < 8; row++) {
+                        for (int col = 0; col < 8; col++) {
+                            if (Move.knightMove(piece, row, col, this)) {
+                                validMoves.add(fieldBoard[row][col]);
+                            }
+                        }
+                    }
+                }
+                case "Bishop" -> {
+                    for (int row = 0; row < 8; row++) {
+                        for (int col = 0; col < 8; col++) {
+                            if (Move.bishopMove(piece, row, col, this)) {
+                                validMoves.add(fieldBoard[row][col]);
+                            }
+                        }
+                    }
+                }
+                case "Queen" -> {
+                    for (int row = 0; row < 8; row++) {
+                        for (int col = 0; col < 8; col++) {
+                            if (Move.queenMove(piece, row, col, this)) {
+                                validMoves.add(fieldBoard[row][col]);
+                            }
+                        }
+                    }
+                }
+                case "King" -> {
+                    for (int row = 0; row < 8; row++) {
+                        for (int col = 0; col < 8; col++) {
+                            if (Move.kingMove(piece, row, col, this, false)) {
+                                validMoves.add(fieldBoard[row][col]);
+                            }
+                        }
+                    }
+                }
+            }
+//        } else {
+//            if (whitesTurn || getWhiteKing().isInCheck()) {
+//                switch (piece.getClass().getSimpleName()) {
+//                    case "Rook" -> {
+//                        for (int row = 0; row < 8; row++) {
+//                            for (int col = 0; col < 8; col++) {
+//                                if (Move.rookMove(piece, row, col, this)) {
+//                                    piece.setPotentialRow(row);
+//                                    piece.setPotentialCol(col);
+//                                    getCheckFields(getWhiteKing());
+//                                    if (!wouldBeInCheck(getWhiteKing()))
+//                                        validMoves.add(fieldBoard[row][col]);
+//                                }
+//                            }
+//                        }
+//                    }
+//                    case "Queen" -> {
+//                        for (int row = 0; row < 8; row++) {
+//                            for (int col = 0; col < 8; col++) {
+//                                if (Move.queenMove(piece, row, col, this)) {
+//                                    getWhiteQueen().setPotentialRow(row);
+//                                    getWhiteQueen().setPotentialCol(col);
+//                                    getCheckFields(getWhiteKing());
+//                                    if (!wouldBeInCheck(getWhiteKing()))
+//                                        validMoves.add(fieldBoard[row][col]);
+//                                }
+//                            }
+//                        }
+//                    }
+//                    case "King" -> {
+//                        for (int row = 0; row < 8; row++) {
+//                            for (int col = 0; col < 8; col++) {
+//                                if (Move.kingMove(piece, row, col, this, false)) {
+//                                    getWhiteKing().setPotentialRow(row);
+//                                    getWhiteKing().setPotentialCol(col);
+//                                    getCheckFields(getWhiteKing());
+//                                    if (!wouldBeInCheck(getWhiteKing()))
+//                                        validMoves.add(fieldBoard[row][col]);
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
     }
 
     public void getValidMovesAndMakeOne(APiece piece) {
@@ -1097,23 +1255,18 @@ public class ChessBoard extends JPanel {
         focusedPiece.setColumn(column);
         focusedPiece.setField(fieldBoard[row][column]);
 
-        targetX = (int) focusedPiece.getsX();
-        targetY = (int) focusedPiece.getsY();
-        moveStep = 1;
-        isMoving = true;
+
 
         fieldBoard[oldFocusedPieceRow][oldFocusedPieceColumn].setPiece(null);   // nastaveni stare bunky na prazdnou
         fieldUpdate(focusedPiece);
-        focusedPiece.setMovedAlready(true);
-        eliminate(focusedPiece, oldFocusedPieceRow, oldFocusedPieceColumn);
 
-        lastMovedFrom = fieldBoard[oldFocusedPieceRow][oldFocusedPieceColumn];
-        lastMovedTo = fieldBoard[focusedPiece.getRow()][focusedPiece.getColumn()];
-
-
+        APiece testedKing;
+        if (whitesTurn)
+            testedKing = getWhiteKing();
+        else testedKing = getBlackKing();
 
         //========================================== Rosada doprava ==========================================
-        if (focusedPiece.isCastling()) {
+        if (focusedPiece.isCastling() && !testedKing.isInCheck()) {
             if (castlingRook.getColumn() == 0) {
 
                 castlingRookStartX = (int) (getRectBoard()[oldFocusedPieceRow][0].getX() + getRectSize() / 2.0);
@@ -1153,18 +1306,192 @@ public class ChessBoard extends JPanel {
                 castlingRook.setMovedAlready(true);
                 focusedPiece.setCastling(false);
             }
-
-        }
-        if (isDraw()) {
-            gameOver(null);
         }
 
-        if (focusedPiece.isPromoted()) {
-            whitesTurn = !whitesTurn;
-            promotion(focusedPiece);
+        isInCheck();
+
+
+
+        if (testedKing.isInCheck()) {
+            //======================================= Pohyb z sachu do sachu =======================================
+            if (getCheckFields(testedKing).contains(testedKing.getField()) && testedKing.isInCheck() && testedKing.isWasInCheck()) {
+                System.out.println("Pohyb z sachu do sachu, vracim pohyb zpet bo je to picovina...");
+                validMoves = null;
+                focusedPiece.moveTo(
+                        rectBoard[oldFocusedPieceRow][oldFocusedPieceColumn].getX() + getRectSize() / 2.0,
+                        rectBoard[oldFocusedPieceRow][oldFocusedPieceColumn].getY() + getRectSize() / 2.0);
+                focusedPiece.setRow(oldFocusedPieceRow);
+                focusedPiece.setColumn(oldFocusedPieceColumn);
+                focusedPiece.setField(fieldBoard[oldFocusedPieceRow][oldFocusedPieceColumn]);
+                fieldBoard[row][column].setPiece(null);   // nastaveni stare bunky na prazdnou
+                fieldUpdate(focusedPiece);
+                this.focusedPiece = null;
+            }
+            //======================================= Kdyz kral dostane sach =======================================
+//            else if (getCheckFields(testedKing).contains(testedKing.getField())) {
+//
+//                String kingColor;
+//                if (focusedPiece.isWhite())
+//                    kingColor = "bileho!";
+//                else kingColor = "cerneho!";
+//                System.out.println("Sach na " + kingColor);
+//                focusedPiece.setInCheck(true);
+//            }
+            //======================================= Kdyz je move krale validni =======================================
+            else {
+//                String kingColor = null;
+//                if (focusedPiece.isWhite())
+//                    kingColor = "bileho!";
+//                else kingColor = "cerneho!";
+//                System.out.println("Sach na " + kingColor);
+                focusedPiece.setInCheck(false);
+
+                focusedPiece.setMovedAlready(true);
+
+                eliminate(focusedPiece, oldFocusedPieceRow, oldFocusedPieceColumn);
+
+                targetX = (int) focusedPiece.getsX();
+                targetY = (int) focusedPiece.getsY();
+                moveStep = 1;
+                isMoving = true;
+
+                lastMovedFrom = fieldBoard[oldFocusedPieceRow][oldFocusedPieceColumn];
+                lastMovedTo = fieldBoard[focusedPiece.getRow()][focusedPiece.getColumn()];
+
+                if (kings.size() == 2) {
+                    if (isDraw()) {
+                        gameOver(null, false);
+                    }
+
+                    if (focusedPiece.isPromoted()) {
+                        whitesTurn = !whitesTurn;
+                        promotion(focusedPiece);
+                    } else {
+                        whitesTurn = !whitesTurn;
+                    }
+
+                    if (isPat()) {
+                        gameOver(null, true);
+                    }
+                }
+            }
         } else {
-            whitesTurn = !whitesTurn;
+
+            focusedPiece.setMovedAlready(true);
+
+            eliminate(focusedPiece, oldFocusedPieceRow, oldFocusedPieceColumn);
+
+            targetX = (int) focusedPiece.getsX();
+            targetY = (int) focusedPiece.getsY();
+            moveStep = 1;
+            isMoving = true;
+
+            lastMovedFrom = fieldBoard[oldFocusedPieceRow][oldFocusedPieceColumn];
+            lastMovedTo = fieldBoard[focusedPiece.getRow()][focusedPiece.getColumn()];
+
+            if (kings.size() == 2) {
+                if (isDraw()) {
+                    gameOver(null, false);
+                }
+
+                if (focusedPiece.isPromoted()) {
+                    whitesTurn = !whitesTurn;
+                    promotion(focusedPiece);
+                } else {
+                    whitesTurn = !whitesTurn;
+                }
+
+                if (isPat()) {
+                    gameOver(null, true);
+                }
+            }
         }
+    }
+
+    public boolean isInCheck() {
+        getAllValidMoves(focusedPiece);
+        for (Field field : validMoves) {
+            APiece piece = field.getPiece();
+            if (piece != null && piece.getClass().getSimpleName().equals("King")) {
+
+                String kingColor;
+
+                if (piece.isWhite())
+                    kingColor = "bileho!";
+                else
+                    kingColor = "cerneho!";
+
+                System.out.println("Sach na " + kingColor);
+
+                if (!field.getPiece().isWasInCheck()) {
+                    field.getPiece().setWasInCheck(true);
+                }
+
+                field.getPiece().setInCheck(true);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean wouldBeInCheck(APiece king) {
+        if (getCheckFields(king).contains(king.getField())) {
+            String kingColor = null;
+            if (king.isWhite())
+                kingColor = "bileho!";
+            else kingColor = "cerneho!";
+//            System.out.println("Zde by kral v sachu byl.");
+            return true;
+        } else {
+//                String kingColor = null;
+//                if (focusedPiece.isWhite())
+//                    kingColor = "bileho!";
+//                else kingColor = "cerneho!";
+//                System.out.println("Sach na " + kingColor);
+//            System.out.println("Zde by kral v sachu nebyl.");
+            return false;
+        }
+    }
+
+    private boolean isPat() {
+        // Kontrola patu
+        APiece whiteKing;
+        APiece blackKing;
+        if (kings.get(0).isWhite()) {
+            whiteKing = kings.get(0);
+            blackKing = kings.get(1);
+        } else {
+            whiteKing = kings.get(1);
+            blackKing = kings.get(0);
+        }
+
+        List<APiece> whitePieces = new ArrayList<>();
+        List<Field> whiteMovesList = new ArrayList<>();
+        List<APiece> blackPieces = new ArrayList<>();
+        List<Field> blackMovesList = new ArrayList<>();
+
+        for (APiece piece : getAllPieces()) {
+            if (piece.isWhite()) {
+                whitePieces.add(piece);
+                getAllValidMoves(piece);
+                whiteMovesList.addAll(validMoves);
+            } else {
+                blackPieces.add(piece);
+                getAllValidMoves(piece);
+                getAllValidMoves(piece);
+                blackMovesList.addAll(validMoves);
+            }
+
+        }
+
+        if (whitesTurn && whiteMovesList.size() == 0 && !whiteKing.isInCheck()) {
+            patString = "Pat - bily nema jak tahnout, ale neni v sachu.";
+            return true;
+        } else if (!whitesTurn && blackMovesList.size() == 0 && !blackKing.isInCheck()) {
+            patString = "Pat - cerny nema jak tahnout, ale neni v sachu.";
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -1302,6 +1629,29 @@ public class ChessBoard extends JPanel {
         return castlingRook;
     }
 
+    public APiece getWhiteKing() {
+        if (kings.get(0).isWhite()) {
+            return kings.get(0);
+        } else return kings.get(1);
+    }
+
+    public APiece getBlackKing() {
+        if (kings.get(0).isWhite()) {
+            return kings.get(1);
+        } else return kings.get(0);
+    }
+
+    public APiece getWhiteQueen() {
+        if (queens.get(0).isWhite()) {
+            return queens.get(0);
+        } else return queens.get(1);
+    }
+
+    public APiece getBlackQueen() {
+        if (queens.get(0).isWhite()) {
+            return queens.get(1);
+        } else return queens.get(0);
+    }
     public void setCastlingRook(APiece castlingRook) {
         this.castlingRook = castlingRook;
     }
@@ -1312,5 +1662,13 @@ public class ChessBoard extends JPanel {
 
     public List<Double> getBlackPlayTimes() {
         return blackPlayTimes;
+    }
+
+    public void setFirstLoad(boolean firstLoad) {
+        isFirstLoad = firstLoad;
+    }
+
+    public void setDraw(boolean draw) {
+        isDraw = draw;
     }
 }

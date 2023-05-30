@@ -51,6 +51,9 @@ public class Chess_SP_2023 {
 	private static ChessBoard chessBoard;
 	private static JPanel graphPanel;
 
+	private static XYSeries player1Series;
+	private static XYSeries player2Series;
+
 	/**
 	 * Spousteci metoda programu
 	 *
@@ -63,7 +66,25 @@ public class Chess_SP_2023 {
 		frame.setMinimumSize(new Dimension(800, 600));
 		frame.setLayout(new BorderLayout());
 
+		chessBoard = new ChessBoard();
+
 		JMenuBar menubar = new JMenuBar();
+
+		JMenu game = new JMenu("Hra");
+		menubar.add(game);
+
+		JMenuItem restart = new JMenuItem("Restart");
+		game.add(restart);
+		restart.addActionListener(event -> {
+			chessBoard.setFirstLoad(true);
+			chessBoard.init();
+		});
+
+		JMenuItem draw = new JMenuItem("Remiza");
+		game.add(draw);
+		draw.addActionListener(event -> {
+			chessBoard.setDraw(true);
+		});
 
 		//=============================== Graf menu ===============================
 		JMenu content = new JMenu("Zobrazit");
@@ -71,11 +92,11 @@ public class Chess_SP_2023 {
 
 		JMenuItem showGraph = new JMenuItem("Graf");
 		content.add(showGraph);
-		showGraph.addMouseListener(getGraph());
+		showGraph.addActionListener(event -> getGraph());
 
 		JMenuItem showChessBoard = new JMenuItem("Sachovnici");
 		content.add(showChessBoard);
-		showChessBoard.addMouseListener(getChessBoard());
+		showChessBoard.addActionListener(event -> getChessBoard());
 
 		//=============================== Export menu ===============================
 		JMenu exportMenu = new JMenu("Export");
@@ -92,13 +113,13 @@ public class Chess_SP_2023 {
 
 
 
-		pngExportMI.addMouseListener(exportToPng(frame));
-		pdfExportMI.addMouseListener(exportToPdf(frame));
-		svgExportMI.addMouseListener(exportToSvg(frame));
+		pngExportMI.addActionListener(event -> exportToPng(frame));
+		pdfExportMI.addActionListener(event -> exportToPdf(frame));
+		svgExportMI.addActionListener(event -> exportToSvg(frame));
 
 		frame.add(menubar, BorderLayout.NORTH);
 
-		chessBoard = new ChessBoard();
+
 		chessBoard.addMouseMotionListener(new MouseMotionListener() {
 
 			/**
@@ -194,206 +215,82 @@ public class Chess_SP_2023 {
 		frame.setVisible(true);
 	}
 
-	private static MouseListener getChessBoard() {
-		return new MouseListener() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-			}
-
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				if (graphPanel != null) {
-					graphPanel.setVisible(false);
-					frame.remove(graphPanel);
-					chessBoard.setVisible(true);
-					frame.add(chessBoard); // prida komponentu
-				}
-
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-
-			}
-		};
+	private static void getChessBoard() {
+		if (graphPanel != null) {
+			graphPanel.setVisible(false);
+			frame.remove(graphPanel);
+			chessBoard.setVisible(true);
+			frame.add(chessBoard); // prida komponentu
+		}
 	}
 
-	private static MouseListener getGraph() {
-		return new MouseListener() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-			}
-
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				//TODO: graf
-				if (chessBoard != null) {
-					chessBoard.setVisible(false);
-					frame.remove(chessBoard);
-					if (graphPanel == null) {
-						graphPanel = getTimeSeriesChartExample();
-						graphPanel.addComponentListener(new ComponentAdapter() {
-							/**
-							 * Zajistuje kontrolu resize okna a rozliseni.
-							 *
-							 * @param e the event to be processed
-							 */
-							public void componentResized(ComponentEvent e) {
-								graphPanel.repaint();
-							}
-						});
+	private static void getGraph() {
+		if (chessBoard != null) {
+			chessBoard.setVisible(false);
+			frame.remove(chessBoard);
+			if (graphPanel == null) {
+				graphPanel = getTimeSeriesChartExample();
+				graphPanel.addComponentListener(new ComponentAdapter() {
+					/**
+					 * Zajistuje kontrolu resize okna a rozliseni.
+					 *
+					 * @param e the event to be processed
+					 */
+					public void componentResized(ComponentEvent e) {
+						graphPanel.repaint();
 					}
-					updateData(chessBoard.getWhitePlayTimes(), chessBoard.getBlackPlayTimes());
-					graphPanel.setVisible(true);
-					frame.add(graphPanel);
-				}
-
+				});
 			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-
-			}
-		};
+			updateData(chessBoard.getWhitePlayTimes(), chessBoard.getBlackPlayTimes());
+			graphPanel.setVisible(true);
+			frame.add(graphPanel);
+	}
 	}
 
-	private static MouseListener exportToPng(JFrame frame) {
-		return new MouseListener() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
+	private static void exportToPng(JFrame frame) {
+		frame.getGraphics();
+		Container c = frame.getContentPane();
+		BufferedImage im = new BufferedImage(c.getWidth(), c.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		c.paint(im.getGraphics());
 
-			}
-			@Override
-			public void mousePressed(MouseEvent e) {
-
-			}
-
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				frame.getGraphics();
-				Container c = frame.getContentPane();
-				BufferedImage im = new BufferedImage(c.getWidth(), c.getHeight(), BufferedImage.TYPE_INT_ARGB);
-				c.paint(im.getGraphics());
-
-				try {
-					String fileName = String.format("Screenshot_%d.png", pngScreenshotCount);
-					ImageIO.write(im, "PNG", new File(fileName));
-					System.out.println("Export to PNG successful");
-					pngScreenshotCount++;
-				} catch (IOException ex) {
-					throw new RuntimeException(ex);
-				}
-			}
-			@Override
-			public void mouseEntered(MouseEvent e) {
-			}
-			@Override
-			public void mouseExited(MouseEvent e) {
-
-			}
-		};
+		try {
+			String fileName = String.format("Screenshot_%d.png", pngScreenshotCount);
+			ImageIO.write(im, "PNG", new File(fileName));
+			System.out.println("Export to PNG successful");
+			pngScreenshotCount++;
+		} catch (IOException ex) {
+			throw new RuntimeException(ex);
+		}
 	}
 
-	private static MouseListener exportToPdf(JFrame frame) {
-		return new MouseListener() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				PDFDocument pdf = new PDFDocument();
-				Container c = frame.getContentPane();
-				Page page = pdf.createPage(new Rectangle(c.getWidth(), c.getHeight()));
-				PDFGraphics2D g2 = page.getGraphics2D();
-				g2.setRenderingHint(PDFHints.KEY_DRAW_STRING_TYPE, PDFHints.VALUE_DRAW_STRING_TYPE_VECTOR);
-				frame.getContentPane().paint(g2);
-				String fileName = String.format("Screenshot_%d.pdf", pdfScreenshotCount);
-				pdf.writeToFile(new File(fileName));
-				System.out.println("Export to PDF successful");
-				pdfScreenshotCount++;
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-
-			}
-		};
+	private static void exportToPdf(JFrame frame) {
+		PDFDocument pdf = new PDFDocument();
+		Container c = frame.getContentPane();
+		Page page = pdf.createPage(new Rectangle(c.getWidth(), c.getHeight()));
+		PDFGraphics2D g2 = page.getGraphics2D();
+		g2.setRenderingHint(PDFHints.KEY_DRAW_STRING_TYPE, PDFHints.VALUE_DRAW_STRING_TYPE_VECTOR);
+		frame.getContentPane().paint(g2);
+		String fileName = String.format("Screenshot_%d.pdf", pdfScreenshotCount);
+		pdf.writeToFile(new File(fileName));
+		System.out.println("Export to PDF successful");
+		pdfScreenshotCount++;
 	}
 
-	private static MouseListener exportToSvg(JFrame frame) {
-		return new MouseListener() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
+	private static void exportToSvg(JFrame frame) {
+		Container c = frame.getContentPane();
+		SVGGraphics2D g2 = new SVGGraphics2D(c.getWidth(), c.getHeight());
+		c.paint(g2);
+		String fileName = String.format("Screenshot_%d.svg",svgScreenshotCount);
+		File f = new File(fileName);
+		try {
+			SVGUtils.writeToSVG(f, g2.getSVGElement());
+			System.out.println("Export to SVG successful");
+			svgScreenshotCount++;
 
-			}
-			@Override
-			public void mousePressed(MouseEvent e) {
-
-			}
-
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				Container c = frame.getContentPane();
-				SVGGraphics2D g2 = new SVGGraphics2D(c.getWidth(), c.getHeight());
-				c.paint(g2);
-				String fileName = String.format("Screenshot_%d.svg",svgScreenshotCount);
-				File f = new File(fileName);
-				try {
-					SVGUtils.writeToSVG(f, g2.getSVGElement());
-					System.out.println("Export to SVG successful");
-					svgScreenshotCount++;
-
-				} catch (IOException ex) {
-					System.err.println(ex);
-				}
-			}
-			@Override
-			public void mouseEntered(MouseEvent e) {
-			}
-			@Override
-			public void mouseExited(MouseEvent e) {
-
-			}
-		};
+		} catch (IOException ex) {
+			System.err.println(ex);
+		}
 	}
-
-
-	private static XYSeries player1Series;
-	private static XYSeries player2Series;
-
-
 
 	public static JPanel getTimeSeriesChartExample() {
 		// Vytvoření seznamu pro hráče 1 a hráče 2 s předanými hodnotami

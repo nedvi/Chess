@@ -316,11 +316,11 @@ public class Move {
         int kingCol = king.getColumn();
         boolean passed = false;
 
-//        List<Field> checkFields = chessBoard.getCheckFields(king);
-//        Field wantedField = chessBoard.getFieldBoard()[wantedRow][wantedCol];
-//        if (checkFields.contains(wantedField)) {
-//            return false;
-//        }
+        List<Field> checkFields = chessBoard.getCheckFields(king);
+        Field wantedField = chessBoard.getFieldBoard()[wantedRow][wantedCol];
+        if (checkFields.contains(wantedField)) {
+            return false;
+        }
         // ============================================== Rosada doprava ==============================================
         if (!king.isMovedAlready()
                 && wantedCol > kingCol
@@ -334,9 +334,6 @@ public class Move {
             if (movingNow) {
                 king.setCastling(true);
                 chessBoard.setCastlingRook(chessBoard.getFieldBoard()[kingRow][7].getPiece());
-                System.out.println("Nastavena rosada pro vez na pozici: row - " + kingRow + "; col - " + 7);
-                System.out.println("kingRow = " + kingRow + "; KingCol = " + kingCol + ".");
-                System.out.println("wantedRow = " + wantedRow + "; wantedCol = " + wantedCol + ".");
             }
             return true;
         // ============================================== Rosada doleva ==============================================
@@ -353,10 +350,8 @@ public class Move {
             if (movingNow) {
                 king.setCastling(true);
                 chessBoard.setCastlingRook(chessBoard.getFieldBoard()[kingRow][0].getPiece());
-                System.out.println("Nastavena rosada pro vez na pozici: row - " + kingRow + "; col - " + 0 + ".");
             }
             return true;
-
         } else if (wantedRow == kingRow - 1 || wantedRow == kingRow || wantedRow == kingRow + 1) {
             if (wantedCol == kingCol - 1 || wantedCol == kingCol || wantedCol == kingCol + 1) {
                 passed = true;

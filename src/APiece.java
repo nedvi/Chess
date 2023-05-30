@@ -56,12 +56,16 @@ public abstract class APiece extends JPanel {
     private boolean movedAlready = false;
 
     private boolean isInCheck = false;
+    private boolean wasInCheck = false;
 
     private boolean promoted = false;
 
     private boolean castling = false;
     private boolean castlingRight = false;
     private boolean castlingLeft = false;
+
+    private int potentialRow;
+    private int potentialCol;
     //======================================== Konstruktory ========================================
 
     /**
@@ -248,6 +252,18 @@ public abstract class APiece extends JPanel {
         return castling;
     }
 
+    public int getPotentialRow() {
+        return potentialRow;
+    }
+
+    public int getPotentialCol() {
+        return potentialCol;
+    }
+
+    public boolean isWasInCheck() {
+        return wasInCheck;
+    }
+
     //======================================== Settery ========================================
 
     /**
@@ -341,6 +357,18 @@ public abstract class APiece extends JPanel {
 
     public void setCastling(boolean castling) {
         this.castling = castling;
+    }
+
+    public void setPotentialRow(int potentialRow) {
+        this.potentialRow = potentialRow;
+    }
+
+    public void setPotentialCol(int potentialCol) {
+        this.potentialCol = potentialCol;
+    }
+
+    public void setWasInCheck(boolean wasInCheck) {
+        this.wasInCheck = wasInCheck;
     }
 
     /**
