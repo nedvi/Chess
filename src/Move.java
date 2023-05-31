@@ -58,8 +58,9 @@ public class Move {
             }
             if (pawn.getRow() == 6) {   // Kdyz je pesec na sve startovaci pozici
                 if (wantedRow < pawn.getRow() && wantedRow >= pawn.getRow() - 2 && pawn.getColumn() == wantedCol && chessBoard.getFieldBoard()[wantedRow][wantedCol].getPiece() == null && chessBoard.getFieldBoard()[pawn.getRow() - 1][pawn.getColumn()].getPiece() == null) {
-                    if (wantedRow == pawn.getRow() - 2 && movingNow) {
+                    if (wantedRow == 4 && movingNow) {
                         pawn.setEnPassant(true);
+                        System.out.println("EnPassant true");
                     }
                     return true;
                 }
@@ -93,8 +94,9 @@ public class Move {
             }
             if (pawn.getRow() == 1) {   // Kdyz je pesec na sve startovaci pozici
                 if (wantedRow > pawn.getRow() && wantedRow <= pawn.getRow() + 2 && pawn.getColumn() == wantedCol && chessBoard.getFieldBoard()[wantedRow][wantedCol].getPiece() == null && chessBoard.getFieldBoard()[pawn.getRow() + 1][pawn.getColumn()].getPiece() == null) {
-                    if (wantedRow == pawn.getRow() + 2 && movingNow) {
+                    if (wantedRow == 3 && movingNow) {
                         pawn.setEnPassant(true);
+                        System.out.println("EnPassant true");
                     }
                     return true;
                 }
@@ -316,21 +318,21 @@ public class Move {
         int kingCol = king.getColumn();
         boolean passed = false;
 
-        List<Field> checkFields = chessBoard.getCheckFields(king);
-        Field wantedField = chessBoard.getFieldBoard()[wantedRow][wantedCol];
-        if (checkFields.contains(wantedField)) {
-            return false;
-        }
+//        List<Field> checkFields = chessBoard.getCheckFields(king);
+//        Field wantedField = chessBoard.getFieldBoard()[wantedRow][wantedCol];
+//        if (checkFields.contains(wantedField)) {
+//            return false;
+//        }
         // ============================================== Rosada doprava ==============================================
         if (!king.isMovedAlready()
                 && wantedCol > kingCol
-                && chessBoard.getFieldBoard()[kingRow][kingCol + 1].getPiece() == null
-                && chessBoard.getFieldBoard()[kingRow][kingCol + 2].getPiece() == null
-                && chessBoard.getFieldBoard()[kingRow][kingCol + 3].getPiece() != null
-                && chessBoard.getFieldBoard()[kingRow][kingCol + 3].getPiece().getClass().getSimpleName().equals("Rook")
-                && !chessBoard.getFieldBoard()[kingRow][kingCol + 3].getPiece().isMovedAlready()
+                && chessBoard.getFieldBoard()[kingRow][5].getPiece() == null
+                && chessBoard.getFieldBoard()[kingRow][6].getPiece() == null
+                && chessBoard.getFieldBoard()[kingRow][7].getPiece() != null
+                && chessBoard.getFieldBoard()[kingRow][7].getPiece().getClass().getSimpleName().equals("Rook")
+                && !chessBoard.getFieldBoard()[kingRow][7].getPiece().isMovedAlready()
                 && wantedRow == kingRow
-                && wantedCol == kingCol + 2) {
+                && wantedCol == 6) {
             if (movingNow) {
                 king.setCastling(true);
                 chessBoard.setCastlingRook(chessBoard.getFieldBoard()[kingRow][7].getPiece());
@@ -339,14 +341,14 @@ public class Move {
         // ============================================== Rosada doleva ==============================================
         } else if (!king.isMovedAlready()
                 && wantedCol < kingCol
-                && chessBoard.getFieldBoard()[kingRow][kingCol - 1].getPiece() == null
-                && chessBoard.getFieldBoard()[kingRow][kingCol - 2].getPiece() == null
-                && chessBoard.getFieldBoard()[kingRow][kingCol - 3].getPiece() == null
-                && chessBoard.getFieldBoard()[kingRow][kingCol - 4].getPiece() != null
-                && chessBoard.getFieldBoard()[kingRow][kingCol - 4].getPiece().getClass().getSimpleName().equals("Rook")
-                && !chessBoard.getFieldBoard()[kingRow][kingCol - 4].getPiece().isMovedAlready()
+                && chessBoard.getFieldBoard()[kingRow][3].getPiece() == null
+                && chessBoard.getFieldBoard()[kingRow][2].getPiece() == null
+                && chessBoard.getFieldBoard()[kingRow][1].getPiece() == null
+                && chessBoard.getFieldBoard()[kingRow][0].getPiece() != null
+                && chessBoard.getFieldBoard()[kingRow][0].getPiece().getClass().getSimpleName().equals("Rook")
+                && !chessBoard.getFieldBoard()[kingRow][0].getPiece().isMovedAlready()
                 && wantedRow == kingRow
-                && wantedCol == kingCol - 2) {
+                && wantedCol == 2) {
             if (movingNow) {
                 king.setCastling(true);
                 chessBoard.setCastlingRook(chessBoard.getFieldBoard()[kingRow][0].getPiece());
