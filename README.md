@@ -9,4 +9,4 @@
 
 ### Spuštění
 1. Build.cmd pro přeložení .java souborů
-2. Run pro spuštění hry
+2. Run.cmd pro spuštění hry
