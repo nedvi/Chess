@@ -6,3 +6,7 @@
 * Graf s časy odehraných tahů hráčů
 * Možnost exportu aktuálního stavu šachovnice do PNG, SVG nebo PDF
 * Pouze režim hráč vs. hráč
+
+### Spuštění
+1. Build.cmd pro přeložení .java souborů
+2. Run pro spuštění hry
