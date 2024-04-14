@@ -12,6 +12,7 @@
 1. Build.cmd pro přeložení .java souborů
 2. Run.cmd pro spuštění hry
 
+### Screenshots
 #### Hra
 ![Alt text](screenshots/board_01.PNG?raw=true "board_01")
 ![Alt text](screenshots/board_02.PNG?raw=true "board_02")
