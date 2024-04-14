@@ -1,10 +1,8 @@
-import java.util.List;
-
 /**
  * Trida reprezentujici validator pohybu figurek
  *
- * @author Dominik Nedved, A22B0109P
- * @version 07.05.2023
+ * @author Dominik Nedved
+ * @version 28.05.2023
  */
 public class Move {
 
@@ -60,7 +58,6 @@ public class Move {
                 if (wantedRow < pawn.getRow() && wantedRow >= pawn.getRow() - 2 && pawn.getColumn() == wantedCol && chessBoard.getFieldBoard()[wantedRow][wantedCol].getPiece() == null && chessBoard.getFieldBoard()[pawn.getRow() - 1][pawn.getColumn()].getPiece() == null) {
                     if (wantedRow == 4 && movingNow) {
                         pawn.setEnPassant(true);
-                        System.out.println("EnPassant true");
                     }
                     return true;
                 }
@@ -96,7 +93,6 @@ public class Move {
                 if (wantedRow > pawn.getRow() && wantedRow <= pawn.getRow() + 2 && pawn.getColumn() == wantedCol && chessBoard.getFieldBoard()[wantedRow][wantedCol].getPiece() == null && chessBoard.getFieldBoard()[pawn.getRow() + 1][pawn.getColumn()].getPiece() == null) {
                     if (wantedRow == 3 && movingNow) {
                         pawn.setEnPassant(true);
-                        System.out.println("EnPassant true");
                     }
                     return true;
                 }

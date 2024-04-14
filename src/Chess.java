@@ -1,8 +1,10 @@
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.pdf.PDFDocument;
@@ -11,14 +13,6 @@ import org.jfree.pdf.PDFHints;
 import org.jfree.pdf.Page;
 import org.jfree.svg.SVGGraphics2D;
 import org.jfree.svg.SVGUtils;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.DateAxis;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.data.time.Millisecond;
-import org.jfree.data.time.TimeSeries;
-import org.jfree.data.time.TimeSeriesCollection;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -27,21 +21,19 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.TimerTask;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.TimerTask;
 
 /**
- * Spousteci trida semsestralni prace z predmetu KIV/UPG -> Sachy
+ * Spousteci trida hry Sachy
  *
- * @author Dominik Nedved, A22B0109P
- * @version 07.05.2023
+ * @author Dominik Nedved
+ * @version 28.05.2023
  */
-public class Chess_SP_2023 {
+public class Chess {
 
 	/** Konstanta titulku okna */
-	private static final String MAIN_TITLE_STR = "UPG - Chess SP, Dominik Nedved A22B0109P";
+	private static final String MAIN_TITLE_STR = "Chess";
 
 	private static int pngScreenshotCount = 0;
 	private static int pdfScreenshotCount = 0;
@@ -82,9 +74,7 @@ public class Chess_SP_2023 {
 
 		JMenuItem draw = new JMenuItem("Remiza");
 		game.add(draw);
-		draw.addActionListener(event -> {
-			chessBoard.setDraw(true);
-		});
+		draw.addActionListener(event -> chessBoard.setDraw(true));
 
 		//=============================== Graf menu ===============================
 		JMenu content = new JMenu("Zobrazit");
@@ -215,6 +205,9 @@ public class Chess_SP_2023 {
 		frame.setVisible(true);
 	}
 
+	/**
+	 * Prepne na sachovnici
+	 */
 	private static void getChessBoard() {
 		if (graphPanel != null) {
 			graphPanel.setVisible(false);
@@ -224,6 +217,9 @@ public class Chess_SP_2023 {
 		}
 	}
 
+	/**
+	 * Prepne na graf
+	 */
 	private static void getGraph() {
 		if (chessBoard != null) {
 			chessBoard.setVisible(false);
@@ -244,9 +240,14 @@ public class Chess_SP_2023 {
 			updateData(chessBoard.getWhitePlayTimes(), chessBoard.getBlackPlayTimes());
 			graphPanel.setVisible(true);
 			frame.add(graphPanel);
-	}
+		}
 	}
 
+	/**
+	 * Vytvori export okna do PNG
+	 *
+	 * @param frame zobrazene okno
+	 */
 	private static void exportToPng(JFrame frame) {
 		frame.getGraphics();
 		Container c = frame.getContentPane();
@@ -263,6 +264,11 @@ public class Chess_SP_2023 {
 		}
 	}
 
+	/**
+	 * Vytvori export okna do PDF
+	 *
+	 * @param frame zobrazene okno
+	 */
 	private static void exportToPdf(JFrame frame) {
 		PDFDocument pdf = new PDFDocument();
 		Container c = frame.getContentPane();
@@ -276,6 +282,11 @@ public class Chess_SP_2023 {
 		pdfScreenshotCount++;
 	}
 
+	/**
+	 * Vytvori export okna do SVG
+	 *
+	 * @param frame zobrazene okno
+	 */
 	private static void exportToSvg(JFrame frame) {
 		Container c = frame.getContentPane();
 		SVGGraphics2D g2 = new SVGGraphics2D(c.getWidth(), c.getHeight());
@@ -292,6 +303,11 @@ public class Chess_SP_2023 {
 		}
 	}
 
+	/**
+	 * Vytvori graf s doboami odehrani tahu
+	 *
+	 * @return graf
+	 */
 	public static JPanel getTimeSeriesChartExample() {
 		// Vytvoření seznamu pro hráče 1 a hráče 2 s předanými hodnotami
 		List<Double> player1Data = chessBoard.getWhitePlayTimes();
@@ -354,6 +370,12 @@ public class Chess_SP_2023 {
 		return panel;
 	}
 
+	/**
+	 * Aktualizuje data grafu
+	 *
+	 * @param player1Data casy odehrani tahu pro hrace 1
+	 * @param player2Data casy odehrani tahu pro hrace 2
+	 */
 	public static void updateData(List<Double> player1Data, List<Double> player2Data) {
 		// Aktualizace datových sad
 		player1Series.clear();

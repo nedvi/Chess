@@ -5,8 +5,8 @@ import java.awt.geom.Path2D;
 /**
  * Trida reprezentujici zaklad kazde figurky
  *
- * @author Dominik Nedved, A22B0109P
- * @version 07.05.2023
+ * @author Dominik Nedved
+ * @version 28.05.2023
  */
 public abstract class APiece extends JPanel {
 
@@ -61,11 +61,7 @@ public abstract class APiece extends JPanel {
     private boolean promoted = false;
 
     private boolean castling = false;
-    private boolean castlingRight = false;
-    private boolean castlingLeft = false;
 
-    private int potentialRow;
-    private int potentialCol;
     //======================================== Konstruktory ========================================
 
     /**
@@ -240,24 +236,8 @@ public abstract class APiece extends JPanel {
         return promoted;
     }
 
-//    public boolean isCastlingRight() {
-//        return castlingRight;
-//    }
-//
-//    public boolean isCastlingLeft() {
-//        return castlingLeft;
-//    }
-
     public boolean isCastling() {
         return castling;
-    }
-
-    public int getPotentialRow() {
-        return potentialRow;
-    }
-
-    public int getPotentialCol() {
-        return potentialCol;
     }
 
     public boolean isWasInCheck() {
@@ -347,24 +327,8 @@ public abstract class APiece extends JPanel {
         this.promoted = promoted;
     }
 
-//    public void setCastlingRight(boolean castlingRight) {
-//        this.castlingRight = castlingRight;
-//    }
-//
-//    public void setCastlingLeft(boolean castlingLeft) {
-//        this.castlingLeft = castlingLeft;
-//    }
-
     public void setCastling(boolean castling) {
         this.castling = castling;
-    }
-
-    public void setPotentialRow(int potentialRow) {
-        this.potentialRow = potentialRow;
-    }
-
-    public void setPotentialCol(int potentialCol) {
-        this.potentialCol = potentialCol;
     }
 
     public void setWasInCheck(boolean wasInCheck) {

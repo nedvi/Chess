@@ -3,7 +3,7 @@ import java.awt.geom.Path2D;
 /**
  * Trida reprezentujici figurku krale
  *
- * @author Dominik Nedved, A22B0109P
+ * @author Dominik Nedved
  * @version 07.05.2023
  */
 public class King extends APiece {

@@ -9,8 +9,8 @@ import java.util.List;
 /**
  * Trida reprezentujici sachovnici
  *
- * @author Dominik Nedved, A22B0109P
- * @version 07.05.2023
+ * @author Dominik Nedved
+ * @version 28.05.2023
  */
 public class ChessBoard extends JPanel {
 
@@ -29,7 +29,6 @@ public class ChessBoard extends JPanel {
 
     private boolean mouseWasReleased = false;
 
-    private long millisecStart;
     private boolean isNewAnimation = true;
 
     private Field lastMovedFrom;
@@ -47,11 +46,7 @@ public class ChessBoard extends JPanel {
 
     private boolean whitesTurn = true;
 
-    private boolean mouseMovedFunctionOn = true;
-
     private APiece castlingRook = null;
-
-    private APiece lastEliminatedPiece;
 
     private List<Double> whitePlayTimes;
     private List<Double> blackPlayTimes;
@@ -60,7 +55,6 @@ public class ChessBoard extends JPanel {
     private boolean isDraw;
 
     private long playTimeStart;
-    private long playTimeEnd;
 
     /** Velikost strany ctverce, jenz reprezentuje vizualizaci jednoho hraciho pole */
     private int rectSize;
@@ -200,7 +194,6 @@ public class ChessBoard extends JPanel {
         fieldBoard = new Field[8][8];
         isFirstLoad = true;
         focusedPiece = null;
-        int timerDelay = 25;
 
         // Osetreni repaintu pri actionPerformed.
         // Volani repaint() kdekoliv ve tride totiz jen dava pozadavek
@@ -252,9 +245,11 @@ public class ChessBoard extends JPanel {
         return allPieces;
     }
 
+    /**
+     * Animace pohybu
+     */
     private void animateMove() {
         if (isNewAnimation) {
-            millisecStart = System.currentTimeMillis();
             isNewAnimation = false;
             validMoves = null;
         }
@@ -282,18 +277,14 @@ public class ChessBoard extends JPanel {
             isMoving = false;
             moveStep = 0;
             this.focusedPiece = null;   // obstara odebrani focusu po pusteni mysi
-            long millisecEnd = System.currentTimeMillis();
 
-            playTimeEnd = System.currentTimeMillis();
+            long playTimeEnd = System.currentTimeMillis();
 
             long lastPlayTime = (playTimeEnd - playTimeStart);
 
             double lastPlayTimeInSecond = (double) lastPlayTime / 1000;
 
             if (whitesTurn) {
-//                if (whitePlayTimes.size() == 0) {
-//                    whitePlayTimes.add(lastPlayTime);
-//                }
                 blackPlayTimes.add(lastPlayTimeInSecond);
             } else {
                 whitePlayTimes.add(lastPlayTimeInSecond);
@@ -301,19 +292,9 @@ public class ChessBoard extends JPanel {
 
             playTimeStart = System.currentTimeMillis();
             isNewAnimation = true;
-            mouseMovedFunctionOn = true;
             validMoves = null;
             castlingRook = null;
             checkFields = null;
-
-            // vypis obsazenosti pole (pro testovani)
-            for (int i = 0; i < 8; i++) {
-                for (int j = 0; j < 8; j++) {
-                    System.out.print((fieldBoard[i][j].getPiece() != null) + "\t");
-                }
-                System.out.println();
-            }
-            System.out.println();
         }
     }
 
@@ -741,7 +722,6 @@ public class ChessBoard extends JPanel {
             if (enPassantPiece.isEnPassant()) {
                 if (enPassantPiece.isWhite() != piece.isWhite() && enPassantPiece.getColumn() == piece.getColumn()) {
                     eliminatedPieces.add(enPassantPiece);
-                    lastEliminatedPiece = enPassantPiece;
                     enPassantPiece.getField().setPiece(null);
                     pawns.remove(enPassantPiece);
                     enPassantDone = true;
@@ -754,7 +734,6 @@ public class ChessBoard extends JPanel {
                 if (!pawn.wasEnPassantAlready()) {
                     pawn.setWasEnPassantAlready(true);
                 } else if (pawn.wasEnPassantAlready()) {
-                    System.out.println("EnPassant no more");
                     pawn.setEnPassant(false);
                 }
             }
@@ -764,7 +743,6 @@ public class ChessBoard extends JPanel {
             if (otherPiece.isPieceHit(sX, sY) && !otherPiece.equals(piece)) {
                 if (otherPiece.isWhite() != isWhitePiece) {
                     eliminatedPieces.add(otherPiece);
-                    lastEliminatedPiece = otherPiece;
                     if (pawns.contains(otherPiece) ) {
                         pawns.remove(otherPiece);
                     } else if (rooks.contains(otherPiece)) {
@@ -793,7 +771,6 @@ public class ChessBoard extends JPanel {
             if (king.isPieceHit(sX, sY) && !king.equals(piece)) {   // pokud je zasazen jiny pesak a zaroven neni roven sam sobe
                 if (king.isWhite() != isWhitePiece) {
                     eliminatedPieces.add(king);
-                    lastEliminatedPiece = king;
                     kingIterator.remove();
                     gameOver(king, false);
                 } else {
@@ -856,7 +833,6 @@ public class ChessBoard extends JPanel {
      * @param focusedPiece zamerena figurka
      */
     public void mouseDragged(MouseEvent e, APiece focusedPiece) {
-        mouseMovedFunctionOn = false;
         if ((focusedPiece.isWhite() && whitesTurn) || (!focusedPiece.isWhite() && !whitesTurn)) {
             focusedPiece.setPieceColor(Color.RED);
             focusedPiece.moveTo(e.getX(), e.getY());
@@ -877,8 +853,8 @@ public class ChessBoard extends JPanel {
     public void mouseReleased(MouseEvent e, APiece focusedPiece) {
         if ((focusedPiece.isWhite() && whitesTurn) || (!focusedPiece.isWhite() && !whitesTurn)) {
 
-            int oldFocusedPieceRow = 0;
-            int oldFocusedPieceColumn = 0;
+            int oldFocusedPieceRow;
+            int oldFocusedPieceColumn;
 
 
 
@@ -931,18 +907,9 @@ public class ChessBoard extends JPanel {
                             testedKing = getWhiteKing();
                         else testedKing = getBlackKing();
 
-
-                        String nowPlaying;
-                        if (whitesTurn) {
-                            nowPlaying = "bileho hrace je ";
-                        } else {
-                            nowPlaying = "cerneho hrace je ";
-                        }
                         setAllValidMovesForCurrentPlayer();
-                        System.out.println("Pocet moznych pohybu pro " + nowPlaying + allValidMovesForCurrentPlayer.size());
 
                         if (testedKing.isInCheck() && allValidMovesForCurrentPlayer.size() == 0) {
-                            System.out.println("Sach mat!");
                             gameOver((King) testedKing, false);
                             allValidMovesForCurrentPlayer = null;
                             break loopStart;
@@ -963,6 +930,9 @@ public class ChessBoard extends JPanel {
         }
     }
 
+    /**
+     * teoreticky zkontroluje validitu pohybu
+     */
     public boolean isValidMove(APiece focusedPiece, int row, int column, int  oldFocusedPieceRow, int oldFocusedPieceColumn) {
 
         APiece pieceOnField = null;
@@ -974,7 +944,6 @@ public class ChessBoard extends JPanel {
         focusedPiece.setColumn(column);
         focusedPiece.setField(fieldBoard[row][column]);
 
-//        eliminate(focusedPiece, oldFocusedPieceRow, oldFocusedPieceColumn);
 
         fieldBoard[oldFocusedPieceRow][oldFocusedPieceColumn].setPiece(null);   // nastaveni stare bunky na prazdnou
         fieldUpdate(focusedPiece);
@@ -1000,17 +969,6 @@ public class ChessBoard extends JPanel {
                     fieldBoard[row][column].setPiece(null);   // nastaveni stare bunky na prazdnou
                 }
                 fieldUpdate(focusedPiece);
-//                if (lastEliminatedPiece != null) {
-//                    switch (lastEliminatedPiece.getClass().getSimpleName()) {
-//                        case "Pawn" -> pawns.add((Pawn) lastEliminatedPiece);
-//                        case "Rook" -> rooks.add((Rook) lastEliminatedPiece);
-//                        case "Knight" -> knights.add((Knight) lastEliminatedPiece);
-//                        case "Bishop" -> bishops.add((Bishop) lastEliminatedPiece);
-//                        case "Queen" -> queens.add((Queen) lastEliminatedPiece);
-//                        case "King" -> kings.add((King) lastEliminatedPiece);
-//                    }
-//                    eliminatedPieces.remove(lastEliminatedPiece);
-//                }
                 return false;
 
             } else if (wouldBeInCheck(testedKing)) {
@@ -1064,20 +1022,14 @@ public class ChessBoard extends JPanel {
         }
     }
 
+    /**
+     * Zkontroluje, jestli po odehrani soupere neni kral v sachu
+     */
     public boolean isInCheck(APiece focusedPiece) {
         getValidMovesForPiece(focusedPiece);
         for (Field field : validMoves) {
             APiece piece = field.getPiece();
             if (piece != null && piece.getClass().getSimpleName().equals("King")) {
-
-                String kingColor;
-
-                if (piece.isWhite())
-                    kingColor = "bileho!";
-                else
-                    kingColor = "cerneho!";
-
-                System.out.println("Sach na " + kingColor + "od figurky " + focusedPiece.getClass().getSimpleName() + "!");
 
                 if (!field.getPiece().isWasInCheck()) {
                     field.getPiece().setWasInCheck(true);
@@ -1090,6 +1042,9 @@ public class ChessBoard extends JPanel {
         return false;
     }
 
+    /**
+     * Teoreticky zkontroluje, zda by byl po danem tahu kral v sachu
+     */
     public boolean wouldBeInCheck(APiece king) {
         if (getCheckFields(king).contains(king.getField())) {
             return true;
@@ -1115,7 +1070,6 @@ public class ChessBoard extends JPanel {
             pieceOnField = fieldBoard[row][column].getPiece();
         }
 
-//        validMoves = null;
         focusedPiece.moveTo(
                 focusedRectangle.getX() + getRectSize() / 2.0,
                 focusedRectangle.getY() + getRectSize() / 2.0);
@@ -1178,10 +1132,7 @@ public class ChessBoard extends JPanel {
 
         isInCheck(focusedPiece);
 
-
-
         if (wouldBeInCheck(testedKing)) {
-            //======================================= Pohyb z sachu do sachu =======================================
             if (testedKing.isInCheck() && testedKing.isWasInCheck()) {
                 focusedPiece.moveTo(
                         rectBoard[oldFocusedPieceRow][oldFocusedPieceColumn].getX() + getRectSize() / 2.0,
@@ -1196,17 +1147,6 @@ public class ChessBoard extends JPanel {
                     fieldBoard[row][column].setPiece(null);   // nastaveni stare bunky na prazdnou
                 }
                 fieldUpdate(focusedPiece);
-//                if (lastEliminatedPiece != null) {
-//                    switch (lastEliminatedPiece.getClass().getSimpleName()) {
-//                        case "Pawn" -> pawns.add((Pawn) lastEliminatedPiece);
-//                        case "Rook" -> rooks.add((Rook) lastEliminatedPiece);
-//                        case "Knight" -> knights.add((Knight) lastEliminatedPiece);
-//                        case "Bishop" -> bishops.add((Bishop) lastEliminatedPiece);
-//                        case "Queen" -> queens.add((Queen) lastEliminatedPiece);
-//                        case "King" -> kings.add((King) lastEliminatedPiece);
-//                    }
-//                    eliminatedPieces.remove(lastEliminatedPiece);
-//                }
 
             } else if (wouldBeInCheck(testedKing)) {
                 focusedPiece.moveTo(
@@ -1223,18 +1163,11 @@ public class ChessBoard extends JPanel {
                 }
                 fieldUpdate(focusedPiece);
             }
-            //======================================= Kdyz je move krale validni =======================================
             else {
-//                String kingColor = null;
-//                if (focusedPiece.isWhite())
-//                    kingColor = "bileho!";
-//                else kingColor = "cerneho!";
-//                System.out.println("Sach na " + kingColor);
                 focusedPiece.setInCheck(false);
 
                 focusedPiece.setMovedAlready(true);
 
-//                eliminate(focusedPiece, oldFocusedPieceRow, oldFocusedPieceColumn);
 
                 targetX = (int) focusedPiece.getsX();
                 targetY = (int) focusedPiece.getsY();
@@ -1265,8 +1198,6 @@ public class ChessBoard extends JPanel {
 
             focusedPiece.setMovedAlready(true);
 
-
-
             targetX = (int) focusedPiece.getsX();
             targetY = (int) focusedPiece.getsY();
             moveStep = 1;
@@ -1294,6 +1225,9 @@ public class ChessBoard extends JPanel {
         }
     }
 
+    /**
+     * Vrati vsechna pole, kde by byl kral v sachu
+     */
     public List<Field> getCheckFields(APiece king) {
 
         checkFields = new ArrayList<>();
@@ -1304,7 +1238,9 @@ public class ChessBoard extends JPanel {
         return checkFields;
     }
 
-
+    /**
+     * Aktualizuje seznam vsech poli, kde by byl kral v sachu
+     */
     public void getAllCheckPositions(APiece king) {
         checkPositions = new ArrayList<>();
         for (APiece piece : getAllPieces()) {
@@ -1408,6 +1344,10 @@ public class ChessBoard extends JPanel {
         }
     }
 
+    /**
+     * Aktualizuje validni pohyb pro figurku
+     * @param piece
+     */
     public void getValidMovesForPiece(APiece piece) {
         validMoves = new ArrayList<>();
         switch (piece.getClass().getSimpleName()) {
@@ -1468,6 +1408,9 @@ public class ChessBoard extends JPanel {
         }
     }
 
+    /**
+     * Aktualizuje vsechny validni pohyby pro aktualniho hrace
+     */
     public void setAllValidMovesForCurrentPlayer() {
         allValidMovesForCurrentPlayer = new ArrayList<>();
 
@@ -1534,6 +1477,9 @@ public class ChessBoard extends JPanel {
     }
 
 
+    /**
+     * Aktualizuje vsechny pohyby pro figurku a provede vybrany
+     */
     public void getValidMovesAndMakeOne(APiece piece) {
         validMoves = new ArrayList<>();
 
@@ -1595,6 +1541,9 @@ public class ChessBoard extends JPanel {
         }
     }
 
+    /**
+     * Kontrola patove situace
+     */
     private boolean isPat() {
         // Kontrola patu
         APiece whiteKing;
@@ -1767,10 +1716,6 @@ public class ChessBoard extends JPanel {
         return fieldBoard;
     }
 
-    public APiece getCastlingRook() {
-        return castlingRook;
-    }
-
     public APiece getWhiteKing() {
         if (kings.get(0).isWhite()) {
             return kings.get(0);
@@ -1783,17 +1728,6 @@ public class ChessBoard extends JPanel {
         } else return kings.get(0);
     }
 
-    public APiece getWhiteQueen() {
-        if (queens.get(0).isWhite()) {
-            return queens.get(0);
-        } else return queens.get(1);
-    }
-
-    public APiece getBlackQueen() {
-        if (queens.get(0).isWhite()) {
-            return queens.get(1);
-        } else return queens.get(0);
-    }
     public void setCastlingRook(APiece castlingRook) {
         this.castlingRook = castlingRook;
     }
