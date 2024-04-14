@@ -1,0 +1,1 @@
+javac -d .\bin\ -cp lib\jfreechart-1.5.4.jar;lib\org.jfree.pdf-2.0.1.jar;lib\org.jfree.svg-5.0.5.jar; src\*.java
