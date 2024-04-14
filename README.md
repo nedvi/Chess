@@ -4,6 +4,7 @@
 * Hra podle kompletních pravidel
 * Po nakliknutí figurky se zobrazují možné tahy
 * Zobrazení posledního tahu protihráče
+* Zobrazení vyhozených figurek
 * Graf s časy odehraných tahů hráčů
 * Možnost exportu aktuálního stavu šachovnice do PNG, SVG nebo PDF
 * Pouze režim hráč vs. hráč
